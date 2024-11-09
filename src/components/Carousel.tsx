@@ -10,7 +10,7 @@ const Carousel: React.FC<CarouselProps> = ({ images }) => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => 
+      setCurrentImageIndex((prevIndex) =>
         prevIndex === images.length - 1 ? 0 : prevIndex + 1
       );
     }, 5000);
@@ -25,7 +25,6 @@ const Carousel: React.FC<CarouselProps> = ({ images }) => {
           if (entry.isIntersecting) {
             const img = entry.target as HTMLImageElement;
             img.src = img.dataset.src!;
-            img.srcset = img.dataset.srcset!;
             observer.unobserve(img);
           }
         });
@@ -50,8 +49,7 @@ const Carousel: React.FC<CarouselProps> = ({ images }) => {
         >
           <img
             data-src={image}
-            data-srcset={`${image} 1x, ${image.replace('.jpg', '.webp')} 2x`}
-            sizes="(max-width: 600px) 480px, 800px"
+            src={image} // Add initial src for immediate loading
             alt={`Slide ${index + 1}`}
             className="w-full h-full object-cover"
             loading="lazy"
