@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Code, ExternalLink } from 'lucide-react';
+import { Code } from 'lucide-react';
 // Assuming a Carousel component is available for import
 import Carousel from './Carousel';
 
@@ -66,15 +66,6 @@ export function CreativeCoding() {
           <Code className="w-6 h-6 text-primary" />
           <h2 className="text-2xl font-serif">Creative Coding Portfolio</h2>
         </div>
-        <a
-          href="https://yourportfolio.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors"
-        >
-          View Full Portfolio
-          <ExternalLink className="w-4 h-4" />
-        </a>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

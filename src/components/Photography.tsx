@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Camera, ExternalLink } from 'lucide-react';
+import { Camera } from 'lucide-react';
 import Carousel from './Carousel';
 
 export function Photography() {
@@ -8,107 +8,107 @@ export function Photography() {
     {
       title: "Astrophotography",
       images: [
-        "/photography/Astrophotography/_DSC3965-Edit-Edit_1.jpg",
-        "/photography/Astrophotography/_JOV5275.jpg"
+        "/photography/Astrophotography/_DSC3965-Edit-Edit_1.webp",
+        "/photography/Astrophotography/_JOV5275.webp"
       ],
       description: "Capturing the beauty of the night sky."
     },
     {
       title: "Infrared",
       images: [
-        "/photography/Infrared/_DSC1389_1.jpg",
-        "/photography/Infrared/_DSC4083-Recovered.jpg",
-        "/photography/Infrared/_DSC4084-Edit.jpg",
-        "/photography/Infrared/_DSC4957.jpg",
-        "/photography/Infrared/_DSC6812.jpg",
-        "/photography/Infrared/_DSC7116.jpg",
-        "/photography/Infrared/DSC00476-Pano_1.jpg"
+        "/photography/Infrared/_DSC1389_1.webp",
+        "/photography/Infrared/_DSC4083-Recovered.webp",
+        "/photography/Infrared/_DSC4084-Edit.webp",
+        "/photography/Infrared/_DSC4957.webp",
+        "/photography/Infrared/_DSC6812.webp",
+        "/photography/Infrared/_DSC7116.webp",
+        "/photography/Infrared/DSC00476-Pano_1.webp"
       ],
       description: "Exploring the world in infrared."
     },
     {
       title: "Landscapes",
       images: [
-        "/photography/Landscapes/_DSC2202.jpg",
-        "/photography/Landscapes/_JOV1325.jpg",
-        "/photography/Landscapes/_MG_0010_001.jpg",
-        "/photography/Landscapes/2016_Alimuom.jpg",
-        "/photography/Landscapes/DSC01397_1.jpg",
-        "/photography/Landscapes/DSC08476-Pano.jpg",
-        "/photography/Landscapes/DSC09027.jpg",
-        "/photography/Landscapes/DSC09556.jpg",
-        "/photography/Landscapes/Swan Lake1-12.jpg"
+        "/photography/Landscapes/_DSC2202.webp",
+        "/photography/Landscapes/_JOV1325.webp",
+        "/photography/Landscapes/_MG_0010_001.webp",
+        "/photography/Landscapes/2016_Alimuom.webp",
+        "/photography/Landscapes/DSC01397_1.webp",
+        "/photography/Landscapes/DSC08476-Pano.webp",
+        "/photography/Landscapes/DSC09027.webp",
+        "/photography/Landscapes/DSC09556.webp",
+        "/photography/Landscapes/Swan Lake1-12.webp"
       ],
       description: "Scenic views from around the world."
     },
     {
       title: "Minimalism",
       images: [
-        "/photography/Minimalism/_DSC7125.jpg",
-        "/photography/Minimalism/_DSC7195_3.jpg",
-        "/photography/Minimalism/_DSC7238_1_001.jpg",
-        "/photography/Minimalism/DSC02609.jpg",
-        "/photography/Minimalism/DSC06181.jpg",
-        "/photography/Minimalism/DSC06234.jpg",
-        "/photography/Minimalism/DSC08217 1.jpg",
-        "/photography/Minimalism/DSC08818.jpg"
+        "/photography/Minimalism/_DSC7125.webp",
+        "/photography/Minimalism/_DSC7195_3.webp",
+        "/photography/Minimalism/_DSC7238_1_001.webp",
+        "/photography/Minimalism/DSC02609.webp",
+        "/photography/Minimalism/DSC06181.webp",
+        "/photography/Minimalism/DSC06234.webp",
+        "/photography/Minimalism/DSC08217 1.webp",
+        "/photography/Minimalism/DSC08818.webp"
       ],
       description: "The art of simplicity."
     },
     {
       title: "Series",
       images: [
-        "/photography/Series/Nanay/_DSC4989.jpg",
-        "/photography/Series/Nanay/_DSC4995.jpg",
-        "/photography/Series/Nanay/_DSC5000.jpg",
-        "/photography/Series/Nanay/_DSC5019.jpg",
-        "/photography/Series/Nanay/_DSC5395.jpg",
-        "/photography/Series/Nanay/_DSC5654.jpg",
-        "/photography/Series/Nanay/_DSC5753.jpg",
-        "/photography/Series/Nanay/_DSC5883.jpg",
-        "/photography/Series/Nanay/_DSC5898.jpg",
-        "/photography/Series/Nanay/_DSC5923.jpg",
-        "/photography/Series/Rooftop/DSC00387.jpg",
-        "/photography/Series/Rooftop/DSC01731.jpg",
-        "/photography/Series/Rooftop/DSC03333.jpg",
-        "/photography/Series/Rooftop/DSC03476 Panorama.jpg",
-        "/photography/Series/Rooftop/DSC04119.jpg",
-        "/photography/Series/Rooftop/DSC04292-Pano.jpg",
-        "/photography/Series/Rooftop/DSC05648.jpg",
-        "/photography/Series/Rooftop/DSC06151.jpg",
-        "/photography/Series/Rooftop/DSC06199.jpg",
-        "/photography/Series/Rooftop/DSC06215-Edit.jpg",
-        "/photography/Series/Rooftop/DSC07099.jpg",
-        "/photography/Series/Rooftop/DSC09614.jpg",
-        "/photography/Series/Rooftop/DSC09835.jpg",
-        "/photography/Series/Rooftop/StarStaX_DSC06571-DSC06634_gap_filling_00000063.jpg",
-        "/photography/Series/Tekkadan/DSC09325.jpg",
-        "/photography/Series/Tekkadan/DSC09334.jpg",
-        "/photography/Series/Tekkadan/DSC09336.jpg",
-        "/photography/Series/Tekkadan/DSC09337.jpg",
-        "/photography/Series/Tekkadan/DSC09338.jpg",
-        "/photography/Series/Tekkadan/DSC09339.jpg"
+        "/photography/Series/Nanay/_DSC4989.webp",
+        "/photography/Series/Nanay/_DSC4995.webp",
+        "/photography/Series/Nanay/_DSC5000.webp",
+        "/photography/Series/Nanay/_DSC5019.webp",
+        "/photography/Series/Nanay/_DSC5395.webp",
+        "/photography/Series/Nanay/_DSC5654.webp",
+        "/photography/Series/Nanay/_DSC5753.webp",
+        "/photography/Series/Nanay/_DSC5883.webp",
+        "/photography/Series/Nanay/_DSC5898.webp",
+        "/photography/Series/Nanay/_DSC5923.webp",
+        "/photography/Series/Rooftop/DSC00387.webp",
+        "/photography/Series/Rooftop/DSC01731.webp",
+        "/photography/Series/Rooftop/DSC03333.webp",
+        "/photography/Series/Rooftop/DSC03476 Panorama.webp",
+        "/photography/Series/Rooftop/DSC04119.webp",
+        "/photography/Series/Rooftop/DSC04292-Pano.webp",
+        "/photography/Series/Rooftop/DSC05648.webp",
+        "/photography/Series/Rooftop/DSC06151.webp",
+        "/photography/Series/Rooftop/DSC06199.webp",
+        "/photography/Series/Rooftop/DSC06215-Edit.webp",
+        "/photography/Series/Rooftop/DSC07099.webp",
+        "/photography/Series/Rooftop/DSC09614.webp",
+        "/photography/Series/Rooftop/DSC09835.webp",
+        "/photography/Series/Rooftop/StarStaX_DSC06571-DSC06634_gap_filling_00000063.webp",
+        "/photography/Series/Tekkadan/DSC09325.webp",
+        "/photography/Series/Tekkadan/DSC09334.webp",
+        "/photography/Series/Tekkadan/DSC09336.webp",
+        "/photography/Series/Tekkadan/DSC09337.webp",
+        "/photography/Series/Tekkadan/DSC09338.webp",
+        "/photography/Series/Tekkadan/DSC09339.webp"
       ],
       description: "A collection of themed series."
     },
     {
       title: "Street",
       images: [
-        "/photography/Street/_DSC0779.jpg",
-        "/photography/Street/_DSC0811.jpg",
-        "/photography/Street/_DSC1828_1.jpg",
-        "/photography/Street/_DSC2191.jpg",
-        "/photography/Street/_DSC2642.jpg",
-        "/photography/Street/_DSC2716.jpg",
-        "/photography/Street/_DSC6326.jpg",
-        "/photography/Street/_DSC6877.jpg",
-        "/photography/Street/_JOV0537.jpg",
-        "/photography/Street/DSC00419.jpg",
-        "/photography/Street/DSC04867.jpg",
-        "/photography/Street/DSC07748 2.jpg",
-        "/photography/Street/DSC08080.jpg",
-        "/photography/Street/DSC09488.jpg",
-        "/photography/Street/DSC09965.jpg"
+        "/photography/Street/_DSC0779.webp",
+        "/photography/Street/_DSC0811.webp",
+        "/photography/Street/_DSC1828_1.webp",
+        "/photography/Street/_DSC2191.webp",
+        "/photography/Street/_DSC2642.webp",
+        "/photography/Street/_DSC2716.webp",
+        "/photography/Street/_DSC6326.webp",
+        "/photography/Street/_DSC6877.webp",
+        "/photography/Street/_JOV0537.webp",
+        "/photography/Street/DSC00419.webp",
+        "/photography/Street/DSC04867.webp",
+        "/photography/Street/DSC07748 2.webp",
+        "/photography/Street/DSC08080.webp",
+        "/photography/Street/DSC09488.webp",
+        "/photography/Street/DSC09965.webp"
       ],
       description: "Capturing the essence of urban life."
     }
@@ -126,15 +126,6 @@ export function Photography() {
           <Camera className="w-6 h-6 text-primary" />
           <h2 className="text-2xl font-serif">Photography Portfolio</h2>
         </div>
-        <a
-          href="https://yourportfolio.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors"
-        >
-          View Full Portfolio
-          <ExternalLink className="w-4 h-4" />
-        </a>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
