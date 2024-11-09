@@ -9,9 +9,9 @@ export function About() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      <h2 className="text-2xl font-serif mb-4">About Me</h2>
+      <h2 className="text-2xl font-serif mb-4">Hi there!</h2>
       <p className="text-muted-foreground leading-relaxed mb-4">
-        Hello! I am a Ph.D. candidate in materials science, deeply engaged in both the simulation of materials and the experimental synthesis of nanoparticles. My research primarily focuses on synthesizing gold, silver, and iron oxide nanostructures for spectroscopic applications, where I also simulate plasmons to understand their behavior and potential applications.
+        I am a Ph.D. candidate in materials science, deeply engaged in both the simulation of materials and the experimental synthesis of nanoparticles. My research primarily focuses on synthesizing gold, silver, and iron oxide nanostructures for spectroscopic applications, where I also simulate plasmons to understand their behavior and potential applications.
       </p>
       <p className="text-muted-foreground leading-relaxed mb-4">
         In my quest to advance materials design and property prediction, I am exploring computational methods such as Bayesian optimization and machine learning. These cutting-edge techniques offer promising avenues for innovation in materials science, enabling more efficient and accurate predictions of material properties.

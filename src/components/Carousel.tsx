@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 interface CarouselProps {
   images: string[];
@@ -6,6 +6,7 @@ interface CarouselProps {
 
 const Carousel: React.FC<CarouselProps> = ({ images }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const carouselRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -17,8 +18,29 @@ const Carousel: React.FC<CarouselProps> = ({ images }) => {
     return () => clearInterval(interval);
   }, [images.length]);
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const img = entry.target as HTMLImageElement;
+            img.src = img.dataset.src!;
+            img.srcset = img.dataset.srcset!;
+            observer.unobserve(img);
+          }
+        });
+      },
+      { rootMargin: '0px 0px 200px 0px' }
+    );
+
+    const images = carouselRef.current?.querySelectorAll('img[data-src]') || [];
+    images.forEach((img) => observer.observe(img));
+
+    return () => observer.disconnect();
+  }, [currentImageIndex]);
+
   return (
-    <div className="relative w-full h-full overflow-hidden">
+    <div ref={carouselRef} className="relative w-full h-full overflow-hidden">
       {images.map((image, index) => (
         <div
           key={index}
@@ -27,9 +49,14 @@ const Carousel: React.FC<CarouselProps> = ({ images }) => {
           }`}
         >
           <img
-            src={image}
+            data-src={image}
+            data-srcset={`${image} 1x, ${image.replace('.jpg', '.webp')} 2x`}
+            sizes="(max-width: 600px) 480px, 800px"
             alt={`Slide ${index + 1}`}
             className="w-full h-full object-cover"
+            loading="lazy"
+            width="800"
+            height="600"
           />
         </div>
       ))}
