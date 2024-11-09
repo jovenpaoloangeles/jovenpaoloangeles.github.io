@@ -1,9 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Camera } from 'lucide-react';
 import Carousel from './Carousel';
+import { FullscreenViewer } from './FullscreenViewer';
 
 export function Photography() {
+  // State for fullscreen viewer
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
+  const [currentCategory, setCurrentCategory] = useState<number | null>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
   const categories = [
     {
       title: "Astrophotography",
@@ -71,7 +77,6 @@ export function Photography() {
         "/photography/Series/Rooftop/DSC00387.webp",
         "/photography/Series/Rooftop/DSC01731.webp",
         "/photography/Series/Rooftop/DSC03333.webp",
-        "/photography/Series/Rooftop/DSC03476 Panorama.webp",
         "/photography/Series/Rooftop/DSC04119.webp",
         "/photography/Series/Rooftop/DSC04292-Pano.webp",
         "/photography/Series/Rooftop/DSC05648.webp",
@@ -114,6 +119,24 @@ export function Photography() {
     }
   ];
 
+  // Handle opening the viewer
+  const handleImageClick = (categoryIndex: number, imageIndex: number) => {
+    setCurrentCategory(categoryIndex);
+    setCurrentImageIndex(imageIndex);
+    setIsViewerOpen(true);
+  };
+
+  // Handle closing the viewer
+  const handleCloseViewer = () => {
+    setIsViewerOpen(false);
+    setCurrentCategory(null);
+  };
+
+  // Handle image navigation
+  const handleNavigate = (newIndex: number) => {
+    setCurrentImageIndex(newIndex);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -129,13 +152,14 @@ export function Photography() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-        {categories.map((category, index) => (
+        {categories.map((category, categoryIndex) => (
           <motion.div
-            key={index}
+            key={categoryIndex}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-            className="group relative overflow-hidden rounded-xl bg-gray-100 aspect-[4/3]"
+            transition={{ duration: 0.5, delay: categoryIndex * 0.1 }}
+            className="group relative overflow-hidden rounded-xl bg-gray-100 aspect-[4/3] cursor-pointer"
+            onClick={() => handleImageClick(categoryIndex, 0)}
           >
             <Carousel images={category.images} />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -147,6 +171,17 @@ export function Photography() {
           </motion.div>
         ))}
       </div>
+
+      {/* Fullscreen Viewer */}
+      {currentCategory !== null && (
+        <FullscreenViewer
+          images={categories[currentCategory].images}
+          currentIndex={currentImageIndex}
+          isOpen={isViewerOpen}
+          onClose={handleCloseViewer}
+          onNavigate={handleNavigate}
+        />
+      )}
 
       <div className="text-center">
         <p className="text-muted-foreground text-sm">

@@ -1,10 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Code } from 'lucide-react';
-// Assuming a Carousel component is available for import
 import Carousel from './Carousel';
+import { FullscreenViewer } from './FullscreenViewer';
 
 export function CreativeCoding() {
+  // State for fullscreen viewer
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
+  const [currentProject, setCurrentProject] = useState<number | null>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
   const projects = [
     {
       title: 'FloraWeave',
@@ -54,6 +59,24 @@ export function CreativeCoding() {
     }
   ];
 
+  // Handle opening the viewer
+  const handleImageClick = (projectIndex: number, imageIndex: number) => {
+    setCurrentProject(projectIndex);
+    setCurrentImageIndex(imageIndex);
+    setIsViewerOpen(true);
+  };
+
+  // Handle closing the viewer
+  const handleCloseViewer = () => {
+    setIsViewerOpen(false);
+    setCurrentProject(null);
+  };
+
+  // Handle image navigation
+  const handleNavigate = (newIndex: number) => {
+    setCurrentImageIndex(newIndex);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -69,13 +92,14 @@ export function CreativeCoding() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {projects.map((project, index) => (
+        {projects.map((project, projectIndex) => (
           <motion.div
-            key={index}
+            key={projectIndex}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-            className="group relative overflow-hidden rounded-xl bg-gray-100 aspect-[4/3]"
+            transition={{ duration: 0.5, delay: projectIndex * 0.1 }}
+            className="group relative overflow-hidden rounded-xl bg-gray-100 aspect-[4/3] cursor-pointer"
+            onClick={() => handleImageClick(projectIndex, 0)}
           >
             <Carousel images={project.images} />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -87,6 +111,17 @@ export function CreativeCoding() {
           </motion.div>
         ))}
       </div>
+
+      {/* Fullscreen Viewer */}
+      {currentProject !== null && (
+        <FullscreenViewer
+          images={projects[currentProject].images}
+          currentIndex={currentImageIndex}
+          isOpen={isViewerOpen}
+          onClose={handleCloseViewer}
+          onNavigate={handleNavigate}
+        />
+      )}
 
       <div className="text-center">
         <p className="text-muted-foreground text-sm">
