@@ -13,12 +13,11 @@ export function ResearchInterests() {
   return (
     <div className="space-y-2">
       <h3 className="font-semibold text-primary">Research Interests</h3>
-      <div className="text-sm text-muted-foreground">
+      <div className="flex flex-wrap justify-center gap-2 text-sm text-muted-foreground">
         {interests.map((interest, index) => (
-          <span key={index}>
-            <Badge>{interest}</Badge>
-            {index < interests.length - 1 && ' '}
-          </span>
+          <Badge key={index}>
+            {interest}
+          </Badge>
         ))}
       </div>
     </div>
