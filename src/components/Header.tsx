@@ -4,6 +4,7 @@ import { ContactInfo } from './ContactInfo';
 import { ResearchInterests } from './ResearchInterests';
 import { Education } from './Education';
 import { ProfileCarousel } from './ProfileCarousel';
+import { Certifications } from './Certifications';
 
 export function Header() {
   const handleDownloadCV = () => {
@@ -25,19 +26,14 @@ export function Header() {
           <MapPin className="w-4 h-4 text-primary" />
           <span className="text-sm text-muted-foreground">Quezon City, Philippines</span>
         </div>
-        <button
-          onClick={handleDownloadCV}
-          className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-        >
-          <Download className="w-4 h-4 mr-2" />
-          Download Academic CV
-        </button>
+
       </div>
 
       <div className="mt-6 space-y-6">
         <ContactInfo />
         <ResearchInterests />
         <Education />
+        <Certifications />
       </div>
     </div>
   );

@@ -77,22 +77,22 @@ export function Research() {
             
             <div className="mt-2 space-y-2">
               <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Calendar className="w-4 h-4 text-blue-500" />
+                <Calendar className="w-4 h-4 text-black" />
                 {exp.dateRange}
               </div>
               
               <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Award className="w-4 h-4 text-blue-500" />
+                <Award className="w-4 h-4 text-black" />
                 {exp.keyAchievements}
               </div>
               
               <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Wrench className="w-4 h-4 text-blue-500" />
+                <Wrench className="w-4 h-4 text-black" />
                 {exp.techniques}
               </div>
             </div>
 
-            <div className="mt-3 pl-4 border-l-2 border-blue-100">
+            <div className="mt-3 pl-4 border-l-2 border-black-100">
               <ul className="space-y-1">
                 {exp.details.map((detail, idx) => (
                   <li key={idx} className="text-sm text-gray-600">

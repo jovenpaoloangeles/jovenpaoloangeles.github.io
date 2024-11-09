@@ -97,7 +97,7 @@ export function Awards() {
         <AccordionItem value="academic" className="border rounded-lg">
           <AccordionTrigger className="px-4 py-2 hover:no-underline">
             <div className="flex items-center gap-2">
-              <Trophy className="w-5 h-5 text-blue-500" />
+              <Trophy className="w-5 h-5 text-black-500" />
               <span className="font-medium">Academic Awards</span>
             </div>
           </AccordionTrigger>
@@ -106,12 +106,12 @@ export function Awards() {
               {awards.academic.map((award, index) => (
                 <div key={index} className="bg-gray-50 p-4 rounded-lg">
                   <div className="flex items-start gap-3">
-                    <GraduationCap className="w-5 h-5 text-blue-500 mt-1" />
+                    <GraduationCap className="w-5 h-5 text-black-500 mt-1" />
                     <div>
                       <h4 className="font-medium text-gray-900">{award.title}</h4>
                       <p className="text-sm text-gray-600">{award.organization}</p>
                       {award.period && (
-                        <p className="text-sm text-blue-600">{award.period}</p>
+                        <p className="text-sm text-black-900">{award.period}</p>
                       )}
                       <p className="text-sm text-gray-500 mt-1">{award.description}</p>
                       {award.periods && (
@@ -132,7 +132,7 @@ export function Awards() {
         <AccordionItem value="photography" className="border rounded-lg">
           <AccordionTrigger className="px-4 py-2 hover:no-underline">
             <div className="flex items-center gap-2">
-              <Camera className="w-5 h-5 text-blue-500" />
+              <Camera className="w-5 h-5 text-black-500" />
               <span className="font-medium">Photography Awards</span>
             </div>
           </AccordionTrigger>

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
 const profileImages = [
-  "/profile-ascii.png",
-  "/profile-photo.png"
+  "/profile_pictures/profile-photo.jpg",
+  "/profile_pictures/profileart.png"
 ];
 
 export function ProfileCarousel() {
@@ -19,7 +19,7 @@ export function ProfileCarousel() {
   }, []);
 
   return (
-    <div className="relative w-32 h-32 mx-auto mb-4 rounded-full border-4 border-primary overflow-hidden">
+    <div className="relative w-40 h-40 mx-auto mb-4 rounded-full border-4 border-primary overflow-hidden">
       {profileImages.map((image, index) => (
         <div
           key={index}
