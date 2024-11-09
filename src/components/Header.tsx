@@ -21,14 +21,12 @@ export function Header() {
       <div className="text-center">
         <ProfileCarousel />
         <h1 className="text-3xl font-serif font-bold text-foreground">Joven Paolo Angeles</h1>
-        <p className="text-lg text-muted-foreground mt-1">Materials Science Researcher</p>
+        <p className="text-lg text-muted-foreground mt-1">PhD Candidate and Researcher</p>
         <div className="flex items-center justify-center gap-2 mt-2">
           <MapPin className="w-4 h-4 text-primary" />
-          <span className="text-sm text-muted-foreground">Quezon City, Philippines</span>
+          <span className="text-sm text-muted-foreground">University of the Philippines, Quezon City, Philippines</span>
         </div>
-
       </div>
-
       <div className="mt-6 space-y-6">
         <ContactInfo />
         <ResearchInterests />

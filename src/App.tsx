@@ -7,17 +7,20 @@ import { TechStack } from './components/TechStack';
 import { CreativeCoding } from './components/CreativeCoding';
 import { Photography } from './components/Photography';
 import { Awards } from './components/Awards';
+import { RecentActivities } from './components/RecentActivities';
+import { ConferenceAndProceedings } from './components/ConferenceAndProceedings';
 
 function App() {
   const [activeTab, setActiveTab] = useState('about');
 
   const tabs = [
     { value: 'about', label: 'About' },
+    { value: 'recent-activities', label: 'Recent Activities' },
     { value: 'research', label: 'Research' },
     { value: 'tech-stack', label: 'Tech Stack' },
     { value: 'creative-coding', label: 'Creative Coding' },
     { value: 'photography', label: 'Photography' },
-    { value: 'awards', label: 'Awards' },
+    { value: 'awards', label: 'Awards' }
   ];
 
   const renderContent = () => {
@@ -34,6 +37,8 @@ function App() {
         return <Photography />;
       case 'awards':
         return <Awards />;
+      case 'recent-activities':
+        return <RecentActivities />;
       default:
         return <About />;
     }

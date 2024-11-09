@@ -42,7 +42,9 @@ export function TechStack() {
       items: [
         { name: 'React', description: 'Frontend development', icon: 'react' },
         { name: 'Streamlit', description: 'Data apps', icon: 'streamlit' },
-        { name: 'Plotly', description: 'Interactive dashboards', icon: 'plotly' }
+        { name: 'Plotly', description: 'Interactive dashboards', icon: 'plotly' },
+        { name: 'Vite', description: 'Frontend build tool', icon: 'vite' }, // Assuming vite.svg exists
+        { name: 'TypeScript', description: 'Typed JavaScript', icon: 'typescript' } // Assuming typescript.svg exists
       ]
     },
     {
