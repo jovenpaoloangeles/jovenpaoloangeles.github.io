@@ -8,7 +8,7 @@ import { ACTIVITIES } from './activities-data';
 
 export function RecentActivities() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedType, setSelectedType] = useState<Activity['type'] | 'all'>('all');
+  const [selectedType, setSelectedType] = useState<Activity['type'][number] | 'all'>('all');
 
   const filteredActivities = useMemo(() => {
     return ACTIVITIES
@@ -18,7 +18,7 @@ export function RecentActivities() {
           activity.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
           activity.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
         );
-        const matchesType = selectedType === 'all' || activity.type === selectedType;
+        const matchesType = selectedType === 'all' || activity.type.includes(selectedType);
         return matchesSearch && matchesType;
       })
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
@@ -52,13 +52,14 @@ export function RecentActivities() {
           <select
             value={selectedType}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) => 
-              setSelectedType(e.target.value as Activity['type'] | 'all')}
+              setSelectedType(e.target.value as Activity['type'][number] | 'all')}
             className="p-2 border rounded-md"
           >
             <option value="all">All Types</option>
             <option value="blog">Blog Posts</option>
             <option value="research">Research Updates</option>
             <option value="achievement">Achievements</option>
+            <option value="photography">Photography</option>
           </select>
         </div>
 
@@ -68,9 +69,9 @@ export function RecentActivities() {
           </div>
         ) : (
           <div className="space-y-4">
-            {filteredActivities.map((activity) => (
+            {filteredActivities.map((activity, index) => (
               <ActivityCard
-                key={activity.id}
+                key={index}
                 activity={activity}
               />
             ))}

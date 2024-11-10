@@ -11,7 +11,7 @@ interface ActivityCardProps {
 
 export const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
   // Type-specific styling with consistent color scheme
-  const getTypeColor = (type: Activity['type']) => {
+  const getTypeColor = (type: Activity['type'][number]) => {
     switch (type) {
       case 'blog':
         return 'bg-blue-100 text-blue-800';
@@ -19,6 +19,8 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
         return 'bg-green-100 text-green-800';
       case 'achievement':
         return 'bg-purple-100 text-purple-800';
+      case 'photography':
+        return 'bg-yellow-100 text-yellow-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -38,14 +40,17 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
       <Card className="p-4 hover:shadow-lg transition-all duration-200">
         <div className="flex items-start justify-between">
           <div className="space-y-3 flex-1">
-            {/* Header with type badge and timestamp */}
+            {/* Header with type badges and timestamp */}
             <div className="flex items-center gap-2 flex-wrap">
-              <span 
-                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${getTypeColor(activity.type)}`}
-                role="status"
-              >
-                {activity.type.charAt(0).toUpperCase() + activity.type.slice(1)}
-              </span>
+              {activity.type.map((type) => (
+                <span 
+                  key={type}
+                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${getTypeColor(type)}`}
+                  role="status"
+                >
+                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                </span>
+              ))}
               <time 
                 className="flex items-center text-sm text-muted-foreground"
                 dateTime={activity.timestamp.toISOString()}

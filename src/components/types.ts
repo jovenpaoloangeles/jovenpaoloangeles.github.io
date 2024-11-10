@@ -1,8 +1,7 @@
 export interface Activity {
-  id: string;
   title: string;
   content: string;
   timestamp: Date;
-  type: 'blog' | 'research' | 'achievement';
+  type: ('blog' | 'research' | 'achievement' | 'photography')[];
   tags: string[];
 }
