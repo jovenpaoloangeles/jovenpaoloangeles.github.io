@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Clock } from 'lucide-react';
 import { Card } from './ui/card';
-import type { Activity } from '@/components/types';
+import type { Activity } from './types';
 import { formatDistanceToNow, format } from 'date-fns';
 
 interface ActivityCardProps {
@@ -10,6 +10,7 @@ interface ActivityCardProps {
 }
 
 export const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
+  // Type-specific styling with consistent color scheme
   const getTypeColor = (type: Activity['type']) => {
     switch (type) {
       case 'blog':
@@ -23,6 +24,7 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
     }
   };
 
+  // Format dates for both tooltip and display
   const formattedDate = format(new Date(activity.timestamp), 'MMMM d, yyyy');
   const relativeTime = formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true });
 
@@ -31,30 +33,43 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3 }}
     >
       <Card className="p-4 hover:shadow-lg transition-all duration-200">
         <div className="flex items-start justify-between">
           <div className="space-y-3 flex-1">
+            {/* Header with type badge and timestamp */}
             <div className="flex items-center gap-2 flex-wrap">
-              <div className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${getTypeColor(activity.type)}`}>
+              <span 
+                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${getTypeColor(activity.type)}`}
+                role="status"
+              >
                 {activity.type.charAt(0).toUpperCase() + activity.type.slice(1)}
-              </div>
-              <div className="flex items-center text-sm text-muted-foreground">
+              </span>
+              <time 
+                className="flex items-center text-sm text-muted-foreground"
+                dateTime={activity.timestamp.toISOString()}
+                title={formattedDate}
+              >
                 <Clock className="w-4 h-4 mr-1" />
-                <span title={formattedDate}>{relativeTime}</span>
-              </div>
+                {relativeTime}
+              </time>
             </div>
+
+            {/* Content */}
             <h3 className="text-lg font-semibold">{activity.title}</h3>
             <p className="text-muted-foreground">{activity.content}</p>
+
+            {/* Tags */}
             {activity.tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-2">
-                {activity.tags.map((tag: string) => (
-                  <div
+                {activity.tags.map((tag) => (
+                  <span
                     key={tag}
-                    className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                    className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold text-muted-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                   >
-                    {tag}
-                  </div>
+                    #{tag}
+                  </span>
                 ))}
               </div>
             )}

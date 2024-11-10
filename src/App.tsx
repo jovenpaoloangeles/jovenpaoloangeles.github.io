@@ -8,12 +8,18 @@ import { CreativeCoding } from './components/CreativeCoding';
 import { Photography } from './components/Photography';
 import { Awards } from './components/Awards';
 import { RecentActivities } from './components/RecentActivities';
-import { ConferenceAndProceedings } from './components/ConferenceAndProceedings';
+
+// Define tab interface for better type safety
+interface Tab {
+  value: string;
+  label: string;
+}
 
 function App() {
   const [activeTab, setActiveTab] = useState('about');
 
-  const tabs = [
+  // Define tabs with their values and labels
+  const tabs: Tab[] = [
     { value: 'about', label: 'About' },
     { value: 'recent-activities', label: 'Recent Activities' },
     { value: 'research', label: 'Research' },
@@ -23,6 +29,7 @@ function App() {
     { value: 'awards', label: 'Awards' }
   ];
 
+  // Render content based on active tab
   const renderContent = () => {
     switch (activeTab) {
       case 'about':

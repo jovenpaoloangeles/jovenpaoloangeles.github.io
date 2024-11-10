@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin, Download } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import { ContactInfo } from './ContactInfo';
 import { ResearchInterests } from './ResearchInterests';
 import { Education } from './Education';
