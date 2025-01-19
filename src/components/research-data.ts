@@ -189,3 +189,15 @@ export const conferences = [
     date: "Oct 2014"
   }
 ];
+
+export const books = [
+  {
+    title: "Anthropological Analysis, Mathematical Symmetry and Technical Characterization of Cordillera Textiles",
+    authors: "Analyn Salvador-Amores, Eduard Taganap, Ma. Antoinette de Las Penas, Felicidad A. Prudente, Kathleen Gutierrez, Darren Lucena, Jericho V. Narvasa, Ian Jasper Agulo, Alipio T. Garcia, Giovanni M. Malapit, Ronan Q. Baculi, Jennifer Inovero, Rachel Kelly, Michelle Stephens, J. Angeles, May Rose Busacay, Jamela Pangasinan, Nathalia Garcia, and Donabel Sabado",
+    year: 2019,
+    publisher: "CordiTex",
+    url: "https://corditex.upb.edu.ph/index.php/publications/books/anthropological-analysis/",
+    roles: ["Research Assistant"],
+    description: "A comprehensive study on Cordillera textiles combining anthropological analysis, mathematical symmetry patterns, and technical characterization of traditional weaving techniques."
+  }
+];

@@ -93,6 +93,13 @@ export const ACTIVITIES: Omit<Activity, 'id'>[] = [
     tags: ['conference', 'machine learning', 'graphene composites', 'heavy metals', 'NRCP']
   },
   {
+    title: 'Graduate Colloquium Presentation on Bayesian Optimization',
+    content: 'Presented my PhD research on "Efficiency in Experimentation: Bayesian Optimization for Nanomaterial Synthesis" at the Graduate Colloquium, showcasing advances in optimizing nanomaterial synthesis processes.',
+    timestamp: new Date('2024-12-11'),
+    type: ['research', 'achievement'],
+    tags: ['PhD', 'presentation', 'Bayesian optimization', 'nanomaterials', 'colloquium']
+  },
+  {
     title: 'Assistant Organizer at 37th Samahang Pisika ng Pilipinas International Physics Conference',
     content: 'Volunteered as an assistant to help organize the 37th Samahang Pisika ng Pilipinas International Physics Conference and Annual Meeting held in Tagbilaran City, Bohol, on 29 May 2019.',
     timestamp: new Date('2019-05-29'),
@@ -329,5 +336,12 @@ export const ACTIVITIES: Omit<Activity, 'id'>[] = [
     timestamp: new Date('2017-01-01'),
     type: ['achievement', 'photography'],
     tags: ['University of the Philippines', 'Iskolandaryo', 'calendar', 'feature']
+  },
+  {
+    title: 'Featured in i-Mag Photography Magazine',
+    content: 'Excited to have my work featured in i-Mag Photography Magazine, marking a proud moment in my photography journey.',
+    timestamp: new Date('2017-08-14'),
+    type: ['achievement', 'photography'],
+    tags: ['photography', 'i-Mag Photography Magazine', 'feature']
   }
 ];

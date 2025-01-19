@@ -1,14 +1,17 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Search } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Input } from './ui/input';
 import { ActivityCard } from './ActivityCard';
 import { Activity } from './types';
 import { ACTIVITIES } from './activities-data';
 
+const ITEMS_PER_PAGE = 5;
+
 export function RecentActivities() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState<Activity['type'][number] | 'all'>('all');
+  const [currentPage, setCurrentPage] = useState(1);
 
   const filteredActivities = useMemo(() => {
     return ACTIVITIES
@@ -23,6 +26,17 @@ export function RecentActivities() {
       })
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
   }, [searchQuery, selectedType]);
+
+  const totalPages = Math.ceil(filteredActivities.length / ITEMS_PER_PAGE);
+  const paginatedActivities = filteredActivities.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <motion.div
@@ -44,16 +58,21 @@ export function RecentActivities() {
                 type="text"
                 placeholder="Search activities..."
                 value={searchQuery}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1); // Reset to first page on search
+                }}
                 className="pl-10"
               />
             </div>
           </div>
           <select
             value={selectedType}
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => 
-              setSelectedType(e.target.value as Activity['type'][number] | 'all')}
-            className="p-2 border rounded-md"
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+              setSelectedType(e.target.value as Activity['type'][number] | 'all');
+              setCurrentPage(1); // Reset to first page on filter change
+            }}
+            className="h-9 w-[200px] rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
           >
             <option value="all">All Types</option>
             <option value="blog">Blog Posts</option>
@@ -68,14 +87,52 @@ export function RecentActivities() {
             <p>No activities found. Try adjusting your search or filter.</p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {filteredActivities.map((activity, index) => (
-              <ActivityCard
-                key={index}
-                activity={activity}
-              />
-            ))}
-          </div>
+          <>
+            <div className="space-y-4">
+              {paginatedActivities.map((activity, index) => (
+                <ActivityCard
+                  key={index}
+                  activity={activity}
+                />
+              ))}
+            </div>
+            
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-6">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="inline-flex items-center justify-center rounded-md p-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                
+                <div className="flex gap-2">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => handlePageChange(page)}
+                      className={`inline-flex h-8 min-w-[2rem] items-center justify-center rounded-md px-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 ${
+                        currentPage === page
+                          ? 'bg-primary text-primary-foreground'
+                          : 'hover:bg-accent hover:text-accent-foreground'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="inline-flex items-center justify-center rounded-md p-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </motion.div>
