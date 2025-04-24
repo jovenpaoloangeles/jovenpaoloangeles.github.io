@@ -13,7 +13,7 @@ const projects = [
     ),
     description:
       'A web-based tool for visualizing and analyzing X-ray diffraction (XRD) data. It allows users to upload .xy or .csv files, plot diffraction patterns, and identify peaks to aid in phase identification and material characterization. Designed for rapid analysis in research and instructional settings.',
-    button: 'Open App',
+    button: 'Try it →',
   },
   {
     title: 'ChunkingExpress',
@@ -27,7 +27,7 @@ const projects = [
     ),
     description:
       'An interactive app for document chunking and preview, tailored for Retrieval-Augmented Generation (RAG) pipelines. Users can upload text or PDF documents and configure chunking strategies using sentence transformers, with real-time visualization of the resulting segments.',
-    button: 'Open App',
+    button: 'Try it →',
   },
   {
     title: 'Puzzle-a-Day',
@@ -40,8 +40,8 @@ const projects = [
       />
     ),
     description:
-      'A web-based solver for DragonFjord’s A-Puzzle-A-Day, integrating Algorithm X by Donald Knuth to compute all valid tile configurations for each calendar date. The app reports the total number of solutions and presents one example per day, providing both an educational and practical tool for users of the physical puzzle sold through my 3D printing company, PRINT3D.MNL.',
-    button: 'Open App',
+      'A web-based solver for DragonFjord’s A-Puzzle-A-Day, integrating Algorithm X by Donald Knuth to compute all valid tile configurations for each calendar date. The app reports the total number of solutions and presents one example per day, providing both an educational and practical tool for users of the physical puzzle sold through our 3D printing company, PRINT3D.MNL.',
+    button: 'Try it →',
   },
 ];
 
