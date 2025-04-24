@@ -5,6 +5,7 @@ import { About } from './components/About';
 import { Research } from './components/Research';
 import { TechStack } from './components/TechStack';
 import { CreativeCoding } from './components/CreativeCoding';
+import { Projects } from './components/Projects';
 import { Photography } from './components/Photography';
 import { Awards } from './components/Awards';
 import { RecentActivities } from './components/RecentActivities';
@@ -24,6 +25,7 @@ function App() {
     { value: 'recent-activities', label: 'Recent Activities' },
     { value: 'research', label: 'Research' },
     { value: 'tech-stack', label: 'Tech Stack' },
+    { value: 'projects', label: 'Projects' },
     { value: 'creative-coding', label: 'Creative Coding' },
     { value: 'photography', label: 'Photography' },
     { value: 'awards', label: 'Awards' }
@@ -38,6 +40,8 @@ function App() {
         return <Research />;
       case 'tech-stack':
         return <TechStack />;
+      case 'projects':
+        return <Projects />;
       case 'creative-coding':
         return <CreativeCoding />;
       case 'photography':

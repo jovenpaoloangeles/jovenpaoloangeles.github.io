@@ -343,5 +343,12 @@ export const ACTIVITIES: Omit<Activity, 'id'>[] = [
     timestamp: new Date('2017-08-14'),
     type: ['achievement', 'photography'],
     tags: ['photography', 'i-Mag Photography Magazine', 'feature']
+  },
+  {
+    title: 'New Job as Data Scientist',
+    content: 'Joined the Department of Science and Technology - Advanced Science and Technology Institute as a Data Scientist, for research and development of AI-driven solutions for the Filipino people.',
+    timestamp: new Date('2025-03-17'),
+    type: ['research','achievement'],
+    tags: ['data science', 'AI']
   }
 ];
