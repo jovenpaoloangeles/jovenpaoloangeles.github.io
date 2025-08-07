@@ -350,5 +350,12 @@ export const ACTIVITIES: Omit<Activity, 'id'>[] = [
     timestamp: new Date('2025-03-17'),
     type: ['research','achievement'],
     tags: ['data science', 'AI']
+  },
+  {
+    title: 'Senior AI Engineer of PROPEL',
+    content: 'Thrilled to share that I’ve stepped into a new role as Senior AI Engineer, where I’ll continue building agentic AI systems, RAG architectures, and optimization frameworks that bridge science and real-world impact.',
+    timestamp: new Date('2025-08-07'),
+    type: ['research','achievement'],
+    tags: ['LLM', 'AI', 'AI Agents']
   }
 ];
