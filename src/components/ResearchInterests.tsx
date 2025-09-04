@@ -8,6 +8,8 @@ export function ResearchInterests() {
     'Computational Materials Design',
     'Machine Learning in Materials',
     'Bayesian Optimization',
+    'Large Language Models',
+    'Generative AI'
   ];
 
   return (

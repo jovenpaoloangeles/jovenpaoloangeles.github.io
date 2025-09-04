@@ -120,16 +120,20 @@ export function Research() {
       transition={{ duration: 0.5 }}
       className="space-y-6"
     >
-      <div>
-        <h2 className="text-2xl font-serif mb-4">Research Experience</h2>
-        <div className="space-y-4">
-          {researchExperiences.map((experience, index) => (
-            <ExperienceCard key={index} experience={experience} />
-          ))}
-        </div>
-      </div>
-
       <Accordion type="multiple" className="w-full space-y-4">
+        <AccordionItem value="experience">
+          <AccordionTrigger className="text-2xl font-serif py-4">
+            Research Experience
+          </AccordionTrigger>
+          <AccordionContent>
+            <div className="space-y-4 pt-2">
+              {researchExperiences.map((experience, index) => (
+                <ExperienceCard key={index} experience={experience} />
+              ))}
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+
         <AccordionItem value="books">
           <AccordionTrigger className="text-2xl font-serif py-4">
             Books and Book Chapters

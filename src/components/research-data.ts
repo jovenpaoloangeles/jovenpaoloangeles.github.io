@@ -1,6 +1,29 @@
 export const researchExperiences = [
   {
-    title: "University Researcher II",
+    title: "Senior AI Engineer",
+    dateRange: "August 2025 - Present",
+    keyAchievements: "Spearhead the development of JuanaKnow, a chatbot of Department of Science and Technology for IP licensing, startup funding, and technology transfer.",
+    techniques: "Agentic Retrieval-Augmented Generation (RAG), Large Language Models (LLM), Deep Research Agents, Multi-Agent AI Agent Architecture",
+    details: [
+       "Spearhead the development of Retrieval-Augmented Generation (RAG) pipelines, mainly Agentic RAG and Deep Research Agents, to support commercialization of government-funded R\&D outputs.",
+       "Lead multi-agent AI agent architecture, integrating Agno, Ollama, and Postgres for scalable knowledge management across DOST councils.",
+       "Coordinate with cross-functional teams and stakeholders to deliver AI-powered platforms for IP licensing, startup funding, and technology transfer."
+    ]
+  },
+  {
+    title: "Data Scientist",
+    dateRange: "March 2025 - July 2025",
+    keyAchievements: "Developed data engineering and data modeling pipelines for public-sector documents.",
+    techniques: "Data Engineering, Data Modeling, Artificial Intelligence",
+    details: [
+      "Built an ELT pipeline for public-sector documents; used LLMs for parsing, deduplication, and data cleaning.",
+      "Modeled and served data in PostgreSQL; enabled hybrid retrieval with \texttt{pgvector} for dense embeddings alongside text indexes.",
+      "Exposed a unified databank via WSO2 for downstream analytics and RAG services.",
+      "Implemented data quality checks; automated refresh and backfill jobs for freshness and reproducibility."
+    ]
+  },
+  {
+    title: "University Researcher I",
     dateRange: "January 2023 - December 2023",
     keyAchievements: "Developed a graphene-MOF composite for COVID-19 pandemic mitigation.",
     techniques: "Electrospinning, Nanocomposite Synthesis",

@@ -1,6 +1,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Download, Mail } from 'lucide-react';
+import {
+  Download,
+  Mail,
+  FlaskConical,
+  BrainCircuit,
+  Camera,
+  Target,
+  Users
+} from 'lucide-react';
 
 export function About() {
   return (
@@ -9,13 +17,37 @@ export function About() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      <h2 className="text-2xl font-serif mb-4">Hi there!</h2>
-      <p className="text-muted-foreground leading-relaxed mb-4 text-justify">
-        I'm a Ph.D. candidate in materials science, passionate about combining simulation and hands-on experimentation to push the boundaries of nanoparticle synthesis. My research centers on a Bayesian Optimization Framework for Accelerated Nanoparticle Synthesis, where I explore advanced computational techniques to streamline the creation of nanoparticles, specifically gold, silver, and iron oxide, for spectroscopic applications.      </p>
-      <p className="text-muted-foreground leading-relaxed mb-4 text-justify">
-        Nanoparticles have immense potential in fields from medicine to environmental science, yet traditional synthesis methods often get bogged down in complex parameter spaces. In my current work, I’m using Bayesian optimization (BO) to address this challenge. BO’s probabilistic approach lets us balance exploration and efficiency, reducing the number of experiments needed to find optimal synthesis conditions. To make this process even more dynamic, my framework includes a “human-in-the-loop” approach, allowing real-time adjustments based on experimental data. This adaptability is being tested with both benchmarking functions and real-world applications, such as synthesizing silver nanoparticles and fullerene derivatives.      </p>
-      <p className="text-muted-foreground leading-relaxed text-justify">
-        Beyond academic work, I’m also a generative artist and freelance photographer, blending art and science to see things from fresh perspectives. Whether in the lab or the art studio, I’m always curious and open to collaborations with others who share a passion for discovery and creativity.      </p>
+      <div className="grid md:grid-cols-[auto_1fr] gap-x-6 gap-y-8 items-start">
+        {/* Main Paragraphs */}
+        <FlaskConical className="w-5 h-5 text-primary mt-1" />
+        <p className="text-muted-foreground leading-relaxed text-justify">
+          I'm a Ph.D. candidate in Materials Science at the University of the Philippines, working at the intersection of simulation and experimentation. My research focuses on a <strong>Bayesian Optimization Framework for Accelerated Nanoparticle Synthesis</strong>, streamlining the creation of gold, silver, and iron-oxide nanoparticles for spectroscopic applications.
+        </p>
+
+        <BrainCircuit className="w-5 h-5 text-primary mt-1" />
+        <p className="text-muted-foreground leading-relaxed text-justify">
+          Traditional synthesis struggles with complex parameter spaces. By coupling <strong>Bayesian Optimization (BO)</strong> with a human-in-the-loop strategy, I minimize experiments while updating models in real time. Benchmarks and real systems (silver nanoparticles, fullerene derivatives) validate the approach.
+        </p>
+
+        <Camera className="w-5 h-5 text-primary mt-1" />
+        <p className="text-muted-foreground leading-relaxed text-justify">
+          Outside the lab, I'm a generative artist and freelance photographer. I explore the crossover of code and creativity to communicate scientific ideas visually.
+        </p>
+
+        {/* Research Goals */}
+        <Target className="w-5 h-5 text-primary mt-1" />
+        <p className="text-muted-foreground leading-relaxed text-justify">
+          <strong>Research Goal&nbsp;🎯</strong>&nbsp;—&nbsp;to cut experimental cost and time by at least&nbsp;50 % for nanoparticle discovery, enabling reproducible, shareable protocols across labs and accelerating tech transfer to biomedical and environmental applications.
+        </p>
+
+        {/* Collaboration Hook */}
+        <Users className="w-5 h-5 text-primary mt-1" />
+        <p className="text-muted-foreground leading-relaxed text-justify">
+          <strong>Let’s collaborate&nbsp;🤝</strong>&nbsp;—&nbsp;if you’re exploring sustainable nanomaterials, adaptive optimization, or the fusion of art and science, feel free to reach out!
+        </p>
+      </div>
+
+      {/*––– action buttons –––*/}
       <div className="flex flex-col sm:flex-row gap-4 mt-6">
         <a
           href="/cv-academic.pdf"

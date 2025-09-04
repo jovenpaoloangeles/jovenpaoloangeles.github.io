@@ -22,6 +22,8 @@ export function Header() {
             2000,
             'Creative Coder',
             2000,
+            'AI Engineer',
+            2000,
           ]}
           wrapper="p"
           speed={50}
@@ -29,8 +31,8 @@ export function Header() {
           repeat={Infinity}
         />
         <div className="flex items-center justify-center gap-2 mt-2">
-          <MapPin className="w-4 h-4 text-primary" />
-          <span className="text-sm text-muted-foreground">University of the Philippines, Quezon City, Philippines</span>
+          <MapPin className="w-4 h-4 mt-1 text-primary shrink-0" />
+          <span className="text-sm text-muted-foreground">Department of Science and Technology - Advanced Science and Technology Institute, Quezon City, Philippines</span>
         </div>
       </div>
       <div className="mt-6 space-y-6">
