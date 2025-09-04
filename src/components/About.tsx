@@ -4,8 +4,8 @@ import {
   Download,
   Mail,
   FlaskConical,
-  BrainCircuit,
-  Camera,
+  Briefcase,
+  Printer,
   Target,
   Users
 } from 'lucide-react';
@@ -19,29 +19,29 @@ export function About() {
     >
       <div className="grid md:grid-cols-[auto_1fr] gap-x-6 gap-y-8 items-start">
         {/* Main Paragraphs */}
-        <FlaskConical className="w-5 h-5 text-primary mt-1" />
+        <FlaskConical className="w-5 h-5 text-primary mt-1 shrink-0" />
         <p className="text-muted-foreground leading-relaxed text-justify">
-          I'm a Ph.D. candidate in Materials Science at the University of the Philippines, working at the intersection of simulation and experimentation. My research focuses on a <strong>Bayesian Optimization Framework for Accelerated Nanoparticle Synthesis</strong>, streamlining the creation of gold, silver, and iron-oxide nanoparticles for spectroscopic applications.
+          I'm a Ph.D. candidate in Materials Science at the University of the Philippines, where I'm developing a <strong>Bayesian Optimization Framework</strong> to accelerate nanoparticle synthesis. This work merges my interests in advanced materials and intelligent algorithms, allowing me to streamline the creation of nanoparticles for spectroscopic applications.
         </p>
 
-        <BrainCircuit className="w-5 h-5 text-primary mt-1" />
+        <Briefcase className="w-5 h-5 text-primary mt-1 shrink-0" />
         <p className="text-muted-foreground leading-relaxed text-justify">
-          Traditional synthesis struggles with complex parameter spaces. By coupling <strong>Bayesian Optimization (BO)</strong> with a human-in-the-loop strategy, I minimize experiments while updating models in real time. Benchmarks and real systems (silver nanoparticles, fullerene derivatives) validate the approach.
+          This passion for applying cutting-edge computation to complex problems extends to my professional life as a <strong>Senior AI Engineer</strong>. With a background in <strong>Data Science</strong> and <strong>Blockchain</strong>, I enjoy building intelligent systems that make a real-world impact and exploring the potential of decentralized technologies.
         </p>
 
-        <Camera className="w-5 h-5 text-primary mt-1" />
+        <Printer className="w-5 h-5 text-primary mt-1 shrink-0" />
         <p className="text-muted-foreground leading-relaxed text-justify">
-          Outside the lab, I'm a generative artist and freelance photographer. I explore the crossover of code and creativity to communicate scientific ideas visually.
+          Beyond my academic and professional work, I have a passion for bringing ideas to life. This takes many forms—from running my 3D printing business, <a href="https://print3dmnl.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">PRINT3D.MNL</a>, to exploring the intersection of code and creativity as a generative artist and freelance photographer.
         </p>
 
         {/* Research Goals */}
-        <Target className="w-5 h-5 text-primary mt-1" />
+        <Target className="w-5 h-5 text-primary mt-1 shrink-0" />
         <p className="text-muted-foreground leading-relaxed text-justify">
           <strong>Research Goal&nbsp;🎯</strong>&nbsp;—&nbsp;to cut experimental cost and time by at least&nbsp;50 % for nanoparticle discovery, enabling reproducible, shareable protocols across labs and accelerating tech transfer to biomedical and environmental applications.
         </p>
 
         {/* Collaboration Hook */}
-        <Users className="w-5 h-5 text-primary mt-1" />
+        <Users className="w-5 h-5 text-primary mt-1 shrink-0" />
         <p className="text-muted-foreground leading-relaxed text-justify">
           <strong>Let’s collaborate&nbsp;🤝</strong>&nbsp;—&nbsp;if you’re exploring sustainable nanomaterials, adaptive optimization, or the fusion of art and science, feel free to reach out!
         </p>
