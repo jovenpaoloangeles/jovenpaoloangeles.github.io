@@ -2,6 +2,20 @@ import React from 'react';
 
 const projects = [
   {
+    title: 'Philippine WFH Optimizer',
+    url: 'https://jovenpaoloangeles.github.io/philippine-wfh-optimizer/',
+    icon: (
+      <img
+        src="/projects/WFHOptimizer.png"
+        alt="WFH icon"
+        className="w-20 h-20 object-contain bg-white"
+      />
+    ),
+    description:
+      'Optimize long weekends by smartly combining Philippine holidays with weekends—get more consecutive days off with fewer leave credits',
+    button: 'Try it →',
+  },
+  {
     title: 'XRD Analyzer',
     url: 'https://jovenpaoloangeles.github.io/xrd-analyzer/',
     icon: (
