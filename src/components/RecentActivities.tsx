@@ -1,20 +1,45 @@
-import React, { useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Input } from './ui/input';
 import { ActivityCard } from './ActivityCard';
 import { Activity } from './types';
-import { ACTIVITIES } from './activities-data';
+import { loadActivities } from '@/lib/content';
 
 const ITEMS_PER_PAGE = 5;
+type AsyncState = 'idle' | 'loading' | 'success' | 'error';
 
 export function RecentActivities() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState<Activity['type'][number] | 'all'>('all');
   const [currentPage, setCurrentPage] = useState(1);
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [status, setStatus] = useState<AsyncState>('idle');
+
+  useEffect(() => {
+    let isActive = true;
+    setStatus('loading');
+
+    loadActivities()
+      .then((data) => {
+        if (isActive) {
+          setActivities(data);
+          setStatus('success');
+        }
+      })
+      .catch(() => {
+        if (isActive) {
+          setStatus('error');
+        }
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
 
   const filteredActivities = useMemo(() => {
-    return ACTIVITIES
+    return activities
       .filter((activity) => {
         const matchesSearch = (
           activity.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -25,7 +50,7 @@ export function RecentActivities() {
         return matchesSearch && matchesType;
       })
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-  }, [searchQuery, selectedType]);
+  }, [activities, searchQuery, selectedType]);
 
   const totalPages = Math.ceil(filteredActivities.length / ITEMS_PER_PAGE);
   const paginatedActivities = filteredActivities.slice(
@@ -49,11 +74,18 @@ export function RecentActivities() {
         <h2 className="text-2xl font-serif">Recent Activities</h2>
       </div>
 
+      {status !== 'success' && (
+        <div className="p-4 rounded-md border border-dashed border-border text-sm text-muted-foreground">
+          {status === 'loading' || status === 'idle'
+            ? 'Loading activities…'
+            : 'Unable to load activities. Please try again later.'}
+        </div>
+      )}
       <div className="space-y-4">
         <div className="flex gap-4">
           <div className="flex-1">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
                 type="text"
                 placeholder="Search activities..."
@@ -72,6 +104,7 @@ export function RecentActivities() {
               setSelectedType(e.target.value as Activity['type'][number] | 'all');
               setCurrentPage(1); // Reset to first page on filter change
             }}
+            disabled={status !== 'success'}
             className="h-9 w-[200px] rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
           >
             <option value="all">All Types</option>
@@ -82,11 +115,11 @@ export function RecentActivities() {
           </select>
         </div>
 
-        {filteredActivities.length === 0 ? (
+        {status === 'success' && filteredActivities.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <p>No activities found. Try adjusting your search or filter.</p>
           </div>
-        ) : (
+        ) : status === 'success' ? (
           <>
             <div className="space-y-4">
               {paginatedActivities.map((activity, index) => (
@@ -133,7 +166,7 @@ export function RecentActivities() {
               </div>
             )}
           </>
-        )}
+        ) : null}
       </div>
     </motion.div>
   );

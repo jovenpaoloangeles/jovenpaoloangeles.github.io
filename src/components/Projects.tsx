@@ -1,61 +1,107 @@
 import React from 'react';
 
-const projects = [
+interface ProjectMedia {
+  alt: string;
+  width: number;
+  height: number;
+  png: string;
+  webp?: string;
+  avif?: string;
+}
+
+interface ProjectMetaItem {
+  label: string;
+  value: string;
+}
+
+interface Project {
+  title: string;
+  url: string;
+  description: string;
+  ctaLabel: string;
+  media: ProjectMedia;
+  meta: ProjectMetaItem[];
+}
+
+const projects: Project[] = [
   {
     title: 'Philippine WFH Optimizer',
     url: 'https://jovenpaoloangeles.github.io/philippine-wfh-optimizer/',
-    icon: (
-      <img
-        src="/projects/WFHOptimizer.png"
-        alt="WFH icon"
-        className="w-20 h-20 object-contain bg-white"
-      />
-    ),
     description:
-      'Optimize long weekends by smartly combining Philippine holidays with weekends—get more consecutive days off with fewer leave credits',
-    button: 'Try it →',
+      'Optimize long weekends by combining official Philippine holidays with leave credits to surface the most efficient multi-day breaks.',
+    ctaLabel: 'Plan long weekends',
+    media: {
+      alt: 'Screenshot of the Philippine WFH Optimizer holiday planner dashboard',
+      width: 512,
+      height: 512,
+      png: '/projects/WFHOptimizer.png',
+      webp: '/projects/WFHOptimizer.webp',
+    },
+    meta: [
+      { label: 'Role', value: 'Creator' },
+      { label: 'Stack', value: 'TypeScript · React · Tailwind CSS' },
+      { label: 'Year', value: '2024' },
+    ],
   },
   {
     title: 'XRD Analyzer',
     url: 'https://jovenpaoloangeles.github.io/xrd-analyzer/',
-    icon: (
-      <img
-        src="/projects/XRDAnalyzer.png"
-        alt="XRD Analyzer icon"
-        className="w-20 h-20 object-contain bg-white"
-      />
-    ),
     description:
-      'A web-based tool for visualizing and analyzing X-ray diffraction (XRD) data. It allows users to upload .xy or .csv files, plot diffraction patterns, and identify peaks to aid in phase identification and material characterization. Designed for rapid analysis in research and instructional settings.',
-    button: 'Try it →',
+      'Interactive X-ray diffraction analyzer for uploading XY/CSV files, highlighting peaks, and accelerating material characterization workflows.',
+    ctaLabel: 'Launch analyzer',
+    media: {
+      alt: 'XRD Analyzer interface plotting diffraction intensity data',
+      width: 373,
+      height: 373,
+      png: '/projects/XRDAnalyzer.png',
+      webp: '/projects/XRDAnalyzer.webp',
+      avif: '/projects/XRDAnalyzer.avif',
+    },
+    meta: [
+      { label: 'Role', value: 'Developer' },
+      { label: 'Stack', value: 'TypeScript · React · D3.js' },
+      { label: 'Year', value: '2024' },
+    ],
   },
   {
     title: 'ChunkingExpress',
     url: 'https://huggingface.co/spaces/jovenpaolo/ChunkingExpress',
-    icon: (
-      <img
-        src="/projects/ChunkingExpress.png"
-        alt="ChunkingExpress icon"
-        className="w-20 h-20 object-contain bg-white"
-      />
-    ),
     description:
-      'An interactive app for document chunking and preview, tailored for Retrieval-Augmented Generation (RAG) pipelines. Users can upload text or PDF documents and configure chunking strategies using sentence transformers, with real-time visualization of the resulting segments.',
-    button: 'Try it →',
+      'Document chunking playground for Retrieval-Augmented Generation pipelines with configurable segment strategies and live previews.',
+    ctaLabel: 'Try the RAG tool',
+    media: {
+      alt: 'ChunkingExpress web app highlighting chunked text segments',
+      width: 387,
+      height: 387,
+      png: '/projects/ChunkingExpress.png',
+      webp: '/projects/ChunkingExpress.webp',
+      avif: '/projects/ChunkingExpress.avif',
+    },
+    meta: [
+      { label: 'Role', value: 'Maker' },
+      { label: 'Stack', value: 'Python · Gradio · Sentence Transformers' },
+      { label: 'Year', value: '2023' },
+    ],
   },
   {
-    title: 'Puzzle-a-Day',
+    title: 'Puzzle-a-Day Solver',
     url: 'https://jovenpaoloangeles.github.io/puzzle-a-day/',
-    icon: (
-      <img
-        src="/projects/PuzzleADay.png"
-        alt="Puzzle-a-Day icon"
-        className="w-20 h-20 object-contain bg-white"
-      />
-    ),
     description:
-      'A web-based solver for DragonFjord’s A-Puzzle-A-Day, integrating Algorithm X by Donald Knuth to compute all valid tile configurations for each calendar date. The app reports the total number of solutions and presents one example per day, providing both an educational and practical tool for users of the physical puzzle sold through our 3D printing company, PRINT3D.MNL.',
-    button: 'Try it →',
+      'Algorithm X-powered solver that enumerates daily solutions for the DragonFjord A-Puzzle-A-Day board, complete with visual tiling proofs.',
+    ctaLabel: 'Solve today’s puzzle',
+    media: {
+      alt: 'Puzzle-a-Day solver showing a completed calendar tile arrangement',
+      width: 375,
+      height: 375,
+      png: '/projects/PuzzleADay.png',
+      webp: '/projects/PuzzleADay.webp',
+      avif: '/projects/PuzzleADay.avif',
+    },
+    meta: [
+      { label: 'Role', value: 'Engineer' },
+      { label: 'Stack', value: 'TypeScript · React · Algorithm X' },
+      { label: 'Year', value: '2022' },
+    ],
   },
 ];
 
@@ -64,35 +110,65 @@ export const Projects: React.FC = () => {
     <div>
       <h2 className="text-3xl font-extrabold mb-8">Projects</h2>
       <div className="flex flex-col gap-8">
-        {projects.map((project) => (
-          <div
+        {projects.map((project) => {
+          const headingId = `project-${project.title.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}`;
+          return (
+          <a
             key={project.title}
-            className="bg-card rounded-xl shadow transition-shadow duration-200 p-6 flex items-center gap-6 hover:shadow-lg cursor-pointer"
+            href={project.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block bg-card rounded-xl shadow transition-shadow duration-200 p-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary hover:shadow-lg"
+              aria-labelledby={headingId}
           >
-            <div className="flex-shrink-0">
-              {project.icon}
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
-                <span className="font-bold text-xl sm:text-2xl text-foreground leading-snug">
-                  {project.title}
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
+              <div className="flex-shrink-0">
+                <picture>
+                  {project.media.avif && (
+                    <source type="image/avif" srcSet={project.media.avif} />
+                  )}
+                  {project.media.webp && (
+                    <source type="image/webp" srcSet={project.media.webp} />
+                  )}
+                  <img
+                    src={project.media.png}
+                    alt={project.media.alt}
+                    width={project.media.width}
+                    height={project.media.height}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-24 h-24 object-contain rounded-md bg-white shadow-sm"
+                    onError={(event) => {
+                      const img = event.currentTarget;
+                      if (img.dataset.fallbackApplied === 'true') {
+                        return;
+                      }
+                      img.dataset.fallbackApplied = 'true';
+                      img.src = project.media.png;
+                      img.srcset = '';
+                    }}
+                  />
+                </picture>
+              </div>
+              <div className="flex-1 space-y-4">
+                <div>
+                  <h3 id={headingId} className="font-bold text-xl sm:text-2xl text-foreground leading-snug">
+                    {project.title}
+                  </h3>
+                  <p className="mt-2 text-base text-muted-foreground leading-relaxed">
+                    {project.description}
+                  </p>
+                </div>
+
+                <span className="inline-flex items-center gap-2 text-sm font-semibold text-primary">
+                  {project.ctaLabel}
+                  <span aria-hidden>→</span>
                 </span>
               </div>
-              <p className="text-base text-muted-foreground leading-relaxed mb-4">
-                {project.description}
-              </p>
-              <a
-                href={project.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block px-4 py-2 rounded bg-primary text-white font-medium shadow hover:text-teal-500 hover:bg-primary/90 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-teal-400"
-                tabIndex={0}
-              >
-                {project.button}
-              </a>
             </div>
-          </div>
-        ))}
+          </a>
+          );
+        })}
       </div>
     </div>
   );

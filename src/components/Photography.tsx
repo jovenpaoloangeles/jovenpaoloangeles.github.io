@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Camera } from 'lucide-react';
 import Carousel from './Carousel';
@@ -40,6 +40,7 @@ export function Photography() {
         "/photography/Landscapes/_MG_0010_001.webp",
         "/photography/Landscapes/2016_Alimuom.webp",
         "/photography/Landscapes/DSC01397_1.webp",
+        "/photography/Landscapes/DSC04120.webp",
         "/photography/Landscapes/DSC08476-Pano.webp",
         "/photography/Landscapes/DSC09027.webp",
         "/photography/Landscapes/DSC09556.webp",
@@ -87,6 +88,7 @@ export function Photography() {
         "/photography/Series/Rooftop/DSC09614.webp",
         "/photography/Series/Rooftop/DSC09835.webp",
         "/photography/Series/Rooftop/StarStaX_DSC06571-DSC06634_gap_filling_00000063.webp",
+        "/photography/Series/Tekkadan/DSC03476 Panorama.webp",
         "/photography/Series/Tekkadan/DSC09325.webp",
         "/photography/Series/Tekkadan/DSC09334.webp",
         "/photography/Series/Tekkadan/DSC09336.webp",
@@ -146,7 +148,7 @@ export function Photography() {
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Camera className="w-6 h-6 text-primary" />
+          <Camera className="w-5 h-5 text-primary" />
           <h2 className="text-2xl font-serif">Photography Portfolio</h2>
         </div>
       </div>

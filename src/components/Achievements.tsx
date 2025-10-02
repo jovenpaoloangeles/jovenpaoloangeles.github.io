@@ -1,4 +1,3 @@
-import React from 'react';
 import { Award, Star, Trophy } from 'lucide-react';
 
 export function Achievements() {

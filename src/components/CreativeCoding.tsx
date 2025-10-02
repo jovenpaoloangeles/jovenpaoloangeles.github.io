@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Code } from 'lucide-react';
 import Carousel from './Carousel';
@@ -86,7 +86,7 @@ export function CreativeCoding() {
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Code className="w-6 h-6 text-primary" />
+          <Code className="w-5 h-5 text-primary" />
           <h2 className="text-2xl font-serif">Creative Coding Portfolio</h2>
         </div>
       </div>

@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, Award, Wrench, MapPin, ExternalLink } from 'lucide-react';
 import {
@@ -6,11 +7,19 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { researchExperiences, conferences, books } from './research-data';
 import { Card } from './ui/card';
+import {
+  loadResearchContent,
+  type ResearchBook,
+  type ResearchConference,
+  type ResearchContent,
+  type ResearchExperience,
+} from '@/lib/content';
+
+type AsyncState = 'idle' | 'loading' | 'success' | 'error';
 
 // Research Experience Card Component
-const ExperienceCard = ({ experience }: { experience: typeof researchExperiences[0] }) => (
+const ExperienceCard = ({ experience }: { experience: ResearchExperience }) => (
   <Card className="p-4 hover:shadow-lg transition-all duration-200">
     <h3 className="text-lg font-semibold text-foreground">{experience.title}</h3>
     
@@ -52,7 +61,7 @@ const highlightName = (authors: string) => {
 };
 
 // Book Card Component
-const BookCard = ({ book }: { book: typeof books[0] }) => (
+const BookCard = ({ book }: { book: ResearchBook }) => (
   <Card className="p-4 hover:shadow-lg transition-all duration-200">
     <div className="flex items-start justify-between">
       <div className="space-y-2">
@@ -87,7 +96,7 @@ const BookCard = ({ book }: { book: typeof books[0] }) => (
 );
 
 // Conference Card Component
-const ConferenceCard = ({ conference }: { conference: typeof conferences[0] }) => (
+const ConferenceCard = ({ conference }: { conference: ResearchConference }) => (
   <Card className="p-4 hover:shadow-lg transition-all duration-200">
     <h3 className="text-lg font-medium text-foreground">{conference.title}</h3>
     <p className="text-sm text-muted-foreground mt-1">{highlightName(conference.authors)}</p>
@@ -113,6 +122,47 @@ const ConferenceCard = ({ conference }: { conference: typeof conferences[0] }) =
 );
 
 export function Research() {
+  const [content, setContent] = useState<ResearchContent | null>(null);
+  const [status, setStatus] = useState<AsyncState>('idle');
+
+  useEffect(() => {
+    let isActive = true;
+    setStatus('loading');
+
+    loadResearchContent()
+      .then((data) => {
+        if (isActive) {
+          setContent(data);
+          setStatus('success');
+        }
+      })
+      .catch(() => {
+        if (isActive) {
+          setStatus('error');
+        }
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
+  if (status === 'loading' || status === 'idle') {
+    return (
+      <Card className="p-6">
+        <p className="text-muted-foreground">Loading research content…</p>
+      </Card>
+    );
+  }
+
+  if (status === 'error' || !content) {
+    return (
+      <Card className="p-6">
+        <p className="text-destructive">Unable to load research content. Please try again later.</p>
+      </Card>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -127,7 +177,7 @@ export function Research() {
           </AccordionTrigger>
           <AccordionContent>
             <div className="space-y-4 pt-2">
-              {researchExperiences.map((experience, index) => (
+              {content.experiences.map((experience, index) => (
                 <ExperienceCard key={index} experience={experience} />
               ))}
             </div>
@@ -140,7 +190,7 @@ export function Research() {
           </AccordionTrigger>
           <AccordionContent>
             <div className="space-y-4 pt-2">
-              {books.map((book, index) => (
+              {content.books.map((book, index) => (
                 <BookCard key={index} book={book} />
               ))}
             </div>
@@ -153,7 +203,7 @@ export function Research() {
           </AccordionTrigger>
           <AccordionContent>
             <div className="space-y-4 pt-2">
-              {conferences.map((conference, index) => (
+              {content.conferences.map((conference, index) => (
                 <ConferenceCard key={index} conference={conference} />
               ))}
             </div>

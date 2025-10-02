@@ -15,7 +15,7 @@ export function Certifications() {
     },
     {
       title: 'Blockchain Specialization',
-      details: 'Certificate ID: 0KC8CXJGZBAS - University at Buffalo \& The State University of New York',  
+      details: 'Certificate ID: 0KC8CXJGZBAS - University at Buffalo & The State University of New York',
       courses: [
         { name: 'Blockchain Basics', license: 'I0I6RESS8A0A', date: 'Jul 2025' },
         { name: 'Smart Contracts', license: 'FFZ2EAAIVHKH', date: 'Sept 2025' },

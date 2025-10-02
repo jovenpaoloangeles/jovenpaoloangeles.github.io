@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Sitemap: https://jovenpaoloangeles.github.io/sitemap.xml
+
+# Block unnecessary directories
+Disallow: /node_modules/
+Disallow: /.vscode/
+Disallow: /.git/
