@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 // Custom SVG icon component
 const TechIcon = ({ name }: { name: string }) => (
   <img 
-    src={`/icons/${name.toLowerCase()}.${['matlab', 'jax'].includes(name.toLowerCase()) ? 'png' : 'svg'}`} 
+    src={`/icons/${name.toLowerCase()}.${['matlab', 'jax', 'openlit', 'unsloth'].includes(name.toLowerCase()) ? 'png' : ['agno', 'huggingface', 'vllm'].includes(name.toLowerCase()) ? 'jpeg' : 'svg'}`} 
     alt={`${name} icon`}
     className="w-5 h-5"
   />
@@ -32,6 +32,7 @@ export function TechStack() {
         { name: 'Botorch', description: 'Bayesian optimization', icon: 'pytorch' }, // fallback icon
         { name: 'Ax', description: 'Adaptive experimentation platform', icon: 'python' }, // fallback icon
         { name: 'JAX', description: 'High-performance ML & computing', icon: 'jax' },
+        { name: 'CUDA', description: 'NVIDIA GPU computing platform', icon: 'cuda' },
       ]
     },
     {
@@ -39,21 +40,15 @@ export function TechStack() {
       description: 'For Retrieval-Augmented Generation (RAG), LLM APIs, and prompt-driven workflows.',
       items: [
         { name: 'LangChain', description: 'Framework for building LLM-powered applications', icon: 'langchain' },
+        { name: 'Agno', description: 'Multi-agent systems framework & runtime', icon: 'agno' },
         { name: 'n8n', description: 'Workflow automation platform', icon: 'n8n' },
         { name: 'OpenAI', description: 'LLM API provider', icon: 'openai' },
         { name: 'Gemini', description: 'Google’s generative AI model', icon: 'gemini' },
         { name: 'Ollama', description: 'Local LLMs & orchestration', icon: 'ollama' },
         { name: 'Openrouter', description: 'Unified API for LLMs', icon: 'openrouter' },
-      ]
-    },
-    {
-      title: 'Creative Coding & Visualization',
-      description: 'For generative art, simulations, and interactive visualizations.',
-      items: [
-        { name: 'p5.js', description: 'Creative coding in JavaScript', icon: 'p5js' },
-        { name: 'Processing', description: 'Visual arts & creative coding', icon: 'processing' },
-        { name: 'Plotly', description: 'Interactive dashboards', icon: 'plotly' },
-        { name: 'Streamlit', description: 'Data apps', icon: 'streamlit' },
+        { name: 'vLLM', description: 'High-throughput LLM inference engine', icon: 'vllm' },
+        { name: 'Unsloth', description: 'Fast LLM fine-tuning (2-5x faster)', icon: 'unsloth' },
+        { name: 'Hugging Face', description: 'Model hub & transformers library', icon: 'huggingface' },
       ]
     },
     {
@@ -73,6 +68,31 @@ export function TechStack() {
       description: 'Infrastructure tools that support reproducibility, scalability, or deployment.',
       items: [
         { name: 'Docker', description: 'Containerization & deployment', icon: 'docker' },
+        { name: 'Nginx Proxy Manager', description: 'Web-based nginx reverse proxy', icon: 'nginx' },
+        { name: 'GitHub Actions', description: 'CI/CD automation workflows', icon: 'githubactions' },
+        { name: 'Jenkins', description: 'Automation server for CI/CD', icon: 'jenkins' },
+        { name: 'Prometheus', description: 'Metrics & monitoring system', icon: 'prometheus' },
+        { name: 'OpenTelemetry', description: 'Observability framework', icon: 'opentelemetry' },
+        { name: 'OpenLit', description: 'OpenTelemetry-native LLM observability', icon: 'openlit' },
+        { name: 'Vercel', description: 'Frontend deployment platform', icon: 'vercel' },
+      ]
+    },
+    {
+      title: 'Data & Vector Storage',
+      description: 'Databases and vector stores for data persistence and semantic search.',
+      items: [
+        { name: 'PostgreSQL', description: 'Advanced relational database', icon: 'postgresql' },
+        { name: 'ChromaDB', description: 'Embeddings database for AI apps', icon: 'chromadb' },
+      ]
+    },
+    {
+      title: 'Creative Coding & Visualization',
+      description: 'For generative art, simulations, and interactive visualizations.',
+      items: [
+        { name: 'p5.js', description: 'Creative coding in JavaScript', icon: 'p5js' },
+        { name: 'Processing', description: 'Visual arts & creative coding', icon: 'processing' },
+        { name: 'Plotly', description: 'Interactive dashboards', icon: 'plotly' },
+        { name: 'Streamlit', description: 'Data apps', icon: 'streamlit' },
       ]
     },
   ];
