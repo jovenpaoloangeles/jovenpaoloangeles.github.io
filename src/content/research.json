@@ -222,5 +222,100 @@
       "roles": ["Research Assistant"],
       "description": "A comprehensive study on Cordillera textiles combining anthropological analysis, mathematical symmetry patterns, and technical characterization of traditional weaving techniques."
     }
+  ],
+  "publications": {
+    "peerReviewed": [
+      {
+        "title": "Fabrication of plasma-reduced silver coupled with titanium dioxide nanoparticles for visible light-driven photocatalysis",
+        "authors": "A. D. S. Montallana, J. P. D. Angeles, J. P. Chu, M. P. Sherburne, M. R. Vasquez, and M. Wada",
+        "journal": "Journal of Vacuum Science & Technology B",
+        "volume": "41",
+        "issue": "4",
+        "pages": "042204",
+        "year": 2023,
+        "month": "Jul",
+        "doi": "https://doi.org/10.1116/6.0002510"
+      }
+    ],
+    "submitted": [
+      {
+        "title": "Correlation of the Extinction Spectra and SERS Enhancement Factor of Gold Nanostar-Graphene Substrates",
+        "authors": "J. P. D. Angeles and M. M. Vega",
+        "journal": "Japanese Journal of Applied Physics",
+        "status": "submitted"
+      },
+      {
+        "title": "Fe-Exchanged Philippine Natural Zeolites for Efficient Nitrate Removal from Aqueous Solutions",
+        "authors": "J. P. D. Angeles and M. M. Vega",
+        "journal": "Journal of Environmental Science and Health, Part A",
+        "status": "submitted"
+      },
+      {
+        "title": "Synthesis and Ultraviolet-Visible Spectroscopy Studies of Gold@Graphene Oxide Nanocomposites",
+        "authors": "G. F. S. Cabrera, J. P. D. Angeles, and M. M. Vega",
+        "journal": "Japanese Journal of Applied Physics",
+        "status": "submitted"
+      }
+    ],
+    "inPreparation": [
+      {
+        "title": "Domain-Aware Bayesian Optimization for Tunable Localized Surface Plasmon Resonance in Gold Nanoparticles",
+        "authors": "J. P. D. Angeles and M. M. Vega",
+        "journal": "Materials & Design",
+        "status": "in preparation"
+      },
+      {
+        "title": "One-Pot Synthesis of Gold Nanoparticle-Graphene Sponge Composite",
+        "authors": "J. P. D. Angeles and M. M. Vega",
+        "journal": "Journal of Materials Chemistry C",
+        "status": "in preparation"
+      },
+      {
+        "title": "Bayesian Strategies for Low-Defect Graphene in One-Pot Gold Nanoparticle-Graphene Sponge Synthesis",
+        "authors": "J. P. D. Angeles and M. M. Vega",
+        "journal": "Science and Technology of Advanced Materials: Methods",
+        "status": "in preparation"
+      }
+    ]
+  },
+  "certifications": [
+    {
+      "title": "Civil Service Professional Eligibility",
+      "details": "Certification No. 0029, s. 2016 May 2016 - Philippines"
+    },
+    {
+      "title": "Blockchain Specialization",
+      "details": "Certificate ID: 0KC8CXJGZBAS - University at Buffalo & The State University of New York",
+      "courses": [
+        { "name": "Blockchain Basics", "license": "I0I6RESS8A0A", "date": "Jul 2025" },
+        { "name": "Smart Contracts", "license": "FFZ2EAAIVHKH", "date": "Sept 2025" },
+        { "name": "Decentralized Applications (Dapps)", "license": "Z1QXSUG67VRK", "date": "Sept 2025" },
+        { "name": "Blockchain Platforms", "license": "0A92LYAQJ1NS", "date": "Sept 2025" }
+      ]
+    },
+    {
+      "title": "IBM RAG and Agentic AI Specialization",
+      "details": "Certificate no: 96Y3IFM69UFO - IBM",
+      "courses": [
+        { "name": "Develop Generative AI Applications", "license": "1UAQXPDHPET7", "date": "Jul 2025" },
+        { "name": "Build RAG Applications", "license": "KMBOA6AAH8OT", "date": "Jul 2025" },
+        { "name": "Vector Databases for RAG", "license": "C765YI3KHR8N", "date": "Jul 2025" },
+        { "name": "Build Multimodal Generative AI Applications", "license": "T4F0NKS9DN9P", "date": "Jul 2025" },
+        { "name": "Fundamentals of Building AI Agents", "license": "NBUSB1LP04MB", "date": "Jul 2025" },
+        { "name": "AI Agents and Agentic AI with Python & Generative AI", "license": "6RBJDA2FFDN5", "date": "Jul 2025" },
+        { "name": "Advanced RAG with Vector Databases and Retrievers", "license": "10EXCHKWCNOD", "date": "Aug 2025" },
+        { "name": "Agentic AI with LangChain and LangGraph", "license": "PML16ZYC9Z2Z", "date": "Sept 2025" }
+      ]
+    },
+    {
+      "title": "Data Science Specialization",
+      "details": "John Hopkins University",
+      "courses": [
+        { "name": "The Data Scientist's Toolbox", "license": "ZB7NJL28UL73", "date": "Oct 2017" },
+        { "name": "R Programming", "license": "8JNWC386HTF9", "date": "Oct 2017" },
+        { "name": "Getting and Cleaning Data", "license": "VT9A8DXVN87F", "date": "Nov 2017" },
+        { "name": "Exploratory Data Analysis", "license": "8CEQ3SGVGASV", "date": "Dec 2017" }
+      ]
+    }
   ]
 }

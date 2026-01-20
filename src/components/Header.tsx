@@ -4,7 +4,6 @@ import { ContactInfo } from './ContactInfo';
 import { ResearchInterests } from './ResearchInterests';
 import { Education } from './Education';
 import { ProfileCarousel } from './ProfileCarousel';
-import { Certifications } from './Certifications';
 import { TypeAnimation } from 'react-type-animation';
 
 export function Header() {
@@ -59,7 +58,6 @@ export function Header() {
         <ContactInfo />
         <ResearchInterests />
         <Education />
-        <Certifications />
       </div>
     </div>
   );

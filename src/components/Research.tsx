@@ -14,6 +14,10 @@ import {
   type ResearchConference,
   type ResearchContent,
   type ResearchExperience,
+  type PeerReviewedPublication,
+  type SubmittedPublication,
+  type InPreparationPublication,
+  type Certification,
 } from '@/lib/content';
 
 type AsyncState = 'idle' | 'loading' | 'success' | 'error';
@@ -54,11 +58,101 @@ const ExperienceCard = ({ experience }: { experience: ResearchExperience }) => (
 
 // Helper function to highlight name in authors string
 const highlightName = (authors: string) => {
-  const parts = authors.split(/(J\. Angeles)/g);
+  const parts = authors.split(/(J\. P\. D\. Angeles|J\. Angeles)/g);
   return parts.map((part, index) => 
-    part === 'J. Angeles' ? <strong key={index}>{part}</strong> : part
+    (part === 'J. P. D. Angeles' || part === 'J. Angeles') ? <strong key={index}>{part}</strong> : part
   );
 };
+
+// Peer-Reviewed Publication Card Component
+const PeerReviewedCard = ({ publication }: { publication: PeerReviewedPublication }) => (
+  <Card className="p-4 hover:shadow-lg transition-all duration-200">
+    <h3 className="text-lg font-medium text-foreground">{publication.title}</h3>
+    <p className="text-sm text-muted-foreground mt-1">{highlightName(publication.authors)}</p>
+    <div className="mt-2 space-y-1">
+      <p className="text-sm text-muted-foreground italic">{publication.journal}</p>
+      <p className="text-sm text-muted-foreground">
+        Vol. {publication.volume}, No. {publication.issue}, p. {publication.pages}, {publication.month} {publication.year}
+      </p>
+      {publication.doi && (
+        <a
+          href={publication.doi}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+        >
+          <ExternalLink className="w-3 h-3" />
+          DOI Link
+        </a>
+      )}
+    </div>
+  </Card>
+);
+
+// Submitted Publication Card Component
+const SubmittedCard = ({ publication }: { publication: SubmittedPublication }) => (
+  <Card className="p-4 hover:shadow-lg transition-all duration-200">
+    <div className="flex items-start gap-2">
+      <div className="flex-1">
+        <h3 className="text-lg font-medium text-foreground">{publication.title}</h3>
+        <p className="text-sm text-muted-foreground mt-1">{highlightName(publication.authors)}</p>
+        <div className="mt-2 space-y-1">
+          <p className="text-sm text-muted-foreground italic">{publication.journal}</p>
+          <span className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-semibold text-yellow-800">
+            {publication.status}
+          </span>
+        </div>
+      </div>
+    </div>
+  </Card>
+);
+
+// In Preparation Publication Card Component
+const InPreparationCard = ({ publication }: { publication: InPreparationPublication }) => (
+  <Card className="p-4 hover:shadow-lg transition-all duration-200">
+    <div className="flex items-start gap-2">
+      <div className="flex-1">
+        <h3 className="text-lg font-medium text-foreground">{publication.title}</h3>
+        <p className="text-sm text-muted-foreground mt-1">{highlightName(publication.authors)}</p>
+        <div className="mt-2 space-y-1">
+          <p className="text-sm text-muted-foreground italic">{publication.journal}</p>
+          <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-800">
+            {publication.status}
+          </span>
+        </div>
+      </div>
+    </div>
+  </Card>
+);
+
+// Certification Card Component
+const CertificationCard = ({ certification }: { certification: Certification }) => (
+  <Card className="p-4 hover:shadow-lg transition-all duration-200">
+    <div className="space-y-3">
+      <div className="flex items-start gap-2">
+        <Award className="w-5 h-5 text-primary mt-1 shrink-0" />
+        <div className="flex-1">
+          <h3 className="text-lg font-medium text-foreground">{certification.title}</h3>
+          {certification.details && (
+            <p className="text-sm text-muted-foreground mt-1">{certification.details}</p>
+          )}
+        </div>
+      </div>
+      {certification.courses && certification.courses.length > 0 && (
+        <div className="pl-7 space-y-2">
+          {certification.courses.map((course, idx) => (
+            <div key={idx} className="border-l-2 border-primary/20 pl-3">
+              <p className="text-sm font-medium text-foreground">{course.name}</p>
+              <p className="text-xs text-muted-foreground">
+                License: {course.license} • {course.date}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </Card>
+);
 
 // Book Card Component
 const BookCard = ({ book }: { book: ResearchBook }) => (
@@ -184,6 +278,56 @@ export function Research() {
           </AccordionContent>
         </AccordionItem>
 
+        {content.publications && (
+          <AccordionItem value="publications">
+            <AccordionTrigger className="text-2xl font-serif py-4">
+              Publications
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="space-y-6 pt-2">
+                {content.publications.peerReviewed.length > 0 && (
+                  <div className="space-y-3">
+                    <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
+                      Peer-Reviewed Publications
+                    </h3>
+                    <div className="space-y-4">
+                      {content.publications.peerReviewed.map((publication, index) => (
+                        <PeerReviewedCard key={index} publication={publication} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {content.publications.submitted.length > 0 && (
+                  <div className="space-y-3">
+                    <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
+                      Submitted Manuscripts
+                    </h3>
+                    <div className="space-y-4">
+                      {content.publications.submitted.map((publication, index) => (
+                        <SubmittedCard key={index} publication={publication} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {content.publications.inPreparation.length > 0 && (
+                  <div className="space-y-3">
+                    <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
+                      Manuscripts in Preparation
+                    </h3>
+                    <div className="space-y-4">
+                      {content.publications.inPreparation.map((publication, index) => (
+                        <InPreparationCard key={index} publication={publication} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        )}
+
         <AccordionItem value="books">
           <AccordionTrigger className="text-2xl font-serif py-4">
             Books and Book Chapters
@@ -209,6 +353,21 @@ export function Research() {
             </div>
           </AccordionContent>
         </AccordionItem>
+
+        {content.certifications && content.certifications.length > 0 && (
+          <AccordionItem value="certifications">
+            <AccordionTrigger className="text-2xl font-serif py-4">
+              Certifications
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="space-y-4 pt-2">
+                {content.certifications.map((certification, index) => (
+                  <CertificationCard key={index} certification={certification} />
+                ))}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        )}
       </Accordion>
     </motion.div>
   );
