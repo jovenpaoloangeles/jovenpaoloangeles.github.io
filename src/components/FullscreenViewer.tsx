@@ -103,6 +103,8 @@ export const FullscreenViewer: React.FC<FullscreenViewerProps> = ({
               alt={`Image ${currentIndex + 1}`}
               className="max-w-full max-h-full object-contain"
               style={{ margin: 'auto' }}
+              loading="lazy"
+              decoding="async"
             />
           </motion.div>
         </motion.div>

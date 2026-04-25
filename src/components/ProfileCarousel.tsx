@@ -49,6 +49,7 @@ export function ProfileCarousel() {
               src={image.src}
               alt={image.alt}
               className="w-full h-full object-cover"
+              loading={index !== 0 ? "lazy" : undefined}
             />
           </div>
         );
