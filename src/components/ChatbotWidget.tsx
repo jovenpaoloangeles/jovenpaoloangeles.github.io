@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, X, Send, Key, Loader2, Trash2 } from 'lucide-react';
-import { GoogleGenAI } from '@google/genai';
+import { MessageCircle, X, Send, Loader2, Trash2 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface Message {
   id: string;
@@ -10,18 +11,12 @@ interface Message {
   timestamp: Date;
 }
 
-const STORAGE_KEY = 'gemini_api_key';
-const CHAT_HISTORY_KEY = 'gemini_chat_history';
+const CHAT_HISTORY_KEY = 'portfolio_chat_history';
+const EDGE_FUNCTION_URL =
+  'https://pseeqvnoppfsbmptzznj.supabase.co/functions/v1/gemini-chat';
 
 export function ChatbotWidget() {
   const [isOpen, setIsOpen] = useState(false);
-  const [apiKey, setApiKey] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem(STORAGE_KEY) || '';
-    }
-    return '';
-  });
-  const [apiKeyInput, setApiKeyInput] = useState('');
   const [messages, setMessages] = useState<Message[]>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem(CHAT_HISTORY_KEY);
@@ -41,34 +36,9 @@ export function ChatbotWidget() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const chatRef = useRef<ReturnType<GoogleGenAI['chats']['create']> | null>(null);
-  const aiRef = useRef<GoogleGenAI | null>(null);
-
-  // Initialize AI client when API key changes
-  useEffect(() => {
-    if (apiKey) {
-      aiRef.current = new GoogleGenAI({ apiKey });
-      // Create chat session with history
-      const history = messages
-        .filter((m) => m.content.trim())
-        .map((m) => ({
-          role: m.role === 'user' ? 'user' as const : 'model' as const,
-          parts: [{ text: m.content }],
-        }));
-      
-      chatRef.current = aiRef.current.chats.create({
-        model: 'gemini-2.0-flash',
-        history,
-        config: {
-          temperature: 0.7,
-          maxOutputTokens: 2048,
-        },
-      });
-    }
-  }, [apiKey, messages.length]);
 
   // Save messages to localStorage
   useEffect(() => {
@@ -84,45 +54,18 @@ export function ChatbotWidget() {
 
   // Focus input when chat opens
   useEffect(() => {
-    if (isOpen && apiKey) {
+    if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 100);
     }
-  }, [isOpen, apiKey]);
-
-  const handleSaveApiKey = useCallback(() => {
-    if (apiKeyInput.trim()) {
-      const key = apiKeyInput.trim();
-      localStorage.setItem(STORAGE_KEY, key);
-      setApiKey(key);
-      setApiKeyInput('');
-      setError(null);
-    }
-  }, [apiKeyInput]);
-
-  const handleRemoveApiKey = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY);
-    setApiKey('');
-    aiRef.current = null;
-    chatRef.current = null;
-  }, []);
+  }, [isOpen]);
 
   const handleClearHistory = useCallback(() => {
     setMessages([]);
     localStorage.removeItem(CHAT_HISTORY_KEY);
-    // Recreate chat session without history
-    if (aiRef.current) {
-      chatRef.current = aiRef.current.chats.create({
-        model: 'gemini-2.0-flash',
-        config: {
-          temperature: 0.7,
-          maxOutputTokens: 2048,
-        },
-      });
-    }
   }, []);
 
   const handleSendMessage = useCallback(async () => {
-    if (!input.trim() || isLoading || !chatRef.current) return;
+    if (!input.trim() || isLoading) return;
 
     const userMessage: Message = {
       id: crypto.randomUUID(),
@@ -136,34 +79,105 @@ export function ChatbotWidget() {
     setIsLoading(true);
     setError(null);
 
+    // Build history in Gemini format (role: 'user' | 'model')
+    const history = messages
+      .filter((m) => m.content.trim())
+      .map((m) => ({
+        role: m.role === 'user' ? 'user' : 'model',
+        parts: [{ text: m.content }],
+      }));
+
     try {
-      const response = await chatRef.current.sendMessage({
-        message: userMessage.content,
+      const res = await fetch(EDGE_FUNCTION_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMessage.content, history }),
       });
 
-      const assistantMessage: Message = {
-        id: crypto.randomUUID(),
-        role: 'assistant',
-        content: response.text || 'Sorry, I could not generate a response.',
-        timestamp: new Date(),
-      };
-
-      setMessages((prev) => [...prev, assistantMessage]);
-    } catch (err) {
-      console.error('Gemini API error:', err);
-      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
-      setError(errorMessage);
-      
-      // If API key is invalid, prompt to re-enter
-      if (errorMessage.toLowerCase().includes('api key') || 
-          errorMessage.toLowerCase().includes('unauthorized') ||
-          errorMessage.toLowerCase().includes('invalid')) {
-        handleRemoveApiKey();
+      if (res.status === 429) {
+        const retryAfter = res.headers.get('Retry-After');
+        const minutes = retryAfter ? Math.ceil(Number(retryAfter) / 60) : 15;
+        throw new Error(`You've sent a lot of messages! Please wait ${minutes} minute${minutes !== 1 ? 's' : ''} before trying again.`);
       }
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error ?? `Request failed (${res.status})`);
+      }
+
+      const contentType = res.headers.get('Content-Type') ?? '';
+
+      if (contentType.includes('text/event-stream')) {
+        // Streaming response — read SSE chunks and append incrementally
+        const assistantId = crypto.randomUUID();
+        setMessages((prev) => [
+          ...prev,
+          { id: assistantId, role: 'assistant', content: '', timestamp: new Date() },
+        ]);
+
+        const reader = res.body?.getReader();
+        if (!reader) throw new Error('No response body');
+
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() ?? '';
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const jsonStr = line.slice(6).trim();
+              if (jsonStr === '[DONE]') continue;
+              try {
+                const chunk = JSON.parse(jsonStr);
+                const text: string =
+                  chunk?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+                if (text) {
+                  setMessages((prev) =>
+                    prev.map((m) =>
+                      m.id === assistantId ? { ...m, content: m.content + text } : m,
+                    ),
+                  );
+                }
+              } catch {
+                // Ignore malformed chunks
+              }
+            }
+          }
+        }
+
+        // If streaming produced no content, show fallback
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === assistantId && m.content === ''
+              ? { ...m, content: 'Sorry, I could not generate a response.' }
+              : m,
+          ),
+        );
+      } else {
+        // Fallback for non-streaming responses (e.g. error JSON)
+        const data = await res.json();
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            role: 'assistant',
+            content: data.text ?? 'Sorry, I could not generate a response.',
+            timestamp: new Date(),
+          },
+        ]);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setIsLoading(false);
     }
-  }, [input, isLoading, handleRemoveApiKey]);
+  }, [input, isLoading, messages]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -227,16 +241,16 @@ export function ChatbotWidget() {
                   <MessageCircle className="h-4 w-4 text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold">AI Assistant</h3>
-                  <p className="text-xs text-muted-foreground">Powered by Gemini</p>
+                  <h3 className="text-sm font-semibold text-foreground">Ask about Joven</h3>
                 </div>
               </div>
               <div className="flex items-center gap-1">
-                {apiKey && (
+                {messages.length > 0 && (
                   <button
                     onClick={handleClearHistory}
                     className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
                     title="Clear chat history"
+                    aria-label="Clear chat history"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -251,134 +265,120 @@ export function ChatbotWidget() {
               </div>
             </div>
 
-            {/* Content */}
-            {!apiKey ? (
-              /* API Key Input */
-              <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-                  <Key className="h-8 w-8 text-primary" />
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-4">
+              {messages.length === 0 ? (
+                <div className="flex h-full flex-col items-center justify-center text-center text-muted-foreground">
+                  <MessageCircle className="mb-2 h-8 w-8" />
+                  <p className="text-sm">Ask me anything about Joven!</p>
+                  <p className="mt-1 text-xs">Research, projects, photography, or how to collaborate.</p>
                 </div>
-                <div className="text-center">
-                  <h4 className="font-semibold">Enter your Gemini API Key</h4>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Your key is stored locally in your browser and never sent to our servers.
-                  </p>
-                </div>
-                <div className="w-full space-y-3">
-                  <input
-                    type="password"
-                    value={apiKeyInput}
-                    onChange={(e) => setApiKeyInput(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSaveApiKey()}
-                    placeholder="AIza..."
-                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  />
-                  <button
-                    onClick={handleSaveApiKey}
-                    disabled={!apiKeyInput.trim()}
-                    className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-                  >
-                    Save API Key
-                  </button>
-                </div>
-                <a
-                  href="https://aistudio.google.com/app/apikey"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-primary hover:underline"
-                >
-                  Get your free API key from Google AI Studio →
-                </a>
-              </div>
-            ) : (
-              <>
-                {/* Messages */}
-                <div className="flex-1 overflow-y-auto p-4">
-                  {messages.length === 0 ? (
-                    <div className="flex h-full flex-col items-center justify-center text-center text-muted-foreground">
-                      <MessageCircle className="mb-2 h-8 w-8" />
-                      <p className="text-sm">Start a conversation!</p>
-                      <p className="mt-1 text-xs">Ask me anything about Joven's work, research, or projects.</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {messages.map((message) => (
-                        <div
-                          key={message.id}
-                          className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                        >
-                          <div
-                            className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
-                              message.role === 'user'
-                                ? 'bg-primary text-primary-foreground'
-                                : 'bg-muted text-foreground'
-                            }`}
+              ) : (
+                <div className="space-y-4">
+                  {messages.map((message) => (
+                    <div
+                      key={message.id}
+                      className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                    >
+                      <div
+                        className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
+                          message.role === 'user'
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted text-foreground'
+                        }`}
+                      >
+                        {message.role === 'user' ? (
+                          <p className="whitespace-pre-wrap break-words">{message.content}</p>
+                        ) : (
+                          <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            components={{
+                              p: ({ children }) => <p className="mb-1 last:mb-0 break-words">{children}</p>,
+                              strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
+                              em: ({ children }) => <em className="italic">{children}</em>,
+                              ul: ({ children }) => <ul className="my-1 ml-4 list-disc space-y-0.5">{children}</ul>,
+                              ol: ({ children }) => <ol className="my-1 ml-4 list-decimal space-y-0.5">{children}</ol>,
+                              li: ({ children }) => <li className="leading-snug">{children}</li>,
+                              a: ({ href, children }) => (
+                                <a href={href} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:opacity-80">
+                                  {children}
+                                </a>
+                              ),
+                              code: ({ children }) => (
+                                <code className="rounded bg-black/10 px-1 py-0.5 font-mono text-xs dark:bg-white/10">
+                                  {children}
+                                </code>
+                              ),
+                              pre: ({ children }) => (
+                                <pre className="my-1 overflow-x-auto rounded bg-black/10 p-2 font-mono text-xs dark:bg-white/10">
+                                  {children}
+                                </pre>
+                              ),
+                              h1: ({ children }) => <p className="font-semibold text-foreground">{children}</p>,
+                              h2: ({ children }) => <p className="font-semibold text-foreground">{children}</p>,
+                              h3: ({ children }) => <p className="font-medium text-foreground">{children}</p>,
+                              blockquote: ({ children }) => (
+                                <blockquote className="border-l-2 border-current pl-2 opacity-80">{children}</blockquote>
+                              ),
+                            }}
                           >
-                            <p className="whitespace-pre-wrap break-words">{message.content}</p>
-                            <p
-                              className={`mt-1 text-[10px] ${
-                                message.role === 'user' ? 'text-primary-foreground/70' : 'text-muted-foreground'
-                              }`}
-                            >
-                              {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                      {isLoading && (
-                        <div className="flex justify-start">
-                          <div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                            <span>Thinking...</span>
-                          </div>
-                        </div>
-                      )}
-                      <div ref={messagesEndRef} />
+                            {message.content}
+                          </ReactMarkdown>
+                        )}
+                        <p
+                          className={`mt-1 text-[10px] ${
+                            message.role === 'user' ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                          }`}
+                        >
+                          {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                  {isLoading && (
+                    <div className="flex justify-start">
+                      <div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>Thinking…</span>
+                      </div>
                     </div>
                   )}
+                  <div ref={messagesEndRef} />
                 </div>
+              )}
+            </div>
 
-                {/* Error Display */}
-                {error && (
-                  <div className="border-t border-destructive/20 bg-destructive/10 px-4 py-2 text-xs text-destructive">
-                    {error}
-                  </div>
-                )}
-
-                {/* Input */}
-                <div className="border-t border-border p-4">
-                  <div className="flex gap-2">
-                    <input
-                      ref={inputRef}
-                      type="text"
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      placeholder="Type your message..."
-                      disabled={isLoading}
-                      className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
-                    />
-                    <button
-                      onClick={handleSendMessage}
-                      disabled={!input.trim() || isLoading}
-                      className="flex h-10 w-10 items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-                      aria-label="Send message"
-                    >
-                      <Send className="h-4 w-4" />
-                    </button>
-                  </div>
-                  <div className="mt-2 flex items-center justify-between">
-                    <button
-                      onClick={handleRemoveApiKey}
-                      className="text-xs text-muted-foreground hover:text-foreground"
-                    >
-                      Change API Key
-                    </button>
-                    <span className="text-[10px] text-muted-foreground">Press Enter to send</span>
-                  </div>
-                </div>
-              </>
+            {/* Error */}
+            {error && (
+              <div className="border-t border-destructive/20 bg-destructive/10 px-4 py-2 text-xs text-destructive">
+                {error}
+              </div>
             )}
+
+            {/* Input */}
+            <div className="border-t border-border p-4">
+              <div className="flex gap-2">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Type your message…"
+                  disabled={isLoading}
+                  className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+                />
+                <button
+                  onClick={handleSendMessage}
+                  disabled={!input.trim() || isLoading}
+                  className="flex h-10 w-10 items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+                  aria-label="Send message"
+                >
+                  <Send className="h-4 w-4" />
+                </button>
+              </div>
+              <p className="mt-2 text-right text-[10px] text-muted-foreground">Press Enter to send</p>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
