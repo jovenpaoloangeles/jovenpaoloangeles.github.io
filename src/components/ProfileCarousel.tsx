@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 const profileImages = [
   {
-    src: '/profile_pictures/profile-photo.jpg',
+    src: '/profile_pictures/profile-photo.webp',
     alt: 'Portrait of Joven Paolo Angeles smiling outdoors'
   },
   {
