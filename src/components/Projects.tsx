@@ -38,9 +38,7 @@ const projects: Project[] = [
       webp: '/projects/WFHOptimizer.webp',
     },
     meta: [
-      { label: 'Role', value: 'Creator' },
       { label: 'Stack', value: 'TypeScript · React · Tailwind CSS' },
-      { label: 'Year', value: '2024' },
     ],
   },
   {
@@ -58,9 +56,7 @@ const projects: Project[] = [
       avif: '/projects/XRDAnalyzer.avif',
     },
     meta: [
-      { label: 'Role', value: 'Developer' },
       { label: 'Stack', value: 'TypeScript · React · D3.js' },
-      { label: 'Year', value: '2024' },
     ],
   },
   {
@@ -78,9 +74,7 @@ const projects: Project[] = [
       avif: '/projects/ChunkingExpress.avif',
     },
     meta: [
-      { label: 'Role', value: 'Maker' },
       { label: 'Stack', value: 'Python · Gradio · Sentence Transformers' },
-      { label: 'Year', value: '2023' },
     ],
   },
   {
@@ -98,9 +92,7 @@ const projects: Project[] = [
       avif: '/projects/PuzzleADay.avif',
     },
     meta: [
-      { label: 'Role', value: 'Engineer' },
       { label: 'Stack', value: 'TypeScript · React · Algorithm X' },
-      { label: 'Year', value: '2022' },
     ],
   },
 ];
@@ -108,7 +100,7 @@ const projects: Project[] = [
 export const Projects: React.FC = () => {
   return (
     <div>
-      <h2 className="text-3xl font-extrabold mb-8">Projects</h2>
+      <h2 className="text-3xl font-extrabold text-foreground mb-8">Projects</h2>
       <div className="flex flex-col gap-8">
         {projects.map((project) => {
           const headingId = `project-${project.title.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}`;
@@ -118,7 +110,7 @@ export const Projects: React.FC = () => {
             href={project.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="block bg-card rounded-xl shadow transition-shadow duration-200 p-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary hover:shadow-lg"
+            className="block bg-card rounded-xl shadow transition-shadow duration-200 p-6 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary hover:shadow-lg"
               aria-labelledby={headingId}
           >
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
@@ -137,7 +129,7 @@ export const Projects: React.FC = () => {
                     height={project.media.height}
                     loading="lazy"
                     decoding="async"
-                    className="w-24 h-24 object-contain rounded-md bg-white shadow-sm"
+                    className="w-24 h-24 object-contain rounded-md bg-card shadow-sm"
                     onError={(event) => {
                       const img = event.currentTarget;
                       if (img.dataset.fallbackApplied === 'true') {
@@ -159,6 +151,15 @@ export const Projects: React.FC = () => {
                     {project.description}
                   </p>
                 </div>
+
+                <dl className="flex flex-wrap gap-x-4 gap-y-1">
+                  {project.meta.map(({ label, value }) => (
+                    <div key={label} className="flex items-center gap-1 text-xs">
+                      <dt className="font-medium text-foreground">{label}:</dt>
+                      <dd className="text-muted-foreground">{value}</dd>
+                    </div>
+                  ))}
+                </dl>
 
                 <span className="inline-flex items-center gap-2 text-sm font-semibold text-primary">
                   {project.ctaLabel}
