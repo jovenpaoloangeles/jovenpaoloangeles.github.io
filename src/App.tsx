@@ -1,14 +1,43 @@
-import { useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Header } from './components/Header';
 import { About } from './components/About';
-import { Research } from './components/Research';
-import { TechStack } from './components/TechStack';
-import { CreativeCoding } from './components/CreativeCoding';
-import { Projects } from './components/Projects';
-import { Photography } from './components/Photography';
-import { Awards } from './components/Awards';
-import { RecentActivities } from './components/RecentActivities';
+
+const Research = lazy(() =>
+  import('./components/Research').then((m) => ({ default: m.Research }))
+);
+const TechStack = lazy(() =>
+  import('./components/TechStack').then((m) => ({ default: m.TechStack }))
+);
+const CreativeCoding = lazy(() =>
+  import('./components/CreativeCoding').then((m) => ({
+    default: m.CreativeCoding,
+  }))
+);
+const Projects = lazy(() =>
+  import('./components/Projects').then((m) => ({ default: m.Projects }))
+);
+const Photography = lazy(() =>
+  import('./components/Photography').then((m) => ({
+    default: m.Photography,
+  }))
+);
+const Awards = lazy(() =>
+  import('./components/Awards').then((m) => ({ default: m.Awards }))
+);
+const RecentActivities = lazy(() =>
+  import('./components/RecentActivities').then((m) => ({
+    default: m.RecentActivities,
+  }))
+);
+
+function TabFallback() {
+  return (
+    <div className="flex items-center justify-center py-12">
+      <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
+    </div>
+  );
+}
 
 // Define tab interface for better type safety
 interface Tab {
@@ -71,19 +100,47 @@ function App() {
       case 'about':
         return <About />;
       case 'research':
-        return <Research />;
+        return (
+          <Suspense fallback={<TabFallback />}>
+            <Research />
+          </Suspense>
+        );
       case 'tech-stack':
-        return <TechStack />;
+        return (
+          <Suspense fallback={<TabFallback />}>
+            <TechStack />
+          </Suspense>
+        );
       case 'projects':
-        return <Projects />;
+        return (
+          <Suspense fallback={<TabFallback />}>
+            <Projects />
+          </Suspense>
+        );
       case 'creative-coding':
-        return <CreativeCoding />;
+        return (
+          <Suspense fallback={<TabFallback />}>
+            <CreativeCoding />
+          </Suspense>
+        );
       case 'photography':
-        return <Photography />;
+        return (
+          <Suspense fallback={<TabFallback />}>
+            <Photography />
+          </Suspense>
+        );
       case 'awards':
-        return <Awards />;
+        return (
+          <Suspense fallback={<TabFallback />}>
+            <Awards />
+          </Suspense>
+        );
       case 'recent-activities':
-        return <RecentActivities />;
+        return (
+          <Suspense fallback={<TabFallback />}>
+            <RecentActivities />
+          </Suspense>
+        );
       default:
         return <About />;
     }
