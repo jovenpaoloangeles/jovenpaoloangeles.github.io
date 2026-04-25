@@ -3,10 +3,11 @@ import { motion } from 'framer-motion';
 
 // Custom SVG icon component
 const TechIcon = ({ name }: { name: string }) => (
-  <img 
-    src={`/icons/${name.toLowerCase()}.${['matlab', 'jax', 'openlit', 'unsloth'].includes(name.toLowerCase()) ? 'png' : ['agno', 'huggingface', 'vllm'].includes(name.toLowerCase()) ? 'jpeg' : 'svg'}`} 
+  <img
+    src={`/icons/${name.toLowerCase()}.${['matlab', 'jax', 'openlit', 'unsloth'].includes(name.toLowerCase()) ? 'png' : ['agno', 'huggingface', 'vllm'].includes(name.toLowerCase()) ? 'jpeg' : 'svg'}`}
     alt={`${name} icon`}
     className="w-5 h-5"
+    loading="lazy"
   />
 );
 
