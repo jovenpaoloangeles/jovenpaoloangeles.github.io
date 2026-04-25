@@ -2,7 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.svg" sizes="any" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Joven Paolo D. Angeles</title>
     <meta name="description" content="Joven Paolo D. Angeles - PhD candidate in Materials Science at University of the Philippines, specializing in Bayesian Optimization for nanoparticle synthesis. Senior AI Engineer developing RAG architectures and agentic AI systems. Award-winning photographer featured in National Geographic and International Photography Awards." />
@@ -76,6 +77,14 @@
     </script>
   </head>
   <body>
+    <script>
+      (function() {
+        var t = localStorage.getItem('theme');
+        if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     
