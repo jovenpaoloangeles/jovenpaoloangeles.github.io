@@ -26,6 +26,7 @@ const AccordionTrigger = React.forwardRef<
     <AccordionPrimitive.Trigger
       ref={ref}
       className={cn(
+        "text-foreground",
         className
       )}
       {...props}

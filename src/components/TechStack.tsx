@@ -105,25 +105,25 @@ export function TechStack() {
       transition={{ duration: 0.5 }}
       className="space-y-8"
     >
-      <h2 className="text-2xl font-serif mb-6">Technical Skills</h2>
+      <h2 className="text-2xl font-serif text-foreground mb-6">Technical Skills</h2>
       
       <div className="space-y-8">
         {categories.map((category, idx) => (
           <div key={idx} className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">{category.title}</h3>
-            <p className="text-sm text-gray-600 mb-2">{category.description}</p>
+            <h3 className="text-lg font-medium text-foreground">{category.title}</h3>
+            <p className="text-sm text-muted-foreground mb-2">{category.description}</p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {category.items.map((item, index) => (
                 <div
                   key={index}
-                  className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="flex items-start gap-3 p-4 bg-muted rounded-lg hover:bg-accent transition-colors"
                 >
                   <div className="flex-shrink-0 mt-1">
                     <TechIcon name={item.icon} />
                   </div>
                   <div>
-                    <h4 className="font-medium text-gray-900">{item.name}</h4>
-                    <p className="text-sm text-gray-500">{item.description}</p>
+                    <h4 className="font-medium text-foreground">{item.name}</h4>
+                    <p className="text-sm text-muted-foreground">{item.description}</p>
                   </div>
                 </div>
               ))}

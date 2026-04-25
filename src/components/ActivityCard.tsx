@@ -13,15 +13,15 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
   const getTypeColor = (type: Activity['type'][number]) => {
     switch (type) {
       case 'blog':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300';
       case 'research':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300';
       case 'achievement':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300';
       case 'photography':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
     }
   };
 
@@ -61,7 +61,7 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
             </div>
 
             {/* Content */}
-            <h3 className="text-lg font-semibold">{activity.title}</h3>
+            <h3 className="text-lg font-semibold text-foreground">{activity.title}</h3>
             <p className="text-muted-foreground">{activity.content}</p>
 
             {/* Tags */}

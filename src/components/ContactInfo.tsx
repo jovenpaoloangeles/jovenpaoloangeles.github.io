@@ -72,7 +72,7 @@ export function ContactInfo() {
               href={part.href}
               target="_blank"
               rel="noopener noreferrer"
-              className={`relative cursor-pointer transition-opacity duration-200 hover:text-primary ${getOpacity(
+              className={`relative cursor-pointer text-foreground transition-opacity duration-200 hover:text-primary ${getOpacity(
                 part.id
               )}`}
               onMouseEnter={() => setHoveredId(part.id)}
@@ -94,7 +94,7 @@ export function ContactInfo() {
             href={part.href}
             target="_blank"
             rel="noopener noreferrer"
-            className={`transition-all duration-200 ${getOpacity(part.id)}`}
+            className={`transition-all duration-200 text-foreground ${getOpacity(part.id)}`}
             onMouseEnter={() => setHoveredId(part.id)}
           >
             <Badge>

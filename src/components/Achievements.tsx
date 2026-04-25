@@ -53,13 +53,13 @@ export function Achievements() {
   ];
 
   return (
-    <section id="achievements" className="py-16 bg-gray-50">
+    <section id="achievements" className="py-16 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl font-serif">
+          <h2 className="text-3xl font-extrabold text-foreground sm:text-4xl font-serif">
             Academic Achievements
           </h2>
-          <p className="mt-3 max-w-2xl mx-auto text-xl text-gray-500 sm:mt-4">
+          <p className="mt-3 max-w-2xl mx-auto text-xl text-muted-foreground sm:mt-4">
             Recognition for excellence in research and teaching
           </p>
         </div>
@@ -70,7 +70,7 @@ export function Achievements() {
                 <div className="flex items-center justify-center">
                   <category.icon className="h-8 w-8 text-blue-600" />
                 </div>
-                <h3 className="mt-2 text-lg font-semibold text-gray-900">
+                <h3 className="mt-2 text-lg font-semibold text-foreground">
                   {category.category}
                 </h3>
               </div>
@@ -78,13 +78,13 @@ export function Achievements() {
                 {category.items.map((item, index) => (
                   <div
                     key={index}
-                    className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow"
+                    className="bg-card rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow"
                   >
-                    <h4 className="text-lg font-semibold text-gray-900">
+                    <h4 className="text-lg font-semibold text-foreground">
                       {item.title}
                     </h4>
                     <p className="mt-1 text-sm text-blue-600">{item.year}</p>
-                    <p className="mt-2 text-sm text-gray-500">
+                    <p className="mt-2 text-sm text-muted-foreground">
                       {item.description}
                     </p>
                   </div>

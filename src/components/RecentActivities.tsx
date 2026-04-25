@@ -71,7 +71,7 @@ export function RecentActivities() {
       className="space-y-6"
     >
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-serif">Recent Activities</h2>
+        <h2 className="text-2xl font-serif text-foreground">Recent Activities</h2>
       </div>
 
       {status !== 'success' && (
@@ -105,7 +105,7 @@ export function RecentActivities() {
               setCurrentPage(1); // Reset to first page on filter change
             }}
             disabled={status !== 'success'}
-            className="h-9 w-[200px] rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+            className="h-9 w-[200px] rounded-md border border-input bg-background text-foreground px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>option]:bg-background [&>option]:text-foreground"
           >
             <option value="all">All Types</option>
             <option value="blog">Blog Posts</option>

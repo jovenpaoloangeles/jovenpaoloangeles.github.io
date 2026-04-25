@@ -1,8 +1,9 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import { Sun, Moon } from 'lucide-react';
 import { Header } from './components/Header';
+import { useTheme } from './hooks/useTheme';
 import { About } from './components/About';
-
 const Research = lazy(() =>
   import('./components/Research').then((m) => ({ default: m.Research }))
 );
@@ -39,6 +40,8 @@ function TabFallback() {
   );
 }
 
+import { ChatbotWidget } from './components/ChatbotWidget';
+
 // Define tab interface for better type safety
 interface Tab {
   value: string;
@@ -72,6 +75,7 @@ const getTabFromHash = (): string => {
 function App() {
   const [activeTab, setActiveTab] = useState<string>(() => getTabFromHash());
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -184,6 +188,7 @@ function App() {
   };
 
   return (
+    <>
     <div className="min-h-screen bg-background">
       <div className="container px-4 py-12 mx-auto">
         <motion.div
@@ -223,6 +228,13 @@ function App() {
                       {tab.label}
                     </button>
                   ))}
+                  <button
+                    onClick={toggleTheme}
+                    aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                    className="ml-auto px-3 py-2 text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+                  >
+                    {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                  </button>
                 </div>
               </div>
               {TABS.map((tab) => (
@@ -243,6 +255,8 @@ function App() {
         </motion.div>
       </div>
     </div>
+    <ChatbotWidget />
+    </>
   );
 }
 

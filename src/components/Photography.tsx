@@ -149,7 +149,7 @@ export function Photography() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Camera className="w-5 h-5 text-primary" />
-          <h2 className="text-2xl font-serif">Photography Portfolio</h2>
+          <h2 className="text-2xl font-serif text-foreground">Photography Portfolio</h2>
         </div>
       </div>
 
@@ -160,15 +160,13 @@ export function Photography() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: categoryIndex * 0.1 }}
-            className="group relative overflow-hidden rounded-xl bg-gray-100 aspect-[4/3] cursor-pointer"
+            className="group relative overflow-hidden rounded-xl bg-muted aspect-[4/3] cursor-pointer"
             onClick={() => handleImageClick(categoryIndex, 0)}
           >
             <Carousel images={category.images} />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                <h3 className="text-lg font-semibold mb-1">{category.title}</h3>
-                <p className="text-sm text-gray-300">{category.description}</p>
-              </div>
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-6 text-white">
+              <h3 className="text-lg font-semibold text-white mb-1">{category.title}</h3>
+              <p className="text-sm text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity duration-300">{category.description}</p>
             </div>
           </motion.div>
         ))}

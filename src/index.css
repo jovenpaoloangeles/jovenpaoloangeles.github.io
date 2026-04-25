@@ -38,8 +38,8 @@
   .dark {
     --background: 0 0% 12%;
     --foreground: 0 0% 98%;
- 
-    --card: 0 0% 12%;
+
+    --card: 0 0% 16%;
     --card-foreground: 0 0% 98%;
  
     --popover: 0 0% 12%;
@@ -64,4 +64,9 @@
     --input: 0 0% 18%;
     --ring: 0 0% 83.9%;
   }
+}
+
+/* react-github-calendar legend labels (outside @layer for higher specificity) */
+.react-activity-calendar__legend-colors span {
+  color: hsl(var(--foreground));
 }

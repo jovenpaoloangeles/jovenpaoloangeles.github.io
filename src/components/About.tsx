@@ -1,8 +1,10 @@
 import { motion } from 'framer-motion';
 import { Briefcase, Download, FlaskConical, Mail, Printer, Target, Users, Github, Cpu, TrendingUp } from 'lucide-react';
-import { GitHubCalendar } from 'react-github-calendar';
+import { GitHubCalendar, type ThemeInput } from 'react-github-calendar';
+import { useTheme } from '@/hooks/useTheme';
 
 export function About() {
+  const { theme } = useTheme();
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -50,12 +52,12 @@ export function About() {
           <h3 className="text-lg font-semibold text-foreground">GitHub Activity</h3>
         </div>
         <div className="bg-card flex items-center justify-center rounded-lg p-4 border border-border">
-          <GitHubCalendar 
+          <GitHubCalendar
             username="jovenpaoloangeles"
             blockSize={10}
             blockMargin={4}
             fontSize={12}
-            colorScheme="light"
+            colorScheme={theme}
           />
         </div>
       </div>

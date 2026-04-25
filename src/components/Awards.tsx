@@ -90,33 +90,33 @@ export function Awards() {
       transition={{ duration: 0.5 }}
       className="space-y-6"
     >
-      <h2 className="text-2xl font-serif mb-6">Awards & Recognition</h2>
+      <h2 className="text-2xl font-serif text-foreground mb-6">Awards & Recognition</h2>
 
       <Accordion type="single" collapsible className="space-y-4">
         <AccordionItem value="academic" className="border rounded-lg">
           <AccordionTrigger className="px-4 py-2 hover:no-underline">
             <div className="flex items-center gap-2">
-              <Trophy className="w-5 h-5 text-black-500" />
-              <span className="font-medium">Academic Awards</span>
+              <Trophy className="w-5 h-5 text-foreground" />
+              <span className="font-medium text-foreground">Academic Awards</span>
             </div>
           </AccordionTrigger>
           <AccordionContent className="px-4 pb-4">
             <div className="space-y-4">
               {awards.academic.map((award, index) => (
-                <div key={index} className="bg-gray-50 p-4 rounded-lg">
+                <div key={index} className="bg-muted p-4 rounded-lg">
                   <div className="flex items-start gap-3">
-                    <GraduationCap className="w-5 h-5 text-black-500 mt-1" />
+                    <GraduationCap className="w-5 h-5 text-foreground mt-1" />
                     <div>
-                      <h4 className="font-medium text-gray-900">{award.title}</h4>
-                      <p className="text-sm text-gray-600">{award.organization}</p>
+                      <h4 className="font-medium text-foreground">{award.title}</h4>
+                      <p className="text-sm text-muted-foreground">{award.organization}</p>
                       {award.period && (
-                        <p className="text-sm text-black-900">{award.period}</p>
+                        <p className="text-sm text-foreground">{award.period}</p>
                       )}
-                      <p className="text-sm text-gray-500 mt-1">{award.description}</p>
+                      <p className="text-sm text-muted-foreground mt-1">{award.description}</p>
                       {award.periods && (
                         <ul className="mt-2 space-y-1">
                           {award.periods.map((period, i) => (
-                            <li key={i} className="text-sm text-gray-500">• {period}</li>
+                            <li key={i} className="text-sm text-muted-foreground">• {period}</li>
                           ))}
                         </ul>
                       )}
@@ -131,24 +131,24 @@ export function Awards() {
         <AccordionItem value="photography" className="border rounded-lg">
           <AccordionTrigger className="px-4 py-2 hover:no-underline">
             <div className="flex items-center gap-2">
-              <Camera className="w-5 h-5 text-black-500" />
-              <span className="font-medium">Photography Awards</span>
+              <Camera className="w-5 h-5 text-foreground" />
+              <span className="font-medium text-foreground">Photography Awards</span>
             </div>
           </AccordionTrigger>
           <AccordionContent className="px-4 pb-4">
             <div className="space-y-6">
               <div className="space-y-4">
-                <h3 className="font-medium text-gray-900">International Awards</h3>
+                <h3 className="font-medium text-foreground">International Awards</h3>
                 {awards.photography.international.map((award, index) => (
-                  <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                    <h4 className="font-medium text-gray-900">{award.title}</h4>
+                  <div key={index} className="bg-muted p-4 rounded-lg">
+                    <h4 className="font-medium text-foreground">{award.title}</h4>
                     {award.achievement && (
-                      <p className="text-sm text-gray-600 mt-1">{award.achievement}</p>
+                      <p className="text-sm text-muted-foreground mt-1">{award.achievement}</p>
                     )}
                     {award.achievements && (
                       <ul className="mt-2 space-y-1">
                         {award.achievements.map((achievement, i) => (
-                          <li key={i} className="text-sm text-gray-600">• {achievement}</li>
+                          <li key={i} className="text-sm text-muted-foreground">• {achievement}</li>
                         ))}
                       </ul>
                     )}
@@ -157,11 +157,11 @@ export function Awards() {
               </div>
 
               <div className="space-y-4">
-                <h3 className="font-medium text-gray-900">Exhibitions</h3>
+                <h3 className="font-medium text-foreground">Exhibitions</h3>
                 {awards.photography.exhibitions.map((exhibition, index) => (
-                  <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                    <h4 className="font-medium text-gray-900">{exhibition.title}</h4>
-                    <p className="text-sm text-gray-600 mt-1">{exhibition.details}</p>
+                  <div key={index} className="bg-muted p-4 rounded-lg">
+                    <h4 className="font-medium text-foreground">{exhibition.title}</h4>
+                    <p className="text-sm text-muted-foreground mt-1">{exhibition.details}</p>
                   </div>
                 ))}
               </div>
