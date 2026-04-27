@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Sun, Moon } from 'lucide-react';
 import { Header } from './components/Header';
@@ -75,7 +75,27 @@ const getTabFromHash = (): string => {
 function App() {
   const [activeTab, setActiveTab] = useState<string>(() => getTabFromHash());
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const tabListRef = useRef<HTMLDivElement>(null);
+  const [canScrollRight, setCanScrollRight] = useState(false);
   const { theme, toggleTheme } = useTheme();
+
+  const checkScrollOverflow = useCallback(() => {
+    const el = tabListRef.current;
+    if (!el) return;
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+  }, []);
+
+  useEffect(() => {
+    const el = tabListRef.current;
+    if (!el) return;
+    checkScrollOverflow();
+    el.addEventListener('scroll', checkScrollOverflow, { passive: true });
+    window.addEventListener('resize', checkScrollOverflow);
+    return () => {
+      el.removeEventListener('scroll', checkScrollOverflow);
+      window.removeEventListener('resize', checkScrollOverflow);
+    };
+  }, [checkScrollOverflow]);
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -201,12 +221,14 @@ function App() {
           <div className="space-y-6 lg:col-span-2">
             <div className="bg-card rounded-lg shadow-sm">
               <div className="border-b border-border">
-                <div
-                  className="flex overflow-x-auto"
-                  role="tablist"
-                  aria-label="Main sections"
-                  onKeyDown={handleKeyDown}
-                >
+                <div className="relative">
+                  <div
+                    ref={tabListRef}
+                    className="flex overflow-x-auto scrollbar-none"
+                    role="tablist"
+                    aria-label="Main sections"
+                    onKeyDown={handleKeyDown}
+                  >
                   {TABS.map((tab) => (
                     <button
                       key={tab.value}
@@ -235,7 +257,11 @@ function App() {
                   >
                     {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                   </button>
+                  {canScrollRight && (
+                    <div className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-card to-transparent" />
+                  )}
                 </div>
+              </div>
               </div>
               {TABS.map((tab) => (
                 <div
