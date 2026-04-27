@@ -264,7 +264,7 @@ export function Research() {
       transition={{ duration: 0.5 }}
       className="space-y-6"
     >
-      <Accordion type="multiple" className="w-full space-y-4">
+      <Accordion type="multiple" defaultValue={['experience']} className="w-full space-y-4">
         <AccordionItem value="experience">
           <AccordionTrigger className="text-2xl font-serif text-foreground py-4">
             Research Experience
