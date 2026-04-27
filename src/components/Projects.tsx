@@ -78,6 +78,42 @@ const projects: Project[] = [
     ],
   },
   {
+    title: 'JuanaKNOW',
+    url: 'https://juanaknow.asti.dost.gov.ph/',
+    description:
+      'AI-powered market intelligence and technology assessment chatbot under DOST Program PROPEL, helping innovators evaluate novelty, access funding, and navigate commercialization.',
+    ctaLabel: 'Ask JuanaKNOW',
+    media: {
+      alt: 'JuanaKNOW chat interface showing AI-powered technology assessment',
+      width: 512,
+      height: 512,
+      png: '/projects/JuanaKNOW.png',
+      webp: '/projects/JuanaKNOW.webp',
+    },
+    meta: [
+      { label: 'Stack', value: 'TypeScript · React · MUI · Zustand · RAG' },
+      { label: 'Team', value: 'DOST-ASTI · Program PROPEL' },
+    ],
+  },
+  {
+    title: 'iTANONG',
+    url: 'https://asti.dost.gov.ph/projects/itanong/',
+    description:
+      'Natural Language Interface to Databases that lets users query government data in Filipino, English, or Taglish — a multilingual NLIDB system by DOST-ASTI.',
+    ctaLabel: 'Learn about iTANONG',
+    media: {
+      alt: 'iTANONG natural language database query interface',
+      width: 512,
+      height: 512,
+      png: '/projects/iTANONG.png',
+      webp: '/projects/iTANONG.webp',
+    },
+    meta: [
+      { label: 'Stack', value: 'Python · NLP · Deep Learning · RDBMS' },
+      { label: 'Team', value: 'DOST-ASTI' },
+    ],
+  },
+  {
     title: 'Puzzle-a-Day Solver',
     url: 'https://jovenpaoloangeles.github.io/puzzle-a-day/',
     description:
