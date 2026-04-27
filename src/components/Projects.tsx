@@ -25,110 +25,108 @@ interface Project {
 
 const projects: Project[] = [
   {
-    title: 'Philippine WFH Optimizer',
-    url: 'https://jovenpaoloangeles.github.io/philippine-wfh-optimizer/',
+    title: ‘JuanaKNOW’,
+    url: ‘https://juanaknow.asti.dost.gov.ph/’,
     description:
-      'Optimize long weekends by combining official Philippine holidays with leave credits to surface the most efficient multi-day breaks.',
-    ctaLabel: 'Plan long weekends',
+      ‘AI-powered market intelligence and technology assessment chatbot under DOST Program PROPEL, helping innovators evaluate novelty, access funding, and navigate commercialization.’,
+    ctaLabel: ‘Ask JuanaKNOW’,
     media: {
-      alt: 'Screenshot of the Philippine WFH Optimizer holiday planner dashboard',
-      width: 512,
-      height: 512,
-      png: '/projects/WFHOptimizer.png',
-      webp: '/projects/WFHOptimizer.webp',
+      alt: ‘JuanaKNOW chat interface showing AI-powered technology assessment’,
+      width: 1368,
+      height: 216,
+      png: ‘/projects/JUANAKNOW.png’,
     },
     meta: [
-      { label: 'Stack', value: 'TypeScript · React · shadcn/ui · Tailwind CSS' },
+      { label: ‘Stack’, value: ‘TypeScript · React · Vite’ },
+      { label: ‘Team’, value: ‘DOST-ASTI · Program PROPEL’ },
     ],
   },
   {
-    title: 'XRD Analyzer',
-    url: 'https://jovenpaoloangeles.github.io/xrd-analyzer/',
+    title: ‘iTANONG’,
+    url: ‘https://asti.dost.gov.ph/projects/itanong/’,
     description:
-      'Interactive X-ray diffraction analyzer for uploading XY/CSV files, highlighting peaks, and accelerating material characterization workflows.',
-    ctaLabel: 'Launch analyzer',
+      ‘Natural Language Interface to Databases that lets users query government data in Filipino, English, or Taglish — a multilingual NLIDB system by DOST-ASTI.’,
+    ctaLabel: ‘Learn about iTANONG’,
     media: {
-      alt: 'XRD Analyzer interface plotting diffraction intensity data',
+      alt: ‘iTANONG natural language database query interface’,
+      width: 800,
+      height: 246,
+      png: ‘/projects/iTANONG.jpg’,
+    },
+    meta: [
+      { label: ‘Stack’, value: ‘Python · NLP’ },
+      { label: ‘Team’, value: ‘DOST-ASTI’ },
+    ],
+  },
+  {
+    title: ‘Philippine WFH Optimizer’,
+    url: ‘https://jovenpaoloangeles.github.io/philippine-wfh-optimizer/’,
+    description:
+      ‘Optimize long weekends by combining official Philippine holidays with leave credits to surface the most efficient multi-day breaks.’,
+    ctaLabel: ‘Plan long weekends’,
+    media: {
+      alt: ‘Screenshot of the Philippine WFH Optimizer holiday planner dashboard’,
+      width: 512,
+      height: 512,
+      png: ‘/projects/WFHOptimizer.png’,
+      webp: ‘/projects/WFHOptimizer.webp’,
+    },
+    meta: [
+      { label: ‘Stack’, value: ‘TypeScript · React · shadcn/ui · Tailwind CSS’ },
+    ],
+  },
+  {
+    title: ‘XRD Analyzer’,
+    url: ‘https://jovenpaoloangeles.github.io/xrd-analyzer/’,
+    description:
+      ‘Interactive X-ray diffraction analyzer for uploading XY/CSV files, highlighting peaks, and accelerating material characterization workflows.’,
+    ctaLabel: ‘Launch analyzer’,
+    media: {
+      alt: ‘XRD Analyzer interface plotting diffraction intensity data’,
       width: 373,
       height: 373,
-      png: '/projects/XRDAnalyzer.png',
-      webp: '/projects/XRDAnalyzer.webp',
-      avif: '/projects/XRDAnalyzer.avif',
+      png: ‘/projects/XRDAnalyzer.png’,
+      webp: ‘/projects/XRDAnalyzer.webp’,
+      avif: ‘/projects/XRDAnalyzer.avif’,
     },
     meta: [
-      { label: 'Stack', value: 'TypeScript · React · Plotly.js · MUI' },
+      { label: ‘Stack’, value: ‘TypeScript · React · Plotly.js · MUI’ },
     ],
   },
   {
-    title: 'ChunkingExpress',
-    url: 'https://huggingface.co/spaces/jovenpaolo/ChunkingExpress',
+    title: ‘ChunkingExpress’,
+    url: ‘https://huggingface.co/spaces/jovenpaolo/ChunkingExpress’,
     description:
-      'Document chunking playground for Retrieval-Augmented Generation pipelines with configurable segment strategies and live previews.',
-    ctaLabel: 'Try the RAG tool',
+      ‘Document chunking playground for Retrieval-Augmented Generation pipelines with configurable segment strategies and live previews.’,
+    ctaLabel: ‘Try the RAG tool’,
     media: {
-      alt: 'ChunkingExpress web app highlighting chunked text segments',
+      alt: ‘ChunkingExpress web app highlighting chunked text segments’,
       width: 387,
       height: 387,
-      png: '/projects/ChunkingExpress.png',
-      webp: '/projects/ChunkingExpress.webp',
-      avif: '/projects/ChunkingExpress.avif',
+      png: ‘/projects/ChunkingExpress.png’,
+      webp: ‘/projects/ChunkingExpress.webp’,
+      avif: ‘/projects/ChunkingExpress.avif’,
     },
     meta: [
-      { label: 'Stack', value: 'Python · Streamlit · LangChain · Hugging Face Transformers' },
+      { label: ‘Stack’, value: ‘Python · Streamlit · LangChain · Hugging Face Transformers’ },
     ],
   },
   {
-    title: 'JuanaKNOW',
-    url: 'https://juanaknow.asti.dost.gov.ph/',
+    title: ‘Puzzle-a-Day Solver’,
+    url: ‘https://jovenpaoloangeles.github.io/puzzle-a-day/’,
     description:
-      'AI-powered market intelligence and technology assessment chatbot under DOST Program PROPEL, helping innovators evaluate novelty, access funding, and navigate commercialization.',
-    ctaLabel: 'Ask JuanaKNOW',
+      ‘Algorithm X-powered solver that enumerates daily solutions for the DragonFjord A-Puzzle-A-Day board, complete with visual tiling proofs.’,
+    ctaLabel: ‘Solve today’s puzzle’,
     media: {
-      alt: 'JuanaKNOW chat interface showing AI-powered technology assessment',
-      width: 512,
-      height: 512,
-      png: '/projects/JUANAKNOW.png',
-      webp: '/projects/JUANAKNOW.webp',
-    },
-    meta: [
-      { label: 'Stack', value: 'TypeScript · React · Vite' },
-      { label: 'Team', value: 'DOST-ASTI · Program PROPEL' },
-    ],
-  },
-  {
-    title: 'iTANONG',
-    url: 'https://asti.dost.gov.ph/projects/itanong/',
-    description:
-      'Natural Language Interface to Databases that lets users query government data in Filipino, English, or Taglish — a multilingual NLIDB system by DOST-ASTI.',
-    ctaLabel: 'Learn about iTANONG',
-    media: {
-      alt: 'iTANONG natural language database query interface',
-      width: 512,
-      height: 512,
-      png: '/projects/iTANONG.png',
-      webp: '/projects/iTANONG.webp',
-    },
-    meta: [
-      { label: 'Stack', value: 'Python · NLP' },
-      { label: 'Team', value: 'DOST-ASTI' },
-    ],
-  },
-  {
-    title: 'Puzzle-a-Day Solver',
-    url: 'https://jovenpaoloangeles.github.io/puzzle-a-day/',
-    description:
-      'Algorithm X-powered solver that enumerates daily solutions for the DragonFjord A-Puzzle-A-Day board, complete with visual tiling proofs.',
-    ctaLabel: 'Solve today’s puzzle',
-    media: {
-      alt: 'Puzzle-a-Day solver showing a completed calendar tile arrangement',
+      alt: ‘Puzzle-a-Day solver showing a completed calendar tile arrangement’,
       width: 375,
       height: 375,
-      png: '/projects/PuzzleADay.png',
-      webp: '/projects/PuzzleADay.webp',
-      avif: '/projects/PuzzleADay.avif',
+      png: ‘/projects/PuzzleADay.png’,
+      webp: ‘/projects/PuzzleADay.webp’,
+      avif: ‘/projects/PuzzleADay.avif’,
     },
     meta: [
-      { label: 'Stack', value: 'TypeScript · Python · React · Vite' },
+      { label: ‘Stack’, value: ‘TypeScript · Python · React · Vite’ },
     ],
   },
 ];
