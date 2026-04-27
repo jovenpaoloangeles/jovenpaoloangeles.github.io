@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Input } from './ui/input';
@@ -15,6 +15,13 @@ export function RecentActivities() {
   const [currentPage, setCurrentPage] = useState(1);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [status, setStatus] = useState<AsyncState>('idle');
+  // Track initial mount for animation
+  const [isMounted, setIsMounted] = useState(false);
+  const topRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     let isActive = true;
@@ -60,13 +67,14 @@ export function RecentActivities() {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    topRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
     <motion.div
+      ref={topRef}
       initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
+      animate={{ opacity: isMounted ? 1 : 0 }}
       transition={{ duration: 0.5 }}
       className="space-y-6"
     >

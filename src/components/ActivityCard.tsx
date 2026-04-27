@@ -3,12 +3,19 @@ import { Clock } from 'lucide-react';
 import { Card } from './ui/card';
 import type { Activity } from './types';
 import { formatDistanceToNow, format } from 'date-fns';
+import { useState, useEffect } from 'react';
 
 interface ActivityCardProps {
   activity: Activity;
 }
 
 export const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
+  // Track initial mount for animation
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   // Type-specific styling with consistent color scheme
   const getTypeColor = (type: Activity['type'][number]) => {
     switch (type) {
@@ -32,7 +39,7 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      animate={{ opacity: isMounted ? 1 : 0, y: isMounted ? 0 : 20 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
     >
