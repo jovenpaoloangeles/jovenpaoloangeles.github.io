@@ -15,6 +15,11 @@ export function Header() {
     'AI Engineer'
   ];
   const [currentRole, setCurrentRole] = useState<string>(roles[0]);
+  const sequence = roles.flatMap(role => [
+    role,
+    () => setCurrentRole(role),
+    5000,
+  ] as const);
 
   return (
     <div className="bg-card rounded-lg shadow-sm p-6">
@@ -22,23 +27,7 @@ export function Header() {
         <ProfileCarousel />
         <h1 className="text-3xl font-serif font-bold text-foreground">Joven Paolo Angeles</h1>
         <TypeAnimation
-          sequence={[
-            roles[0],
-            () => setCurrentRole(roles[0]),
-            5000,
-            roles[1],
-            () => setCurrentRole(roles[1]),
-            5000,
-            roles[2],
-            () => setCurrentRole(roles[2]),
-            5000,
-            roles[3],
-            () => setCurrentRole(roles[3]),
-            5000,
-            roles[4],
-            () => setCurrentRole(roles[4]),
-            5000,
-          ]}
+          sequence={sequence}
           wrapper="p"
           speed={50}
           className="text-lg text-muted-foreground mt-1"
