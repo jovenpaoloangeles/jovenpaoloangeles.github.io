@@ -38,7 +38,7 @@ const projects: Project[] = [
       webp: '/projects/WFHOptimizer.webp',
     },
     meta: [
-      { label: 'Stack', value: 'TypeScript · React · Tailwind CSS' },
+      { label: 'Stack', value: 'TypeScript · React · shadcn/ui · Tailwind CSS' },
     ],
   },
   {
