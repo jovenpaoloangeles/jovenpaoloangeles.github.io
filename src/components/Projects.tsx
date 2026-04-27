@@ -56,7 +56,7 @@ const projects: Project[] = [
       avif: '/projects/XRDAnalyzer.avif',
     },
     meta: [
-      { label: 'Stack', value: 'TypeScript · React · D3.js' },
+      { label: 'Stack', value: 'TypeScript · React · Plotly.js · MUI' },
     ],
   },
   {
