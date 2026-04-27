@@ -25,10 +25,10 @@ interface Project {
 
 const projects: Project[] = [
   {
-    title: 'JuanaKNOW',
+    title: 'JuanaKNOW by PROPEL',
     url: 'https://juanaknow.asti.dost.gov.ph/',
     description:
-      'AI-powered market intelligence and technology assessment chatbot under DOST Program PROPEL, helping innovators evaluate novelty, access funding, and navigate commercialization.',
+      'Multi-agent AI system for market intelligence and technology assessment under DOST Program PROPEL, helping innovators evaluate novelty, access funding, and navigate commercialization.',
     ctaLabel: 'Ask JuanaKNOW',
     media: {
       alt: 'JuanaKNOW chat interface showing AI-powered technology assessment',
@@ -37,7 +37,7 @@ const projects: Project[] = [
       png: '/projects/JUANAKNOW.png',
     },
     meta: [
-      { label: 'Stack', value: 'TypeScript · React · Vite' },
+      { label: 'Stack', value: 'Agno · Python · PostgreSQL' },
       { label: 'Team', value: 'DOST-ASTI · Program PROPEL' },
     ],
   },
@@ -54,7 +54,7 @@ const projects: Project[] = [
       png: '/projects/iTANONG.jpg',
     },
     meta: [
-      { label: 'Stack', value: 'Python · NLP' },
+      { label: 'Stack', value: 'OpenAI · LangChain · ChromaDB · FastAPI' },
       { label: 'Team', value: 'DOST-ASTI' },
     ],
   },
