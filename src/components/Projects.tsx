@@ -92,7 +92,7 @@ const projects: Project[] = [
       avif: '/projects/PuzzleADay.avif',
     },
     meta: [
-      { label: 'Stack', value: 'TypeScript · React · Algorithm X' },
+      { label: 'Stack', value: 'TypeScript · Python · React · Vite' },
     ],
   },
 ];
