@@ -116,7 +116,7 @@ const projects: Project[] = [
     url: 'https://jovenpaoloangeles.github.io/puzzle-a-day/',
     description:
       'Algorithm X-powered solver that enumerates daily solutions for the DragonFjord A-Puzzle-A-Day board, complete with visual tiling proofs.',
-    ctaLabel: 'Solve today's puzzle',
+    ctaLabel: "Solve today's puzzle",
     media: {
       alt: 'Puzzle-a-Day solver showing a completed calendar tile arrangement',
       width: 375,
