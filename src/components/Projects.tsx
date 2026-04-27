@@ -87,11 +87,11 @@ const projects: Project[] = [
       alt: 'JuanaKNOW chat interface showing AI-powered technology assessment',
       width: 512,
       height: 512,
-      png: '/projects/JuanaKNOW.png',
-      webp: '/projects/JuanaKNOW.webp',
+      png: '/projects/JUANAKNOW.png',
+      webp: '/projects/JUANAKNOW.webp',
     },
     meta: [
-      { label: 'Stack', value: 'TypeScript · React · MUI · Zustand · RAG' },
+      { label: 'Stack', value: 'TypeScript · React · Vite' },
       { label: 'Team', value: 'DOST-ASTI · Program PROPEL' },
     ],
   },
@@ -109,7 +109,7 @@ const projects: Project[] = [
       webp: '/projects/iTANONG.webp',
     },
     meta: [
-      { label: 'Stack', value: 'Python · NLP · Deep Learning · RDBMS' },
+      { label: 'Stack', value: 'Python · NLP' },
       { label: 'Team', value: 'DOST-ASTI' },
     ],
   },
