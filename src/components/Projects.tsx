@@ -74,7 +74,7 @@ const projects: Project[] = [
       avif: '/projects/ChunkingExpress.avif',
     },
     meta: [
-      { label: 'Stack', value: 'Python · Gradio · Sentence Transformers' },
+      { label: 'Stack', value: 'Python · Streamlit · LangChain · Hugging Face Transformers' },
     ],
   },
   {
