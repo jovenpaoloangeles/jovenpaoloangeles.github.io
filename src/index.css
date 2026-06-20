@@ -74,6 +74,14 @@
     --input: 0 0% 18%;
     --ring: 0 0% 83.9%;
   }
+
+  /* Theme-aware default text/background. Without this, elements with no explicit
+     text color (e.g. the chatbot input) inherit the browser default (black) and
+     become unreadable in dark mode. */
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
 }
 
 /* react-github-calendar legend labels (outside @layer for higher specificity) */

@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ChatbotWidget } from '../ChatbotWidget';
 
@@ -11,33 +11,24 @@ vi.mock('react-markdown', () => ({
 vi.mock('remark-gfm', () => ({ default: () => {} }));
 
 // ── Mock framer-motion to skip animations in jsdom ────────────────────────────
-vi.mock('framer-motion', () => ({
-  motion: {
-    button: ({
-      children,
-      whileHover: _wh,
-      whileTap: _wt,
-      initial: _i,
-      animate: _a,
-      exit: _e,
-      transition: _t,
-      ...props
-    }: React.ComponentPropsWithRef<'button'> & Record<string, unknown>) => (
-      <button {...props}>{children}</button>
-    ),
-    div: ({
-      children,
-      initial: _i,
-      animate: _a,
-      exit: _e,
-      transition: _t,
-      ...props
-    }: React.ComponentPropsWithRef<'div'> & Record<string, unknown>) => (
-      <div {...props}>{children}</div>
-    ),
-  },
-  AnimatePresence: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-}));
+vi.mock('framer-motion', () => {
+  // Motion-only props must be stripped before reaching the DOM element.
+  const MOTION_PROPS = ['whileHover', 'whileTap', 'initial', 'animate', 'exit', 'transition'];
+  const domOnly = (props: Record<string, unknown>) =>
+    Object.fromEntries(Object.entries(props).filter(([k]) => !MOTION_PROPS.includes(k)));
+
+  return {
+    motion: {
+      button: ({ children, ...props }: React.ComponentPropsWithRef<'button'> & Record<string, unknown>) => (
+        <button {...domOnly(props)}>{children}</button>
+      ),
+      div: ({ children, ...props }: React.ComponentPropsWithRef<'div'> & Record<string, unknown>) => (
+        <div {...domOnly(props)}>{children}</div>
+      ),
+    },
+    AnimatePresence: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  };
+});
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const STORAGE_KEY = 'portfolio_chat_history';
@@ -479,6 +470,94 @@ describe('ChatbotWidget', () => {
       // empty array. Verify the messages list is empty rather than checking for null.
       const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]');
       expect(stored).toHaveLength(0);
+    });
+  });
+
+  // ── Auto-open (discoverability) ─────────────────────────────────────────────
+  describe('auto-open', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+      localStorage.clear();
+      sessionStorage.clear();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('auto-opens the chat panel after 3 seconds for a first-time visitor', () => {
+      render(<ChatbotWidget />);
+      expect(screen.queryByPlaceholderText(/type your message/i)).not.toBeInTheDocument();
+
+      act(() => {
+        vi.advanceTimersByTime(3000);
+      });
+
+      expect(screen.getByPlaceholderText(/type your message/i)).toBeInTheDocument();
+    });
+
+    it('keeps the chat closed for returning visitors who already have history', () => {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify([
+          {
+            id: 'a',
+            role: 'user',
+            content: 'Previous question',
+            timestamp: new Date().toISOString(),
+          },
+        ]),
+      );
+
+      render(<ChatbotWidget />);
+
+      act(() => {
+        vi.advanceTimersByTime(3000);
+      });
+
+      expect(screen.queryByPlaceholderText(/type your message/i)).not.toBeInTheDocument();
+    });
+
+    it('does not auto-open again later in the same session after showing once', () => {
+      const { unmount } = render(<ChatbotWidget />);
+      act(() => {
+        vi.advanceTimersByTime(3000);
+      });
+      expect(screen.getByPlaceholderText(/type your message/i)).toBeInTheDocument();
+
+      unmount();
+      render(<ChatbotWidget />);
+      act(() => {
+        vi.advanceTimersByTime(3000);
+      });
+
+      // Second mount must not auto-open again (session already saw the prompt).
+      expect(screen.queryByPlaceholderText(/type your message/i)).not.toBeInTheDocument();
+    });
+
+    it('does not re-open after the user has already interacted with it', () => {
+      render(<ChatbotWidget />);
+      // User opens then closes manually before the 3s timer fires.
+      fireEvent.click(screen.getByRole('button', { name: /open chat/i }));
+      const closeButtons = screen.getAllByRole('button', { name: /close chat/i });
+      fireEvent.click(closeButtons[closeButtons.length - 1]);
+
+      act(() => {
+        vi.advanceTimersByTime(3000);
+      });
+
+      expect(screen.queryByPlaceholderText(/type your message/i)).not.toBeInTheDocument();
+    });
+
+    it('does not steal focus when auto-opened', () => {
+      render(<ChatbotWidget />);
+      act(() => {
+        vi.advanceTimersByTime(3000);
+      });
+
+      const input = screen.getByPlaceholderText(/type your message/i);
+      // Auto-open should reveal the chat without yanking focus from the page.
+      expect(input).not.toHaveFocus();
     });
   });
 });

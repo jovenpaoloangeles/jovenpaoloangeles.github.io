@@ -12,6 +12,8 @@ interface Message {
 }
 
 const CHAT_HISTORY_KEY = 'portfolio_chat_history';
+const AUTO_OPEN_KEY = 'portfolio_chat_auto_opened';
+const AUTO_OPEN_DELAY = 3000; // ms before auto-opening to aid discoverability
 const EDGE_FUNCTION_URL =
   'https://pseeqvnoppfsbmptzznj.supabase.co/functions/v1/gemini-chat';
 
@@ -39,6 +41,10 @@ export function ChatbotWidget() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const autoOpenTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Set briefly when the panel opens via auto-open so the focus effect can skip
+  // stealing focus from whatever the user was reading.
+  const autoOpenedRef = useRef(false);
 
   // Save messages to localStorage
   useEffect(() => {
@@ -52,12 +58,64 @@ export function ChatbotWidget() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Focus input when chat opens
+  // Focus input when chat opens — but not when it auto-opened, so we don't yank
+  // focus from the page the user is reading.
   useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 100);
+    if (!isOpen) return;
+    if (autoOpenedRef.current) {
+      autoOpenedRef.current = false;
+      return;
     }
+    const t = setTimeout(() => inputRef.current?.focus(), 100);
+    return () => clearTimeout(t);
   }, [isOpen]);
+
+  // Auto-open once per browser session so first-time visitors discover the chat.
+  // Skip returning visitors who already have history, and never re-trigger after
+  // the user has interacted with it.
+  useEffect(() => {
+    const hasHistory = messages.length > 0;
+    const alreadyShown =
+      typeof window !== 'undefined' && sessionStorage.getItem(AUTO_OPEN_KEY) === '1';
+    if (hasHistory || alreadyShown) return;
+
+    autoOpenTimerRef.current = setTimeout(() => {
+      setIsOpen(true);
+      autoOpenedRef.current = true;
+      sessionStorage.setItem(AUTO_OPEN_KEY, '1');
+    }, AUTO_OPEN_DELAY);
+
+    return () => {
+      if (autoOpenTimerRef.current) {
+        clearTimeout(autoOpenTimerRef.current);
+        autoOpenTimerRef.current = null;
+      }
+    };
+    // Run once on mount; the initial `messages` snapshot is captured here.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Any manual interaction cancels a pending auto-open and records that the user
+  // is already aware of the chatbot (so we don't auto-open again this session).
+  const markUserAware = useCallback(() => {
+    if (autoOpenTimerRef.current) {
+      clearTimeout(autoOpenTimerRef.current);
+      autoOpenTimerRef.current = null;
+    }
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem(AUTO_OPEN_KEY, '1');
+    }
+  }, []);
+
+  const toggleChat = useCallback(() => {
+    markUserAware();
+    setIsOpen((prev) => !prev);
+  }, [markUserAware]);
+
+  const closeChat = useCallback(() => {
+    markUserAware();
+    setIsOpen(false);
+  }, [markUserAware]);
 
   const handleClearHistory = useCallback(() => {
     setMessages([]);
@@ -193,7 +251,7 @@ export function ChatbotWidget() {
     <>
       {/* Floating Chat Button */}
       <motion.button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={toggleChat}
         className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
@@ -256,7 +314,7 @@ export function ChatbotWidget() {
                   </button>
                 )}
                 <button
-                  onClick={() => setIsOpen(false)}
+                  onClick={closeChat}
                   className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
                   aria-label="Close chat"
                 >
