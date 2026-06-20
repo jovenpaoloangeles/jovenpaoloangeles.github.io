@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
-import { Briefcase, Download, FlaskConical, Mail, Printer, Target, Users, Github, Cpu, TrendingUp } from 'lucide-react';
-import { GitHubCalendar, type ThemeInput } from 'react-github-calendar';
+import { Briefcase, Download, FlaskConical, Mail, Printer, Users, Github, Cpu } from 'lucide-react';
+import { GitHubCalendar } from 'react-github-calendar';
 import { useTheme } from '@/hooks/useTheme';
 
 export function About() {
