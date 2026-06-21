@@ -18,16 +18,16 @@ interface SimLink extends d3.SimulationLinkDatum<SimNode> {
 }
 
 const CENTER_ID = '__me';
-const TILE: Record<string, number> = { sig: 30, sup: 26, chip: 22 };
+const TILE: Record<string, number> = { sig: 28, sup: 24, chip: 20 };
 function nodeRadius(n: SimNode): number {
-  if (n.kind === 'center') return 30;
-  if (n.kind === 'domain') return 26;
-  return (n.level ? TILE[n.level] : 24) / 2;
+  if (n.kind === 'center') return 23;
+  if (n.kind === 'domain') return 22;
+  return (n.level ? TILE[n.level] : 22) / 2;
 }
 function nodeTile(n: SimNode): number {
-  if (n.kind === 'center') return 60;
-  if (n.kind === 'domain') return 52;
-  return n.level ? TILE[n.level] : 24;
+  if (n.kind === 'center') return 46;
+  if (n.kind === 'domain') return 44;
+  return n.level ? TILE[n.level] : 22;
 }
 
 interface Selected {
@@ -95,8 +95,8 @@ export function TechStackGraph() {
       ...TECHSTACK_TECH_LINKS.map<SimLink>(([a, b]) => ({ kind: 'tech', source: a, target: b })),
     ];
 
-    const R1 = Math.min(w, h) * 0.24;
-    const R2 = Math.min(w, h) * 0.42;
+    const R1 = Math.min(w, h) * 0.26;
+    const R2 = Math.min(w, h) * 0.46;
 
     const svg = d3.select(svgEl);
     svg.selectAll('*').remove();
@@ -162,7 +162,7 @@ export function TechStackGraph() {
     const sim = d3.forceSimulation<SimNode>(nodes)
       .force('charge', d3.forceManyBody().strength((n) =>
         n.kind === 'center' ? -700 : n.kind === 'domain' ? -280 : -55))
-      .force('collide', d3.forceCollide<SimNode>().radius((n) => nodeRadius(n) + 5).iterations(2))
+      .force('collide', d3.forceCollide<SimNode>().radius((n) => nodeRadius(n) + 6).iterations(2))
       .force('radial', d3.forceRadial<SimNode>(
         (n) => (n.kind === 'center' ? 0 : n.kind === 'domain' ? R1 : R2), cx, cy).strength(0.6))
       .force('link', d3.forceLink<SimNode, SimLink>(links).id((n) => n.id)
@@ -269,12 +269,12 @@ export function TechStackGraph() {
   return (
     <div className="space-y-3">
       <p className="max-w-prose text-sm text-muted-foreground">
-        You at the center, branching to six domains, then to the tools — dashed lines trace tech-stack
-        relationships. Drag nodes, scroll to zoom, click a node for details.
+        A map of my technical range — six domains and the tools within each, with lines tracing how the
+        stack connects. Drag to rearrange, scroll to zoom, click any tool for the details.
       </p>
       <div
         ref={wrapRef}
-        className="relative h-[clamp(380px,56vh,560px)] w-full overflow-hidden rounded-lg border border-border bg-muted/30"
+        className="relative h-[clamp(460px,72vh,720px)] w-full overflow-hidden rounded-lg border border-border bg-muted/30"
       >
         <svg ref={svgRef} className="block h-full w-full" role="img" aria-label="Tech stack knowledge graph" />
         <span className="pointer-events-none absolute bottom-2 left-3 font-mono text-[0.7rem] text-muted-foreground">
@@ -294,7 +294,7 @@ function renderPopover(sel: Selected, onClose: () => void, stageWidth: number) {
   let connects: string[] = [];
   if (sel.kind === 'center') {
     title = TECHSTACK_CENTER.name;
-    tag = 'You';
+    tag = 'Profile';
     body = TECHSTACK_CENTER.title;
   } else if (sel.kind === 'domain') {
     const d = domainById(sel.id);
