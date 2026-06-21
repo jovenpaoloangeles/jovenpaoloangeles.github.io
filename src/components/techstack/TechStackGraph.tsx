@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import {
   TECHSTACK_DOMAINS, TECHSTACK_TOOLS, TECHSTACK_TECH_LINKS, TECHSTACK_CENTER,
@@ -172,14 +172,14 @@ export function TechStackGraph() {
       .selectAll('line').data(links).join('line')
       .attr('class', (l) => 'ts-link ' + l.kind);
 
-    const popoverG = root.append('g').attr('class', 'ts-popover-container');
-
     const nodeG = root.append('g').attr('class', 'ts-nodes')
       .selectAll('g').data(nodes, (n) => (n as SimNode).id).join('g')
       .attr('class', (n) => 'ts-node ts-' + n.kind)
       .attr('data-node', (n) => n.kind)
       .attr('data-id', (n) => n.id)
       .style('cursor', 'pointer');
+
+    const popoverG = root.append('g').attr('class', 'ts-popover-container');
 
     // Spotlight dimming effect
     const activateSpotlight = (nodeId: string) => {
