@@ -216,6 +216,7 @@ export function TechStackGraph() {
       setSelected((s) => (s ? { ...s, x: sx, y: sy } : s));
     }, 120);
     return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- depend on id only so the interval doesn't restart on every position update
   }, [selected?.id]);
 
   const pop = selected ? renderPopover(selected, () => setSelected(null)) : null;
