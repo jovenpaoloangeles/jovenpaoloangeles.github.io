@@ -32,3 +32,13 @@ Object.defineProperty(globalThis, 'localStorage', {
 // jsdom does not implement scrollIntoView; add a no-op so React refs that call
 // it (e.g. auto-scroll to bottom of chat) don't throw.
 window.HTMLElement.prototype.scrollIntoView = function () {};
+
+// ── ResizeObserver stub ─────────────────────────────────────────────────────
+// jsdom does not implement ResizeObserver; provide a stub so components that
+// use it (e.g. TechStackGraph) mount without throwing in tests.
+class ResizeObserverStub {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+(globalThis as unknown as { ResizeObserver: typeof ResizeObserverStub }).ResizeObserver = ResizeObserverStub;
