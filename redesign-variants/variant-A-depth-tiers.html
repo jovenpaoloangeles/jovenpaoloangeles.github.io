@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tech Stack — Variant A · Depth Tiers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:0 0% 98%; --fg:0 0% 12%; --card:0 0% 100%; --muted:0 0% 94%;
+    --mfg:0 0% 42%; --soft:0 0% 88%; --border:0 0% 90%; --accent:0 0% 12%; --accent-fg:0 0% 98%;
+    --shadow:0 1px 2px hsl(0 0% 0% / .04);
+  }
+  html.dark{
+    --bg:0 0% 11%; --fg:0 0% 96%; --card:0 0% 15%; --muted:0 0% 17%;
+    --mfg:0 0% 62%; --soft:0 0% 22%; --border:0 0% 20%; --accent:0 0% 96%; --accent-fg:0 0% 11%;
+    --shadow:0 1px 3px hsl(0 0% 0% / .4);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:hsl(var(--bg)); color:hsl(var(--fg));
+    font-family:'Inter',-apple-system,sans-serif; line-height:1.6;
+    -webkit-font-smoothing:antialiased; transition:background .3s,color .3s;
+  }
+  .shell{max-width:1040px;margin:0 auto;padding:2.5rem 1.5rem 6rem}
+
+  /* ── top bar ── */
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:3rem}
+  .crumb{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:hsl(var(--mfg));font-weight:500}
+  .crumb b{color:hsl(var(--fg));font-weight:600}
+  .toggle{
+    display:inline-flex;align-items:center;gap:.5rem;cursor:pointer;
+    background:hsl(var(--card));border:1px solid hsl(var(--border));
+    color:hsl(var(--fg));font:inherit;font-size:.78rem;font-weight:500;
+    padding:.45rem .85rem;border-radius:.5rem;transition:background .15s,border-color .15s;
+  }
+  .toggle:hover{background:hsl(var(--muted))}
+  .toggle svg{width:15px;height:15px}
+  html:not(.dark) .ic-moon{display:none}
+  html.dark .ic-sun{display:none}
+
+  /* ── intro ── */
+  .eyebrow{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:hsl(var(--mfg));font-weight:600;margin-bottom:.85rem}
+  h1.lede{font-family:'Newsreader',Georgia,serif;font-weight:400;font-size:clamp(2.1rem,5vw,3rem);line-height:1.08;letter-spacing:-.015em;margin-bottom:1.1rem}
+  h1.lede em{font-style:italic;color:hsl(var(--mfg))}
+  .intro-p{max-width:62ch;color:hsl(var(--mfg));font-size:1.02rem;margin-bottom:1.4rem}
+  .legend{
+    display:flex;flex-wrap:wrap;gap:1.4rem;align-items:center;
+    padding:.9rem 1.1rem;border:1px solid hsl(var(--border));border-radius:.6rem;
+    background:hsl(var(--card));font-size:.78rem;color:hsl(var(--mfg));
+  }
+  .legend .lg{display:inline-flex;align-items:center;gap:.5rem}
+  .legend .sw{width:.7rem;height:.7rem;border-radius:3px;background:hsl(var(--fg));border:1px solid hsl(var(--border))}
+  .legend .sw.s2{background:hsl(var(--soft))}
+  .legend .sw.s3{background:transparent;border:1px solid hsl(var(--border))}
+  .legend .lg b{color:hsl(var(--fg));font-weight:600}
+  .rule{height:1px;background:hsl(var(--border));margin:3rem 0 2.5rem}
+
+  /* ── domain ── */
+  .domain{margin-bottom:3.5rem;animation:rise .5s ease both}
+  .domain:nth-child(2){animation-delay:.03s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .d-head{display:grid;grid-template-columns:auto 1fr auto;gap:1.1rem;align-items:baseline;margin-bottom:1.6rem}
+  .d-num{font-family:'Newsreader',serif;font-style:italic;font-size:1.05rem;color:hsl(var(--mfg));padding-top:.15rem}
+  .d-titles h2{font-family:'Newsreader',serif;font-weight:500;font-size:1.5rem;letter-spacing:-.01em;line-height:1.2}
+  .d-role{color:hsl(var(--mfg));font-size:.92rem;margin-top:.2rem;max-width:50ch}
+  .d-count{font-size:.72rem;color:hsl(var(--mfg));letter-spacing:.04em;white-space:nowrap;padding-top:.3rem}
+
+  /* ── grids ── */
+  .grid{display:grid;gap:.7rem;margin-bottom:.8rem}
+  .grid.sig{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+  .grid.sup{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+
+  .card{display:flex;align-items:flex-start;gap:.8rem;padding:1rem 1.05rem;border-radius:.6rem;transition:transform .15s,background .15s,border-color .15s}
+  .card.sig{background:hsl(var(--card));border:1px solid hsl(var(--border));box-shadow:var(--shadow)}
+  .card.sig:hover{transform:translateY(-2px);border-color:hsl(var(--soft))}
+  .card.sup{background:hsl(var(--muted));border:1px solid transparent}
+  .card.sup:hover{background:hsl(var(--card));border-color:hsl(var(--border))}
+  .c-body{min-width:0}
+  .nm{font-weight:600;font-size:.95rem;color:hsl(var(--fg))}
+  .nm-row{display:inline-flex;align-items:center;gap:.45rem;flex-wrap:wrap}
+  .card.sup .nm{font-weight:500;font-size:.88rem}
+  .role{display:block;font-size:.79rem;color:hsl(var(--mfg));margin-top:.12rem;line-height:1.35}
+  .nw{
+    display:inline-block;font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    color:hsl(var(--accent-fg));background:hsl(var(--accent));padding:.08rem .34rem;border-radius:.25rem;
+  }
+
+  /* ── chips ── */
+  .chips{display:flex;flex-wrap:wrap;gap:.45rem;align-items:center}
+  .chips-lbl{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:hsl(var(--mfg));margin-right:.2rem;font-style:italic;font-family:'Newsreader',serif}
+  .chip{display:inline-flex;align-items:center;gap:.4rem;font-size:.8rem;color:hsl(var(--mfg));background:hsl(var(--card));border:1px solid hsl(var(--border));padding:.3rem .6rem;border-radius:.4rem;transition:color .15s,border-color .15s}
+  .chip:hover{color:hsl(var(--fg));border-color:hsl(var(--soft))}
+  .chip .nw{margin-left:.3rem;transform:none}
+
+  /* ── icons ── */
+  .ic{position:relative;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:4px}
+  .card.sig .ic{width:26px;height:26px}
+  .card.sup .ic{width:20px;height:20px}
+  .chip .ic{width:15px;height:15px}
+  .ic img{width:100%;height:100%;object-fit:contain;display:block}
+  .ic .mg{display:none}
+  .ic.mono,.ic.broken{background:hsl(var(--muted));border:1px solid hsl(var(--border))}
+  .ic.mono .mg,.ic.broken .mg{display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:.62rem;font-weight:700;letter-spacing:-.02em;color:hsl(var(--mfg))}
+  .card.sig .ic.mono .mg,.card.sig .ic.broken .mg{font-size:.7rem}
+  .chip .ic.mono .mg,.chip .ic.broken .mg{font-size:.5rem}
+
+  /* ── proof ── */
+  .proof{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;margin-top:1.2rem;padding-top:1rem;border-top:1px dashed hsl(var(--border))}
+  .pfx{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:hsl(var(--mfg));font-weight:600}
+  .ptag{font-size:.78rem;color:hsl(var(--fg));font-weight:500;background:hsl(var(--muted));border:1px solid hsl(var(--border));padding:.2rem .6rem;border-radius:.4rem}
+  .ptag::before{content:'↗ ';color:hsl(var(--mfg));font-weight:400}
+
+  .foot{margin-top:3rem;text-align:center;font-size:.78rem;color:hsl(var(--mfg));font-style:italic;font-family:'Newsreader',serif}
+  @media(max-width:560px){
+    .d-head{grid-template-columns:auto 1fr;}.d-count{grid-column:2;font-size:.68rem}
+    .grid.sig{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="topbar">
+    <div class="crumb">Tech Stack &nbsp;/&nbsp; <b>Variant A — Depth Tiers</b></div>
+    <button class="toggle" id="theme" aria-label="Toggle theme">
+      <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      <svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <span id="thlbl">Light</span>
+    </button>
+  </div>
+
+  <div class="eyebrow">§ Technical Skills</div>
+  <h1 class="lede">A toolbox, organized by <em>how deeply</em> I use each thing — not by which field it belongs to.</h1>
+  <p class="intro-p">Every domain below gets the same treatment, on purpose: research, AI engineering, web, infrastructure and creative work are peers here. What changes is depth — the tools I reach for daily are described; the ones I work with regularly are named; the long tail is a quiet chip. Where a tool has shipped something real, you'll see it.</p>
+
+  <div class="legend">
+    <span class="lg"><span class="sw"></span><b>Daily driver</b> — described</span>
+    <span class="lg"><span class="sw s2"></span><b>Working knowledge</b> — named</span>
+    <span class="lg"><span class="sw s3"></span><b>Comfortable with</b> — chip</span>
+    <span class="lg" style="margin-left:auto"><span class="nw">new</span> = suggested addition</span>
+  </div>
+
+  <div class="rule"></div>
+  <div class="domains" id="root"></div>
+
+  <p class="foot">End of section — 6 domains, no single discipline given top billing.</p>
+</div>
+
+<script>
+const L='../public/icons/';
+const C='https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/';
+const DOMAINS=[
+ {n:'01',title:'Scientific Computing & Research',
+  role:'Numerical methods, statistics, and the daily lab notebook of a materials-science PhD.',
+  proof:['XRD Analyzer'],
+  tools:[
+   {name:'Python',role:'Scientific computing, data analysis, ML & backend',lv:'sig',icon:['local','python.svg']},
+   {name:'JupyterLab',role:'Interactive computing environment',lv:'sig',icon:['local','jupyter.svg']},
+   {name:'Pandas',role:'Data manipulation & analysis',lv:'sig',icon:['local','pandas.svg']},
+   {name:'NumPy',role:'Numerical arrays & linear algebra',lv:'sig',icon:['cdn','numpy/numpy'],new:true},
+   {name:'MATLAB',role:'Engineering & numerical computing',lv:'sup',icon:['local','matlab.png']},
+   {name:'R',role:'Statistical analysis & visualization',lv:'sup',icon:['local','r.svg']},
+   {name:'SciPy',role:'Optimization, signal & image processing',lv:'sup',icon:['mono','Sp'],new:true},
+   {name:'matplotlib',role:'Publication-quality plotting',lv:'sup',icon:['cdn','matplotlib/matplotlib'],new:true},
+   {name:'Plotly',role:'Interactive dashboards',lv:'sup',icon:['local','plotly.svg']},
+   {name:'LaTeX',role:'Typesetting papers & reports',lv:'chip',icon:['mono','TeX'],new:true},
+  ]},
+ {n:'02',title:'Machine Learning & Optimization',
+  role:'Surrogate models, Gaussian processes, and adaptive experiment design.',
+  proof:['Bayesian Optimization Framework'],
+  tools:[
+   {name:'PyTorch',role:'Deep learning framework & tensors',lv:'sig',icon:['local','pytorch.svg']},
+   {name:'BoTorch',role:'Bayesian optimization research',lv:'sig',icon:['mono','BO']},
+   {name:'GPyTorch',role:'Gaussian processes on PyTorch',lv:'sup',icon:['mono','GP']},
+   {name:'Ax',role:'Adaptive experimentation platform',lv:'sup',icon:['mono','Ax']},
+   {name:'JAX',role:'High-performance ML & autodiff',lv:'sup',icon:['local','jax.png']},
+   {name:'CUDA',role:'NVIDIA GPU computing',lv:'sup',icon:['local','cuda.svg']},
+   {name:'Experiment Tracking',role:'Logging runs & comparing models (W&B / MLflow)',lv:'chip',icon:['mono','ET'],new:true},
+  ]},
+ {n:'03',title:'LLMs & Generative AI',
+  role:'Retrieval-augmented and agentic systems — from local inference to production APIs.',
+  proof:['JuanaKNOW','RAG Chatbot'],
+  tools:[
+   {name:'Agno',role:'Multi-agent framework & runtime',lv:'sig',icon:['local','agno.jpeg']},
+   {name:'OpenAI',role:'LLM API provider',lv:'sig',icon:['local','openai.svg']},
+   {name:'Gemini',role:'Google generative models',lv:'sig',icon:['local','gemini.svg']},
+   {name:'Hugging Face',role:'Model hub & transformers',lv:'sig',icon:['local','huggingface.jpeg']},
+   {name:'LangChain',role:'Framework for LLM applications',lv:'sup',icon:['local','langchain.svg']},
+   {name:'ChromaDB',role:'Embedding database for RAG',lv:'sup',icon:['local','chromadb.svg']},
+   {name:'MCP & Tool Use',role:'Model Context Protocol & function calling',lv:'sup',icon:['mono','MCP'],new:true},
+   {name:'Supabase Edge Fns',role:'Serverless (Deno) functions for AI APIs',lv:'sup',icon:['cdn','supabase/supabase'],new:true},
+   {name:'Ollama',role:'Local LLM orchestration',lv:'sup',icon:['local','ollama.svg']},
+   {name:'OpenRouter',role:'Unified API across LLMs',lv:'sup',icon:['local','openrouter.svg']},
+   {name:'Unsloth',role:'Fast LLM fine-tuning',lv:'sup',icon:['local','unsloth.png']},
+   {name:'vLLM',role:'High-throughput inference',lv:'chip',icon:['local','vllm.jpeg']},
+  ]},
+ {n:'04',title:'Web Development & Interfaces',
+  role:'Frontends, APIs, and data apps — including this site.',
+  proof:['This Portfolio','ChunkingExpress'],
+  tools:[
+   {name:'React',role:'Component-based UI',lv:'sig',icon:['local','react.svg']},
+   {name:'TypeScript',role:'Typed JavaScript',lv:'sig',icon:['local','typescript.svg']},
+   {name:'Vite',role:'Frontend build tool',lv:'sig',icon:['local','vite.svg']},
+   {name:'FastAPI',role:'Modern Python web APIs',lv:'sup',icon:['local','fastapi.svg']},
+   {name:'Streamlit',role:'Data apps in Python',lv:'sup',icon:['local','streamlit.svg']},
+   {name:'Node.js',role:'JavaScript runtime',lv:'sup',icon:['local','nodejs.svg']},
+   {name:'n8n',role:'Workflow automation',lv:'sup',icon:['local','n8n.svg']},
+   {name:'Flask',role:'Lightweight web framework',lv:'chip',icon:['local','flask.svg']},
+  ]},
+ {n:'05',title:'Data & Infrastructure',
+  role:'Databases, containers, CI/CD, and the home lab that runs it all.',
+  proof:['Home Lab','Deploy Pipeline'],
+  tools:[
+   {name:'PostgreSQL',role:'Relational database',lv:'sig',icon:['cdn','postgresql/postgresql']},
+   {name:'Docker',role:'Containerization & deployment',lv:'sig',icon:['local','docker.svg']},
+   {name:'GitHub Actions',role:'CI/CD workflows',lv:'sig',icon:['local','githubactions.svg']},
+   {name:'Supabase',role:'Postgres, storage, auth & edge functions',lv:'sig',icon:['cdn','supabase/supabase'],new:true},
+   {name:'pgvector',role:'Vector search inside Postgres',lv:'sup',icon:['mono','pg'],new:true},
+   {name:'Nginx',role:'Reverse proxy',lv:'sup',icon:['local','nginx.svg']},
+   {name:'Vercel',role:'Frontend deployment',lv:'sup',icon:['local','vercel.svg']},
+   {name:'Prometheus',role:'Metrics & monitoring',lv:'chip',icon:['local','prometheus.svg']},
+   {name:'OpenTelemetry',role:'Observability framework',lv:'chip',icon:['local','opentelemetry.svg']},
+   {name:'OpenLit',role:'OTel-native LLM observability',lv:'chip',icon:['local','openlit.png']},
+   {name:'Jenkins',role:'Automation server for CI/CD',lv:'chip',icon:['local','jenkins.svg']},
+  ]},
+ {n:'06',title:'Creative Coding & Visualization',
+  role:'Generative art, simulations, and interactive visual essays.',
+  proof:['Creative Coding','Photography'],
+  tools:[
+   {name:'p5.js',role:'Creative coding in JavaScript',lv:'sig',icon:['local','p5js.svg']},
+   {name:'Processing',role:'Visual arts & creative coding',lv:'sup',icon:['local','processing.svg']},
+   {name:'Lightroom',role:'Photo editing & cataloging',lv:'chip',icon:['mono','Lr'],new:true},
+  ]},
+];
+
+function icon(t){
+  const mg=(t.mg||t.name.replace(/[^A-Za-z0-9+]/g,'')).slice(0,2);
+  if(t.icon[0]==='mono')return `<span class="ic mono"><span class="mg">${t.icon[1]||mg}</span></span>`;
+  const src=t.icon[0]==='cdn'?C+t.icon[1]+'-original.svg':L+t.icon[1];
+  return `<span class="ic"><img src="${src}" alt="" loading="lazy" onerror="this.style.display='none';this.parentElement.classList.add('broken')"><span class="mg">${mg}</span></span>`;
+}
+function card(t,tier){
+  if(tier==='chip')return `<span class="chip">${icon(t)}<span class="nm">${t.name}</span>${t.new?'<span class="nw">new</span>':''}</span>`;
+  const role=tier==='sig'?`<span class="role">${t.role}</span>`:'';
+  return `<div class="card ${tier}">${icon(t)}<div class="c-body"><span class="nm-row"><span class="nm">${t.name}</span>${t.new?'<span class="nw">new</span>':''}</span>${role}</div></div>`;
+}
+function domain(d){
+  const g=l=>d.tools.filter(t=>t.lv===l);
+  const proof=d.proof?`<div class="proof"><span class="pfx">Seen in</span>${d.proof.map(p=>`<span class="ptag">${p}</span>`).join('')}</div>`:'';
+  return `<section class="domain">
+   <header class="d-head"><div class="d-num">${d.n}</div><div class="d-titles"><h2>${d.title}</h2><p class="d-role">${d.role}</p></div><div class="d-count">${d.tools.length} tools</div></header>
+   ${g('sig').length?`<div class="grid sig">${g('sig').map(t=>card(t,'sig')).join('')}</div>`:''}
+   ${g('sup').length?`<div class="grid sup">${g('sup').map(t=>card(t,'sup')).join('')}</div>`:''}
+   ${g('chip').length?`<div class="chips"><span class="chips-lbl">also</span>${g('chip').map(t=>card(t,'chip')).join('')}</div>`:''}
+   ${proof}</section>`;
+}
+document.getElementById('root').innerHTML=DOMAINS.map(domain).join('');
+
+/* theme */
+const html=document.documentElement,btn=document.getElementById('theme'),lbl=document.getElementById('thlbl');
+const saved=localStorage.getItem('ts-theme'); if(saved){html.classList.toggle('dark',saved==='dark')}
+function sync(){lbl.textContent=html.classList.contains('dark')?'Light':'Dark'}
+sync();
+btn.addEventListener('click',()=>{html.classList.toggle('dark');localStorage.setItem('ts-theme',html.classList.contains('dark')?'dark':'light');sync()});
+</script>
+</body>
+</html>

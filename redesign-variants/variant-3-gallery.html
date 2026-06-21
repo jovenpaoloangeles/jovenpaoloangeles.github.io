@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Joven Paolo Angeles — Scientist, engineer, photographer</title>
+<meta name="description" content="Materials scientist, AI engineer, and award-winning photographer based in Quezon City. Bayesian optimization for nanoparticle synthesis; agentic AI for the public sector.">
+<link rel="icon" href="../public/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fcfbf9;
+    --bg-dim: #f4f2ed;
+    --ink: #1c1a17;
+    --ink-mid: #57534b;
+    --ink-soft: #8c867b;
+    --hair: #e5e1d8;
+    --accent: #2f5d50;          /* deep viridian — single accent */
+    --accent-soft: rgba(47, 93, 80, .1);
+    --serif: 'Instrument Serif', Georgia, serif;
+    --sans: 'Outfit', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: var(--sans); font-weight: 300;
+    line-height: 1.7; -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: var(--accent); color: var(--bg); }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 1px; }
+
+  .skip-link {
+    position: absolute; left: -999px; top: 0; z-index: 200;
+    background: var(--ink); color: var(--bg); padding: .6rem 1rem; font-size: .85rem;
+  }
+  .skip-link:focus { left: 1rem; top: 1rem; }
+
+  .wrap { max-width: 1360px; margin: 0 auto; padding: 0 clamp(1.25rem, 5vw, 4.5rem); }
+
+  /* ───── nav ───── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 90;
+    mix-blend-mode: difference; color: #fff;
+  }
+  .nav-inner {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.4rem clamp(1.25rem, 5vw, 4.5rem);
+  }
+  .nav-mark { font-family: var(--serif); font-size: 1.2rem; text-decoration: none; color: #fff; letter-spacing: .01em; }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a {
+    color: #fff; text-decoration: none; font-size: .8rem; font-weight: 400;
+    letter-spacing: .1em; text-transform: lowercase; opacity: .8;
+    transition: opacity .2s ease;
+  }
+  .nav-links a:hover { opacity: 1; }
+  @media (max-width: 720px) { .nav-links { gap: 1.1rem; } .nav-links li:nth-child(n+4) { display: none; } }
+
+  /* ───── hero: full-bleed photo ───── */
+  .hero {
+    position: relative; min-height: 100dvh;
+    display: flex; align-items: flex-end;
+    overflow: hidden; color: #fff;
+  }
+  .hero-img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%; object-fit: cover;
+    filter: brightness(.78) saturate(.95);
+    transform: scale(1.06);
+    animation: heroDrift 18s ease-out forwards;
+  }
+  @keyframes heroDrift { to { transform: scale(1); } }
+  .hero::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(10, 14, 12, .72) 0%, rgba(10, 14, 12, .1) 55%, rgba(10,14,12,.25) 100%);
+  }
+  .hero-content {
+    position: relative; z-index: 2; width: 100%;
+    padding: 0 clamp(1.25rem, 5vw, 4.5rem) clamp(2.5rem, 6vw, 5rem);
+    display: flex; justify-content: space-between; align-items: flex-end; gap: 2rem; flex-wrap: wrap;
+  }
+  h1 {
+    font-family: var(--serif); font-weight: 400;
+    font-size: clamp(3rem, 9vw, 7.5rem);
+    line-height: .98; letter-spacing: -0.015em; text-wrap: balance;
+    max-width: 11ch;
+  }
+  h1 em { font-style: italic; }
+  .hero-aside { max-width: 34ch; font-size: .95rem; font-weight: 300; line-height: 1.65; opacity: .92; }
+  .hero-aside strong { font-weight: 500; }
+  .hero-caption {
+    position: absolute; z-index: 2; right: clamp(1.25rem, 5vw, 4.5rem); top: 6rem;
+    font-size: .68rem; letter-spacing: .16em; text-transform: uppercase; opacity: .65;
+    writing-mode: vertical-rl;
+  }
+  .scroll-hint {
+    position: absolute; z-index: 2; left: 50%; bottom: 1.2rem; transform: translateX(-50%);
+    font-size: .65rem; letter-spacing: .22em; text-transform: uppercase; opacity: .6;
+  }
+
+  /* ───── shared section chrome ───── */
+  section { padding: clamp(4.5rem, 10vw, 8.5rem) 0; }
+  .eyebrow {
+    font-size: .72rem; letter-spacing: .2em; text-transform: uppercase;
+    color: var(--accent); font-weight: 500; margin-bottom: 1.25rem;
+  }
+  h2 {
+    font-family: var(--serif); font-weight: 400;
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    line-height: 1.04; letter-spacing: -0.01em; text-wrap: balance;
+  }
+  h2 em { font-style: italic; color: var(--accent); }
+
+  /* intro */
+  .intro-grid {
+    display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+    gap: clamp(2.5rem, 6vw, 6rem); align-items: start;
+  }
+  @media (max-width: 880px) { .intro-grid { grid-template-columns: 1fr; } }
+  .intro-copy { font-size: 1.08rem; color: var(--ink-mid); max-width: 58ch; }
+  .intro-copy p + p { margin-top: 1.5rem; }
+  .intro-copy strong { font-weight: 500; color: var(--ink); }
+  .intro-copy a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent); }
+  .facts { list-style: none; font-size: .92rem; margin-top: .4rem; }
+  .facts li {
+    display: flex; justify-content: space-between; gap: 1.5rem;
+    padding: .85rem 0; border-bottom: 1px solid var(--hair);
+  }
+  .facts li:first-child { border-top: 1px solid var(--hair); }
+  .facts .k { color: var(--ink-soft); font-weight: 400; }
+  .facts .v { text-align: right; font-weight: 400; color: var(--ink); }
+  .cta-row { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2.5rem; }
+  .btn {
+    display: inline-flex; align-items: center; gap: .6rem;
+    padding: .85rem 1.7rem; border-radius: 999px;
+    font-size: .85rem; font-weight: 500; letter-spacing: .02em;
+    text-decoration: none; transition: all .25s ease;
+  }
+  .btn:active { transform: scale(.98); }
+  .btn-dark { background: var(--ink); color: var(--bg); }
+  .btn-dark:hover { background: var(--accent); }
+  .btn-line { border: 1px solid var(--hair); color: var(--ink); }
+  .btn-line:hover { border-color: var(--ink); }
+
+  /* work — horizontal scroll */
+  .work { background: var(--bg-dim); }
+  .work-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 2rem; margin-bottom: 3rem; flex-wrap: wrap; }
+  .work-hint { font-size: .78rem; color: var(--ink-soft); letter-spacing: .04em; }
+  .rail {
+    display: flex; gap: 1.5rem; overflow-x: auto;
+    padding: .5rem clamp(1.25rem, 5vw, 4.5rem) 2rem;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin; scrollbar-color: var(--accent) transparent;
+  }
+  .rail::-webkit-scrollbar { height: 4px; }
+  .rail::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+  .work-card {
+    flex: 0 0 clamp(300px, 38vw, 460px); scroll-snap-align: start;
+    background: var(--bg); border-radius: 14px; overflow: hidden;
+    text-decoration: none; color: inherit;
+    display: flex; flex-direction: column;
+    box-shadow: 0 1px 2px rgba(47, 60, 55, .06), 0 12px 32px -16px rgba(47, 60, 55, .18);
+    transition: transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s ease;
+  }
+  .work-card:hover { transform: translateY(-6px); box-shadow: 0 2px 4px rgba(47,60,55,.07), 0 24px 48px -16px rgba(47,60,55,.26); }
+  .work-shot { aspect-ratio: 16 / 9.5; overflow: hidden; background: var(--bg-dim); }
+  .work-shot img { width: 100%; height: 100%; object-fit: cover; object-position: top; transition: transform .6s cubic-bezier(.2,.8,.2,1); }
+  .work-card:hover .work-shot img { transform: scale(1.04); }
+  .work-body { padding: 1.6rem 1.7rem 1.8rem; flex: 1; display: flex; flex-direction: column; }
+  .work-kind { font-size: .68rem; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); font-weight: 500; }
+  .work-name { font-family: var(--serif); font-size: 1.65rem; margin-top: .5rem; line-height: 1.1; }
+  .work-desc { font-size: .9rem; color: var(--ink-mid); margin-top: .65rem; text-wrap: pretty; }
+  .work-link { margin-top: auto; padding-top: 1.3rem; font-size: .82rem; font-weight: 500; color: var(--accent); }
+  .work-link::after { content: " →"; }
+
+  /* research strip */
+  .research-list { border-top: 1px solid var(--hair); margin-top: 3rem; }
+  .research-row {
+    display: grid; grid-template-columns: 8rem minmax(0, 1fr) auto;
+    gap: 1.5rem; align-items: baseline;
+    padding: 1.6rem 0; border-bottom: 1px solid var(--hair);
+    transition: padding-left .25s ease;
+  }
+  .research-row:hover { padding-left: .8rem; }
+  @media (max-width: 720px) { .research-row { grid-template-columns: 1fr; gap: .3rem; } }
+  .research-when { font-size: .8rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+  .research-role { font-family: var(--serif); font-size: 1.45rem; line-height: 1.15; }
+  .research-role span { display: block; font-family: var(--sans); font-size: .88rem; color: var(--ink-mid); margin-top: .4rem; max-width: 58ch; font-weight: 300; }
+  .research-where { font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); white-space: nowrap; }
+
+  /* photography mosaic — the showpiece */
+  .mosaic-head { text-align: left; max-width: 60ch; margin-bottom: 3.5rem; }
+  .mosaic-head p { margin-top: 1.25rem; color: var(--ink-mid); font-size: 1.02rem; }
+  .mosaic {
+    display: grid; gap: 1rem;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: clamp(140px, 18vw, 260px);
+  }
+  @media (max-width: 760px) { .mosaic { grid-template-columns: repeat(2, 1fr); } }
+  .mosaic figure { position: relative; overflow: hidden; border-radius: 6px; margin: 0; }
+  .m1 { grid-column: span 2; grid-row: span 2; }
+  .m2 { grid-column: span 1; grid-row: span 1; }
+  .m3 { grid-column: span 1; grid-row: span 2; }
+  .m4 { grid-column: span 1; grid-row: span 1; }
+  .m5 { grid-column: span 2; grid-row: span 1; }
+  .m6 { grid-column: span 1; grid-row: span 1; }
+  .mosaic img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    transition: transform .7s cubic-bezier(.2,.8,.2,1);
+  }
+  .mosaic figure:hover img { transform: scale(1.05); }
+  .mosaic figcaption {
+    position: absolute; inset: auto 0 0 0;
+    padding: 2rem .95rem .8rem;
+    font-size: .72rem; letter-spacing: .06em; color: #fff;
+    background: linear-gradient(transparent, rgba(12, 16, 14, .72));
+    opacity: 0; transform: translateY(6px);
+    transition: opacity .35s ease, transform .35s ease;
+  }
+  .mosaic figure:hover figcaption { opacity: 1; transform: none; }
+  .mosaic-foot { margin-top: 1.75rem; display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: .85rem; color: var(--ink-soft); }
+  .mosaic-foot b { color: var(--ink); font-weight: 500; }
+
+  /* awards band — same palette, slightly deeper, not a jarring dark slab */
+  .awards { background: var(--bg-dim); border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair); }
+  .awards-cols { display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(2rem, 6vw, 6rem); margin-top: 3rem; }
+  @media (max-width: 760px) { .awards-cols { grid-template-columns: 1fr; } }
+  .award-block h3 { font-family: var(--serif); font-size: 1.5rem; font-weight: 400; margin-bottom: 1.4rem; }
+  .award-item { padding: 1rem 0; border-top: 1px solid var(--hair); }
+  .award-item p:first-child { font-weight: 500; font-size: .95rem; }
+  .award-item p:last-child { font-size: .85rem; color: var(--ink-mid); margin-top: .25rem; }
+  .gold { color: var(--accent); font-weight: 500; }
+
+  /* footer */
+  footer { padding: clamp(4.5rem, 10vw, 8rem) 0 2.5rem; }
+  .foot-cta {
+    font-family: var(--serif); font-weight: 400;
+    font-size: clamp(2.4rem, 6.5vw, 5rem); line-height: 1.02;
+    letter-spacing: -0.01em; max-width: 16ch; text-wrap: balance;
+  }
+  .foot-cta a { color: var(--accent); font-style: italic; text-decoration: none; }
+  .foot-cta a:hover { text-decoration: underline; text-underline-offset: 8px; text-decoration-thickness: 2px; }
+  .foot-meta {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    gap: 2rem; flex-wrap: wrap; margin-top: clamp(2.5rem, 6vw, 4.5rem);
+    padding-top: 2rem; border-top: 1px solid var(--hair);
+  }
+  .foot-soc { display: flex; gap: 1.75rem; list-style: none; }
+  .foot-soc a { font-size: .82rem; color: var(--ink-mid); text-decoration: none; letter-spacing: .04em; transition: color .2s ease; }
+  .foot-soc a:hover { color: var(--accent); }
+  .foot-fine { font-size: .75rem; color: var(--ink-soft); }
+
+  .reveal { opacity: 0; transform: translateY(22px); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.8,.2,1); }
+  .reveal.in { opacity: 1; transform: none; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<nav aria-label="Primary">
+  <div class="nav-inner">
+    <a class="nav-mark" href="#top">Joven Paolo Angeles</a>
+    <ul class="nav-links">
+      <li><a href="#about">about</a></li>
+      <li><a href="#work">work</a></li>
+      <li><a href="#research">research</a></li>
+      <li><a href="#photography">photography</a></li>
+      <li><a href="#contact">contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main id="main">
+
+<header class="hero" id="top">
+  <img class="hero-img" src="../public/photography/Landscapes/DSC08476-Pano.webp" alt="Panoramic landscape photographed by Joven Paolo Angeles">
+  <p class="hero-caption">Photographed by the author</p>
+  <div class="hero-content">
+    <h1>Scientist by training, <em>engineer</em> by trade, <em>photographer</em> by eye.</h1>
+    <p class="hero-aside"><strong>Joven Paolo Angeles</strong> — PhD candidate in Materials Science at the University of the Philippines and Senior AI Engineer at DOST-ASTI, Quezon City.</p>
+  </div>
+  <p class="scroll-hint">scroll</p>
+</header>
+
+<section id="about" class="wrap">
+  <p class="eyebrow reveal">About</p>
+  <div class="intro-grid">
+    <div class="reveal">
+      <h2>Optimization is the through-line — in the lab, in production, in the frame.</h2>
+      <div class="cta-row">
+        <a class="btn btn-dark" href="../public/Angeles_CV.pdf" download="Joven-Paolo-Angeles-Academic-CV.pdf">Download CV</a>
+        <a class="btn btn-line" href="mailto:jovenpaoloangeles@gmail.com">Say hello</a>
+      </div>
+    </div>
+    <div class="reveal">
+      <div class="intro-copy">
+        <p>My doctorate develops a <strong>Bayesian optimization framework</strong> that accelerates nanoparticle synthesis — fewer experiments, lower cost, more reproducible materials research. At <strong>DOST-ASTI</strong> I lead the engineering of retrieval-augmented, multi-agent AI platforms used by real government stakeholders.</p>
+        <p>The rest of the time: an ML-driven trading home lab, a 3D printing studio called <a href="https://print3dmnl.vercel.app/" target="_blank" rel="noopener noreferrer">PRINT3D.MNL</a>, generative art, and a camera that has won at the International Photography Awards.</p>
+      </div>
+      <ul class="facts" style="margin-top:2.25rem;">
+        <li><span class="k">Currently</span><span class="v">Senior AI Engineer, DOST-ASTI</span></li>
+        <li><span class="k">Doctorate</span><span class="v">PhD candidate, Materials Science, UP</span></li>
+        <li><span class="k">Thesis</span><span class="v">Bayesian optimization for nanoparticle synthesis</span></li>
+        <li><span class="k">Based in</span><span class="v">Quezon City, Philippines</span></li>
+        <li><span class="k">Conference papers</span><span class="v">16 — PH, Taiwan, Japan</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="work" class="work">
+  <div class="wrap work-head reveal">
+    <div>
+      <p class="eyebrow">Selected work</p>
+      <h2>From government <em>AI platforms</em> to lab tools.</h2>
+    </div>
+    <p class="work-hint">drag or scroll sideways —</p>
+  </div>
+  <div class="rail" tabindex="0" aria-label="Project gallery, scrolls horizontally">
+    <a class="work-card" href="https://juanaknow.asti.dost.gov.ph/" target="_blank" rel="noopener noreferrer">
+      <div class="work-shot"><img src="../public/projects/JUANAKNOW.png" alt="JuanaKNOW chat interface showing AI-powered technology assessment" loading="lazy"></div>
+      <div class="work-body">
+        <p class="work-kind">Multi-agent AI · DOST PROPEL</p>
+        <h3 class="work-name">JuanaKNOW</h3>
+        <p class="work-desc">Market intelligence and technology assessment for Filipino innovators — novelty evaluation, funding access, commercialization guidance.</p>
+        <p class="work-link">Ask JuanaKNOW</p>
+      </div>
+    </a>
+    <a class="work-card" href="https://asti.dost.gov.ph/projects/itanong/" target="_blank" rel="noopener noreferrer">
+      <div class="work-shot"><img src="../public/projects/iTANONG.jpg" alt="iTANONG natural language database query interface" loading="lazy"></div>
+      <div class="work-body">
+        <p class="work-kind">Multilingual NLIDB · DOST-ASTI</p>
+        <h3 class="work-name">iTANONG</h3>
+        <p class="work-desc">Query government data in Filipino, English, or Taglish through a natural-language interface to databases.</p>
+        <p class="work-link">Learn about iTANONG</p>
+      </div>
+    </a>
+    <a class="work-card" href="https://jovenpaoloangeles.github.io/xrd-analyzer/" target="_blank" rel="noopener noreferrer">
+      <div class="work-shot"><img src="../public/projects/XRDAnalyzer.webp" alt="XRD Analyzer interface plotting diffraction intensity data" loading="lazy"></div>
+      <div class="work-body">
+        <p class="work-kind">Lab tool · open source</p>
+        <h3 class="work-name">XRD Analyzer</h3>
+        <p class="work-desc">Interactive X-ray diffraction analysis — upload XY/CSV files, highlight peaks, characterize faster.</p>
+        <p class="work-link">Launch analyzer</p>
+      </div>
+    </a>
+    <a class="work-card" href="https://huggingface.co/spaces/jovenpaolo/ChunkingExpress" target="_blank" rel="noopener noreferrer">
+      <div class="work-shot"><img src="../public/projects/ChunkingExpress.webp" alt="ChunkingExpress web app highlighting chunked text segments" loading="lazy"></div>
+      <div class="work-body">
+        <p class="work-kind">RAG tooling · Hugging Face</p>
+        <h3 class="work-name">ChunkingExpress</h3>
+        <p class="work-desc">A document-chunking playground for RAG pipelines with configurable strategies and live previews.</p>
+        <p class="work-link">Try the RAG tool</p>
+      </div>
+    </a>
+    <a class="work-card" href="https://jovenpaoloangeles.github.io/philippine-wfh-optimizer/" target="_blank" rel="noopener noreferrer">
+      <div class="work-shot"><img src="../public/projects/WFHOptimizer.webp" alt="Philippine WFH Optimizer holiday planner dashboard" loading="lazy"></div>
+      <div class="work-body">
+        <p class="work-kind">Utility · TypeScript</p>
+        <h3 class="work-name">PH WFH Optimizer</h3>
+        <p class="work-desc">Combines official Philippine holidays with leave credits to surface the most efficient long weekends.</p>
+        <p class="work-link">Plan long weekends</p>
+      </div>
+    </a>
+    <a class="work-card" href="https://jovenpaoloangeles.github.io/puzzle-a-day/" target="_blank" rel="noopener noreferrer">
+      <div class="work-shot"><img src="../public/projects/PuzzleADay.webp" alt="Puzzle-a-Day solver showing a completed calendar tile arrangement" loading="lazy"></div>
+      <div class="work-body">
+        <p class="work-kind">Algorithms · for fun</p>
+        <h3 class="work-name">Puzzle-a-Day Solver</h3>
+        <p class="work-desc">Algorithm X enumerating daily tilings of the DragonFjord A-Puzzle-A-Day board, with visual proofs.</p>
+        <p class="work-link">Solve today's puzzle</p>
+      </div>
+    </a>
+  </div>
+</section>
+
+<section id="research" class="wrap">
+  <p class="eyebrow reveal">Research path</p>
+  <h2 class="reveal">A decade in materials, <em>now teaching machines</em> to run the lab.</h2>
+  <div class="research-list reveal">
+    <div class="research-row">
+      <p class="research-when">2025 — now</p>
+      <div class="research-role">Senior AI Engineer<span>Leads JuanaKNOW at DOST-ASTI — agentic RAG and deep research agents supporting the commercialization of government-funded R&amp;D.</span></div>
+      <p class="research-where">DOST-ASTI</p>
+    </div>
+    <div class="research-row">
+      <p class="research-when">2025</p>
+      <div class="research-role">Data Scientist<span>ELT pipelines for public-sector documents; hybrid retrieval with pgvector; unified databank served through WSO2.</span></div>
+      <p class="research-where">DOST-ASTI</p>
+    </div>
+    <div class="research-row">
+      <p class="research-when">2023</p>
+      <div class="research-role">University Researcher<span>Graphene–MOF composite membranes for pandemic mitigation; bulk synthesis via electrospinning.</span></div>
+      <p class="research-where">UP Diliman</p>
+    </div>
+    <div class="research-row">
+      <p class="research-when">2022</p>
+      <div class="research-role">Visiting PhD Student<span>Gold–iron oxide core-shell nanoparticles for SERS; Raman spectroscopy of magnetoplasmonic ferrofluids under the KAPLAT program.</span></div>
+      <p class="research-where">Japan</p>
+    </div>
+    <div class="research-row">
+      <p class="research-when">2014 — 22</p>
+      <div class="research-role">Earlier roles<span>Zeolite wastewater treatment, graphene nanostructures for metal-ion sensing, Cordillera textile characterization, ZnO thin films, triboelectric nanogenerators.</span></div>
+      <p class="research-where">UP system</p>
+    </div>
+  </div>
+</section>
+
+<section id="photography" class="wrap">
+  <div class="mosaic-head reveal">
+    <p class="eyebrow">Photography</p>
+    <h2>The same eye, a <em>different instrument</em>.</h2>
+    <p>First place and category winner at the International Photography Awards 2018, shortlisted at Siena 2020, exhibited at the Singapore International Photography Festival.</p>
+  </div>
+  <div class="mosaic reveal">
+    <figure class="m1">
+      <img src="../public/photography/Landscapes/Swan Lake1-12.webp" alt="Swan Lake — first place, Nature-Seasons, International Photography Awards 2018" loading="lazy">
+      <figcaption>Swan Lake — 1st place, IPA 2018</figcaption>
+    </figure>
+    <figure class="m2">
+      <img src="../public/photography/Street/_DSC2191.webp" alt="Street photograph from Metro Manila" loading="lazy">
+      <figcaption>Street series, Metro Manila</figcaption>
+    </figure>
+    <figure class="m3">
+      <img src="../public/photography/Astrophotography/_JOV5275.webp" alt="Astrophotography of the Milky Way" loading="lazy">
+      <figcaption>Astrophotography series</figcaption>
+    </figure>
+    <figure class="m4">
+      <img src="../public/photography/Minimalism/DSC06181.webp" alt="Minimalist photographic composition" loading="lazy">
+      <figcaption>Minimalism series</figcaption>
+    </figure>
+    <figure class="m5">
+      <img src="../public/photography/Infrared/DSC00476-Pano_1.webp" alt="Infrared panoramic landscape" loading="lazy">
+      <figcaption>Infrared series</figcaption>
+    </figure>
+    <figure class="m6">
+      <img src="../public/photography/Landscapes/_JOV1325.webp" alt="Landscape photograph" loading="lazy">
+      <figcaption>Landscapes series</figcaption>
+    </figure>
+  </div>
+  <div class="mosaic-foot reveal">
+    <p>Series: <b>landscapes · street · infrared · astro · minimalism</b></p>
+    <p><a href="https://www.instagram.com/jovenpaolo/" target="_blank" rel="noopener noreferrer" style="color:var(--accent); text-decoration:none; font-weight:500;">More on Instagram →</a></p>
+  </div>
+</section>
+
+<section id="awards" class="awards">
+  <div class="wrap">
+    <p class="eyebrow reveal">Recognition</p>
+    <h2 class="reveal">Medals from <em>two disciplines</em>.</h2>
+    <div class="awards-cols">
+      <div class="award-block reveal">
+        <h3>Academic</h3>
+        <div class="award-item">
+          <p>ASTHRDP-NSC PhD Scholar <span class="gold">— current</span></p>
+          <p>Department of Science and Technology · 2024–present, full tuition with stipend</p>
+        </div>
+        <div class="award-item">
+          <p>ASTHRDP-NSC MS Scholar</p>
+          <p>Department of Science and Technology · 2018–2020</p>
+        </div>
+        <div class="award-item">
+          <p>University Scholar — four semesters</p>
+          <p>University of the Philippines · GWA ≥ 1.45</p>
+        </div>
+        <div class="award-item">
+          <p>College Scholar — three semesters</p>
+          <p>University of the Philippines · GWA ≥ 1.75</p>
+        </div>
+      </div>
+      <div class="award-block reveal">
+        <h3>Photography</h3>
+        <div class="award-item">
+          <p>International Photography Awards 2018 <span class="gold">— 2× first place</span></p>
+          <p>"Icarus" — 1st &amp; category winner, Sports · "Swan Lake" — 1st, Nature-Seasons · "A Roof in Hong Kong" — 2nd, Architecture</p>
+        </div>
+        <div class="award-item">
+          <p>International Photography Awards 2019</p>
+          <p>Two third places (Special Effects; Architecture-Interior) and an honorable mention in Fine Art</p>
+        </div>
+        <div class="award-item">
+          <p>Siena International Photo Awards 2020</p>
+          <p>Shortlisted</p>
+        </div>
+        <div class="award-item">
+          <p>Singapore International Photography Festival 2018</p>
+          <p>Depth of Feel exhibit · DECK, Singapore</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer id="contact" class="wrap">
+  <p class="eyebrow reveal">Contact</p>
+  <p class="foot-cta reveal">Working on materials, models, or both? <a href="mailto:jovenpaoloangeles@gmail.com">Write to me.</a></p>
+  <div class="foot-meta reveal">
+    <ul class="foot-soc">
+      <li><a href="https://github.com/jovenpaoloangeles" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+      <li><a href="https://www.instagram.com/jovenpaolo/" target="_blank" rel="noopener noreferrer">Instagram</a></li>
+      <li><a href="https://print3dmnl.vercel.app/" target="_blank" rel="noopener noreferrer">PRINT3D.MNL</a></li>
+      <li><a href="../public/Angeles_CV.pdf" download>CV (PDF)</a></li>
+    </ul>
+    <p class="foot-fine">© 2026 Joven Paolo D. Angeles — Quezon City, Philippines. All photographs by the author.</p>
+  </div>
+</footer>
+
+<script>
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    }
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+</script>
+</body>
+</html>

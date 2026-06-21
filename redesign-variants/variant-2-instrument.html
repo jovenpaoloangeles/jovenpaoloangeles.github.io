@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Joven Paolo Angeles — Research log</title>
+<meta name="description" content="Materials scientist and Senior AI Engineer. Bayesian optimization for nanoparticle synthesis; agentic RAG systems for the Philippine public sector.">
+<link rel="icon" href="../public/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #101312;             /* charcoal tinted toward green, not pure black */
+    --bg-raise: #161a18;
+    --bg-card: #1a1f1d;
+    --line: #2a302d;
+    --line-bright: #3a423e;
+    --text: #e8eae7;
+    --text-dim: #9aa39d;
+    --text-faint: #66706a;
+    --accent: #d9a648;          /* desaturated instrument amber */
+    --accent-dim: rgba(217, 166, 72, .14);
+    --grotesk: 'Space Grotesk', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--grotesk);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* faint blueprint grid */
+  body::before {
+    content: "";
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 72px 72px;
+    opacity: .22;
+    mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 30%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 30%, transparent 80%);
+  }
+  /* grain */
+  body::after {
+    content: "";
+    position: fixed; inset: 0; z-index: 70; pointer-events: none; opacity: .5;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.025 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  ::selection { background: var(--accent); color: #14110a; }
+
+  .skip-link {
+    position: absolute; left: -999px; top: 0; z-index: 200;
+    background: var(--accent); color: #14110a; padding: .6rem 1rem;
+    font-family: var(--mono); font-size: .8rem;
+  }
+  .skip-link:focus { left: 1rem; top: 1rem; }
+
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 clamp(1.25rem, 4vw, 3rem); position: relative; z-index: 1; }
+
+  .mono { font-family: var(--mono); }
+  .label {
+    font-family: var(--mono); font-size: .7rem; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--accent);
+  }
+
+  /* ───── nav ───── */
+  nav {
+    position: sticky; top: 0; z-index: 90;
+    background: color-mix(in srgb, var(--bg) 86%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-inner {
+    max-width: 1180px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: .85rem clamp(1.25rem, 4vw, 3rem);
+  }
+  .nav-id { font-family: var(--mono); font-size: .8rem; color: var(--text-dim); text-decoration: none; }
+  .nav-id b { color: var(--text); font-weight: 500; }
+  .nav-links { display: flex; gap: 1.5rem; list-style: none; }
+  .nav-links a {
+    font-family: var(--mono); font-size: .72rem; letter-spacing: .06em;
+    color: var(--text-dim); text-decoration: none; transition: color .2s ease;
+  }
+  .nav-links a:hover { color: var(--accent); }
+  .nav-links a::before { content: "/"; color: var(--text-faint); margin-right: .2rem; }
+  @media (max-width: 760px) { .nav-links { display: none; } }
+
+  /* ───── hero ───── */
+  .hero { padding: clamp(4.5rem, 11vw, 8.5rem) 0 clamp(3rem, 7vw, 5.5rem); }
+  .hero-meta {
+    display: flex; flex-wrap: wrap; gap: .6rem 1.75rem;
+    font-family: var(--mono); font-size: .74rem; color: var(--text-dim);
+    margin-bottom: 2.25rem;
+  }
+  .hero-meta .dot { color: var(--accent); }
+  h1 {
+    font-size: clamp(2.4rem, 6vw, 4.6rem);
+    font-weight: 600; line-height: 1.04; letter-spacing: -0.03em;
+    max-width: 20ch; text-wrap: balance;
+  }
+  h1 .amber { color: var(--accent); }
+  .hero-sub {
+    margin-top: 1.75rem; max-width: 58ch; color: var(--text-dim);
+    font-size: 1.02rem; text-wrap: pretty;
+  }
+  .hero-actions { margin-top: 2.5rem; display: flex; flex-wrap: wrap; gap: .9rem; }
+  .btn {
+    display: inline-flex; align-items: center; gap: .55rem;
+    font-family: var(--mono); font-size: .78rem; letter-spacing: .03em;
+    padding: .8rem 1.3rem; text-decoration: none;
+    border: 1px solid var(--line-bright); color: var(--text);
+    border-radius: 4px; background: var(--bg-raise);
+    transition: border-color .2s ease, background .2s ease, transform .15s ease;
+  }
+  .btn:hover { border-color: var(--accent); background: var(--accent-dim); }
+  .btn:active { transform: translateY(1px) scale(.99); }
+  .btn-solid { background: var(--accent); border-color: var(--accent); color: #14110a; font-weight: 500; }
+  .btn-solid:hover { background: #e5b65f; }
+
+  /* readout strip */
+  .readout {
+    margin-top: clamp(3rem, 7vw, 5rem);
+    border: 1px solid var(--line); border-radius: 6px;
+    background: var(--bg-raise);
+    display: grid; grid-template-columns: repeat(4, 1fr);
+  }
+  @media (max-width: 760px) { .readout { grid-template-columns: repeat(2, 1fr); } }
+  .readout > div { padding: 1.3rem 1.5rem; border-left: 1px solid var(--line); }
+  .readout > div:first-child { border-left: none; }
+  @media (max-width: 760px) { .readout > div:nth-child(3) { border-left: none; border-top: 1px solid var(--line); } .readout > div:nth-child(4) { border-top: 1px solid var(--line); } }
+  .readout .val {
+    font-family: var(--mono); font-size: 1.5rem; font-weight: 500;
+    font-variant-numeric: tabular-nums; color: var(--text);
+  }
+  .readout .key { font-family: var(--mono); font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: var(--text-faint); margin-top: .3rem; }
+
+  /* ───── sections ───── */
+  section { padding: clamp(3.5rem, 8vw, 6rem) 0; }
+  .sec-head { display: flex; align-items: baseline; gap: 1.25rem; margin-bottom: clamp(2rem, 4vw, 3rem); }
+  .sec-head::after { content: ""; flex: 1; height: 1px; background: var(--line); transform: translateY(-4px); }
+  h2 { font-size: clamp(1.5rem, 3vw, 2.1rem); font-weight: 600; letter-spacing: -0.02em; }
+  .sec-id { font-family: var(--mono); font-size: .72rem; color: var(--text-faint); }
+
+  /* about */
+  .about-grid { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: clamp(2rem, 5vw, 4.5rem); align-items: start; }
+  @media (max-width: 880px) { .about-grid { grid-template-columns: 1fr; } }
+  .about-text p { color: var(--text-dim); max-width: 62ch; text-wrap: pretty; }
+  .about-text p + p { margin-top: 1.3rem; }
+  .about-text strong { color: var(--text); font-weight: 500; }
+  .about-text a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(217,166,72,.3); transition: border-color .2s ease; }
+  .about-text a:hover { border-color: var(--accent); }
+  .spec-card {
+    border: 1px solid var(--line); border-radius: 6px; background: var(--bg-card);
+    padding: 1.5rem; font-family: var(--mono); font-size: .8rem;
+  }
+  .spec-card h3 { font-family: var(--mono); font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 1rem; font-weight: 500; }
+  .spec-card dl { display: grid; grid-template-columns: auto 1fr; gap: .45rem 1.25rem; }
+  .spec-card dt { color: var(--text-faint); }
+  .spec-card dd { color: var(--text-dim); }
+  .spec-card dd b { color: var(--text); font-weight: 500; }
+  .spec-card + .spec-card { margin-top: 1rem; }
+
+  /* experience table */
+  .xp-table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  .xp-table th {
+    font-family: var(--mono); font-size: .66rem; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--text-faint); font-weight: 500;
+    text-align: left; padding: 0 1rem .7rem 0; border-bottom: 1px solid var(--line-bright);
+  }
+  .xp-table td { padding: 1.1rem 1rem 1.1rem 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .xp-table td.when { font-family: var(--mono); font-size: .76rem; color: var(--text-faint); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .xp-table td.role { font-weight: 500; color: var(--text); min-width: 14rem; }
+  .xp-table td.role span { display: block; font-weight: 400; font-size: .8rem; color: var(--text-faint); margin-top: .15rem; }
+  .xp-table td.what { color: var(--text-dim); font-size: .87rem; max-width: 46ch; }
+  .xp-table tr { transition: background .2s ease; }
+  .xp-table tbody tr:hover { background: var(--bg-raise); }
+  @media (max-width: 760px) {
+    .xp-table thead { display: none; }
+    .xp-table, .xp-table tbody, .xp-table tr, .xp-table td { display: block; }
+    .xp-table td { padding: .2rem 0; border: none; }
+    .xp-table tr { padding: 1rem 0; border-bottom: 1px solid var(--line); }
+  }
+
+  /* projects — spotlight cards */
+  .proj-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1rem; }
+  .proj-card {
+    position: relative; grid-column: span 2;
+    border: 1px solid var(--line); border-radius: 8px;
+    background: var(--bg-card); overflow: hidden;
+    text-decoration: none; color: inherit;
+    display: flex; flex-direction: column;
+    transition: border-color .25s ease, transform .25s ease;
+  }
+  .proj-card:nth-child(1), .proj-card:nth-child(2) { grid-column: span 3; }
+  @media (max-width: 980px) { .proj-card, .proj-card:nth-child(1), .proj-card:nth-child(2) { grid-column: span 3; } }
+  @media (max-width: 660px) { .proj-card, .proj-card:nth-child(1), .proj-card:nth-child(2) { grid-column: span 6; } }
+  .proj-card:hover { border-color: var(--line-bright); transform: translateY(-3px); }
+  /* spotlight border glow */
+  .proj-card::before {
+    content: ""; position: absolute; inset: 0; border-radius: 8px;
+    background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), rgba(217,166,72,.12), transparent 65%);
+    opacity: 0; transition: opacity .3s ease; pointer-events: none;
+  }
+  .proj-card:hover::before { opacity: 1; }
+  .proj-shot { aspect-ratio: 16 / 8.5; overflow: hidden; border-bottom: 1px solid var(--line); background: #0c0e0d; }
+  .proj-shot img {
+    width: 100%; height: 100%; object-fit: cover; object-position: top;
+    filter: saturate(.85) contrast(1.02); opacity: .9;
+    transition: opacity .3s ease, transform .5s cubic-bezier(.2,.8,.2,1);
+  }
+  .proj-card:hover .proj-shot img { opacity: 1; transform: scale(1.025); }
+  .proj-body { padding: 1.3rem 1.4rem 1.5rem; display: flex; flex-direction: column; flex: 1; }
+  .proj-tag { font-family: var(--mono); font-size: .64rem; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+  .proj-name { font-size: 1.15rem; font-weight: 600; letter-spacing: -0.015em; margin-top: .45rem; }
+  .proj-desc { color: var(--text-dim); font-size: .86rem; margin-top: .55rem; text-wrap: pretty; }
+  .proj-foot {
+    margin-top: auto; padding-top: 1.1rem;
+    display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
+  }
+  .proj-stack { font-family: var(--mono); font-size: .68rem; color: var(--text-faint); }
+  .proj-go { font-family: var(--mono); font-size: .72rem; color: var(--accent); white-space: nowrap; }
+  .proj-go::after { content: " ->"; }
+
+  /* stack */
+  .stack-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  @media (max-width: 980px) { .stack-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 660px) { .stack-grid { grid-template-columns: 1fr; } }
+  .stack-cell { border: 1px solid var(--line); border-radius: 8px; padding: 1.3rem 1.4rem; background: var(--bg-card); }
+  .stack-cell h3 { font-family: var(--mono); font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); font-weight: 500; }
+  .stack-cell p { margin-top: .8rem; font-size: .88rem; color: var(--text-dim); line-height: 1.8; }
+  .stack-cell p b { color: var(--text); font-weight: 500; }
+
+  /* photography */
+  .photo-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: .75rem; }
+  @media (max-width: 760px) { .photo-row { grid-template-columns: repeat(2, 1fr); } }
+  .photo-row figure { position: relative; overflow: hidden; border-radius: 6px; border: 1px solid var(--line); margin: 0; }
+  .photo-row figure:nth-child(1) { grid-row: span 2; }
+  .photo-row img {
+    width: 100%; height: 100%; object-fit: cover; display: block; min-height: 180px;
+    transition: transform .6s cubic-bezier(.2,.8,.2,1);
+  }
+  .photo-row figure:hover img { transform: scale(1.04); }
+  .photo-row figcaption {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    padding: 1.4rem .9rem .7rem;
+    font-family: var(--mono); font-size: .66rem; letter-spacing: .06em; color: #e9e6dd;
+    background: linear-gradient(transparent, rgba(10,12,11,.82));
+  }
+  .photo-cred { margin-top: 1.1rem; font-family: var(--mono); font-size: .72rem; color: var(--text-faint); }
+  .photo-cred b { color: var(--accent); font-weight: 500; }
+
+  /* awards log */
+  .log { font-family: var(--mono); font-size: .8rem; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-card); overflow: hidden; }
+  .log-row { display: grid; grid-template-columns: 6.5rem 1fr auto; gap: 1.25rem; padding: .85rem 1.25rem; border-top: 1px solid var(--line); align-items: baseline; }
+  .log-row:first-child { border-top: none; }
+  .log-row:hover { background: var(--bg-raise); }
+  .log-date { color: var(--text-faint); font-variant-numeric: tabular-nums; }
+  .log-what { color: var(--text-dim); }
+  .log-what b { color: var(--text); font-weight: 500; }
+  .log-badge { color: var(--accent); font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
+  @media (max-width: 660px) { .log-row { grid-template-columns: 1fr; gap: .15rem; } }
+
+  /* footer */
+  footer { border-top: 1px solid var(--line); padding: clamp(3rem, 7vw, 5rem) 0 2.5rem; position: relative; z-index: 1; }
+  .foot-cta { font-size: clamp(1.6rem, 4vw, 2.6rem); font-weight: 600; letter-spacing: -0.025em; max-width: 24ch; text-wrap: balance; }
+  .foot-cta a { color: var(--accent); text-decoration: none; }
+  .foot-cta a:hover { text-decoration: underline; text-underline-offset: 5px; }
+  .foot-row { display: flex; flex-wrap: wrap; gap: 1rem 2rem; margin-top: 2rem; }
+  .foot-row a { font-family: var(--mono); font-size: .76rem; color: var(--text-dim); text-decoration: none; transition: color .2s ease; }
+  .foot-row a:hover { color: var(--accent); }
+  .foot-fine { margin-top: 3rem; font-family: var(--mono); font-size: .68rem; color: var(--text-faint); display: flex; justify-content: space-between; flex-wrap: wrap; gap: .75rem; }
+
+  .reveal { opacity: 0; transform: translateY(16px); transition: opacity .55s ease, transform .55s cubic-bezier(.2,.8,.2,1); }
+  .reveal.in { opacity: 1; transform: none; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<nav aria-label="Primary">
+  <div class="nav-inner">
+    <a class="nav-id" href="#top"><b>angeles</b>@research:~$</a>
+    <ul class="nav-links">
+      <li><a href="#about">about</a></li>
+      <li><a href="#log">worklog</a></li>
+      <li><a href="#projects">projects</a></li>
+      <li><a href="#stack">stack</a></li>
+      <li><a href="#photo">photo</a></li>
+      <li><a href="#contact">contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main id="main">
+
+<header class="hero wrap" id="top">
+  <p class="hero-meta">
+    <span><span class="dot">●</span> JOVEN PAOLO D. ANGELES</span>
+    <span>14.6°N, 121.0°E — QUEZON CITY, PH</span>
+    <span>DOST-ASTI / UP DILIMAN</span>
+  </p>
+  <h1>Bayesian optimization for <span class="amber">nanoparticles</span>. Agentic RAG for the <span class="amber">public sector</span>.</h1>
+  <p class="hero-sub">I'm a PhD candidate in Materials Science building frameworks that cut the cost of nanoparticle synthesis experiments, and a Senior AI Engineer architecting retrieval-augmented, multi-agent systems that government stakeholders actually use. Reliability over hype.</p>
+  <div class="hero-actions">
+    <a class="btn btn-solid" href="../public/Angeles_CV.pdf" download="Joven-Paolo-Angeles-Academic-CV.pdf">download_cv.pdf</a>
+    <a class="btn" href="mailto:jovenpaoloangeles@gmail.com">send_mail</a>
+    <a class="btn" href="https://github.com/jovenpaoloangeles" target="_blank" rel="noopener noreferrer">github</a>
+  </div>
+
+  <div class="readout reveal" role="list" aria-label="Career figures">
+    <div role="listitem"><p class="val">16</p><p class="key">conference papers</p></div>
+    <div role="listitem"><p class="val">11+</p><p class="key">yrs in research</p></div>
+    <div role="listitem"><p class="val">4×</p><p class="key">IPA podium finishes</p></div>
+    <div role="listitem"><p class="val">2</p><p class="key">gov AI platforms shipped</p></div>
+  </div>
+</header>
+
+<section id="about" class="wrap">
+  <div class="sec-head reveal"><span class="sec-id">[01]</span><h2>About</h2></div>
+  <div class="about-grid">
+    <div class="about-text reveal">
+      <p>My doctoral thesis develops a <strong>Bayesian optimization framework for accelerated nanoparticle synthesis</strong> — fewer experiments, lower cost, and results other labs can reproduce. The same instinct drives my engineering work: at DOST-ASTI I lead <strong>JuanaKNOW</strong>, a multi-agent platform for IP licensing, startup funding, and technology transfer, built on Agno, Ollama, and Postgres.</p>
+      <p>Earlier I built the data side: an ELT pipeline for public-sector documents with LLM-assisted parsing and deduplication, hybrid retrieval over pgvector, and a unified databank exposed through WSO2.</p>
+      <p>Nights and weekends belong to a <strong>home lab</strong> that trains trading models on a schedule, runs federated-learning experiments, and quietly replaces a stack of commercial subscriptions — plus <a href="https://print3dmnl.vercel.app/" target="_blank" rel="noopener noreferrer">PRINT3D.MNL</a>, a 3D printing studio for computational design.</p>
+    </div>
+    <aside class="reveal">
+      <div class="spec-card">
+        <h3>// education</h3>
+        <dl>
+          <dt>2021–</dt><dd><b>PhD MatSci &amp; Eng</b> · UP Diliman</dd>
+          <dt>2018–20</dt><dd><b>MSc MatSci &amp; Eng</b> · UP Diliman</dd>
+          <dt>2011–15</dt><dd><b>BSc Physics</b> · UP</dd>
+        </dl>
+      </div>
+      <div class="spec-card">
+        <h3>// current focus</h3>
+        <dl>
+          <dt>thesis</dt><dd>Bayesian opt. for nanoparticle synthesis</dd>
+          <dt>day job</dt><dd>Agentic RAG @ DOST-ASTI</dd>
+          <dt>adviser</dt><dd>Marienette Vega, PhD</dd>
+        </dl>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section id="log" class="wrap">
+  <div class="sec-head reveal"><span class="sec-id">[02]</span><h2>Worklog</h2></div>
+  <table class="xp-table reveal">
+    <thead>
+      <tr><th scope="col">period</th><th scope="col">role</th><th scope="col">summary</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="when">2025.08 — now</td>
+        <td class="role">Senior AI Engineer<span>DOST-ASTI</span></td>
+        <td class="what">Lead JuanaKNOW: agentic RAG pipelines and deep research agents supporting commercialization of government-funded R&amp;D.</td>
+      </tr>
+      <tr>
+        <td class="when">2025.03 — 07</td>
+        <td class="role">Data Scientist<span>DOST-ASTI</span></td>
+        <td class="what">ELT pipeline for public-sector documents; hybrid retrieval with pgvector; data quality checks and automated backfills.</td>
+      </tr>
+      <tr>
+        <td class="when">2023.01 — 12</td>
+        <td class="role">University Researcher I<span>UP Diliman</span></td>
+        <td class="what">Graphene–MOF composite membranes for pandemic mitigation; bulk synthesis via electrospinning.</td>
+      </tr>
+      <tr>
+        <td class="when">2022.10 — 12</td>
+        <td class="role">Visiting PhD Student<span>KAPLAT, Japan</span></td>
+        <td class="what">Gold–iron oxide core-shell nanoparticles for SERS; Raman analysis of magnetoplasmonic ferrofluids.</td>
+      </tr>
+      <tr>
+        <td class="when">2021 — 2022</td>
+        <td class="role">Researcher roles<span>UP Diliman</span></td>
+        <td class="what">Zeolite/bentonite wastewater treatment; graphene hybrid nanostructures for ultrasensitive metal-ion detection.</td>
+      </tr>
+      <tr>
+        <td class="when">2014 — 2017</td>
+        <td class="role">Early research<span>UP Baguio / Diliman</span></td>
+        <td class="what">Cordillera textile characterization; ZnO thin films by spray pyrolysis; triboelectric nanogenerators.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="projects" class="wrap">
+  <div class="sec-head reveal"><span class="sec-id">[03]</span><h2>Projects</h2></div>
+  <div class="proj-grid">
+    <a class="proj-card reveal" href="https://juanaknow.asti.dost.gov.ph/" target="_blank" rel="noopener noreferrer">
+      <div class="proj-shot"><img src="../public/projects/JUANAKNOW.png" alt="JuanaKNOW chat interface showing AI-powered technology assessment" loading="lazy"></div>
+      <div class="proj-body">
+        <p class="proj-tag">gov / multi-agent</p>
+        <h3 class="proj-name">JuanaKNOW by PROPEL</h3>
+        <p class="proj-desc">Market intelligence and technology assessment for DOST Program PROPEL — novelty checks, funding paths, commercialization guidance.</p>
+        <div class="proj-foot"><span class="proj-stack">agno · python · postgres</span><span class="proj-go">ask juanaknow</span></div>
+      </div>
+    </a>
+    <a class="proj-card reveal" href="https://asti.dost.gov.ph/projects/itanong/" target="_blank" rel="noopener noreferrer">
+      <div class="proj-shot"><img src="../public/projects/iTANONG.jpg" alt="iTANONG natural language database query interface" loading="lazy"></div>
+      <div class="proj-body">
+        <p class="proj-tag">gov / nlidb</p>
+        <h3 class="proj-name">iTANONG</h3>
+        <p class="proj-desc">Query government databases in Filipino, English, or Taglish — a multilingual natural-language interface to data.</p>
+        <div class="proj-foot"><span class="proj-stack">openai · langchain · fastapi</span><span class="proj-go">read more</span></div>
+      </div>
+    </a>
+    <a class="proj-card reveal" href="https://jovenpaoloangeles.github.io/xrd-analyzer/" target="_blank" rel="noopener noreferrer">
+      <div class="proj-shot"><img src="../public/projects/XRDAnalyzer.webp" alt="XRD Analyzer interface plotting diffraction intensity data" loading="lazy"></div>
+      <div class="proj-body">
+        <p class="proj-tag">lab tool</p>
+        <h3 class="proj-name">XRD Analyzer</h3>
+        <p class="proj-desc">Upload XY/CSV diffraction data, highlight peaks, characterize materials faster.</p>
+        <div class="proj-foot"><span class="proj-stack">react · plotly.js</span><span class="proj-go">launch</span></div>
+      </div>
+    </a>
+    <a class="proj-card reveal" href="https://huggingface.co/spaces/jovenpaolo/ChunkingExpress" target="_blank" rel="noopener noreferrer">
+      <div class="proj-shot"><img src="../public/projects/ChunkingExpress.webp" alt="ChunkingExpress web app highlighting chunked text segments" loading="lazy"></div>
+      <div class="proj-body">
+        <p class="proj-tag">rag tooling</p>
+        <h3 class="proj-name">ChunkingExpress</h3>
+        <p class="proj-desc">Document chunking playground for RAG pipelines — configurable strategies, live previews.</p>
+        <div class="proj-foot"><span class="proj-stack">python · streamlit</span><span class="proj-go">try it</span></div>
+      </div>
+    </a>
+    <a class="proj-card reveal" href="https://jovenpaoloangeles.github.io/philippine-wfh-optimizer/" target="_blank" rel="noopener noreferrer">
+      <div class="proj-shot"><img src="../public/projects/WFHOptimizer.webp" alt="Philippine WFH Optimizer holiday planner dashboard" loading="lazy"></div>
+      <div class="proj-body">
+        <p class="proj-tag">utility</p>
+        <h3 class="proj-name">PH WFH Optimizer</h3>
+        <p class="proj-desc">Combine official holidays with leave credits to find the most efficient long weekends.</p>
+        <div class="proj-foot"><span class="proj-stack">typescript · react</span><span class="proj-go">plan</span></div>
+      </div>
+    </a>
+    <a class="proj-card reveal" href="https://jovenpaoloangeles.github.io/puzzle-a-day/" target="_blank" rel="noopener noreferrer">
+      <div class="proj-shot"><img src="../public/projects/PuzzleADay.webp" alt="Puzzle-a-Day solver showing a completed calendar tile arrangement" loading="lazy"></div>
+      <div class="proj-body">
+        <p class="proj-tag">algorithms</p>
+        <h3 class="proj-name">Puzzle-a-Day Solver</h3>
+        <p class="proj-desc">Algorithm X enumerating daily solutions for the DragonFjord board, with visual tiling proofs.</p>
+        <div class="proj-foot"><span class="proj-stack">typescript · python</span><span class="proj-go">solve</span></div>
+      </div>
+    </a>
+  </div>
+</section>
+
+<section id="stack" class="wrap">
+  <div class="sec-head reveal"><span class="sec-id">[04]</span><h2>Stack</h2></div>
+  <div class="stack-grid">
+    <div class="stack-cell reveal">
+      <h3>// scientific computing</h3>
+      <p><b>Python</b>, <b>MATLAB</b>, <b>R</b>, JupyterLab, Pandas — algorithm development and numerical analysis.</p>
+    </div>
+    <div class="stack-cell reveal">
+      <h3>// ml &amp; optimization</h3>
+      <p><b>PyTorch</b>, <b>GPyTorch</b>, <b>BoTorch</b>, Ax, JAX, CUDA — Gaussian processes and Bayesian optimization.</p>
+    </div>
+    <div class="stack-cell reveal">
+      <h3>// llms &amp; agents</h3>
+      <p><b>Agno</b>, <b>LangChain</b>, Ollama, vLLM, Unsloth, Hugging Face, n8n — agentic RAG in production.</p>
+    </div>
+    <div class="stack-cell reveal">
+      <h3>// web</h3>
+      <p><b>React</b> + Vite, <b>TypeScript</b>, FastAPI, Flask, Node.js — interfaces and APIs.</p>
+    </div>
+    <div class="stack-cell reveal">
+      <h3>// infra &amp; observability</h3>
+      <p><b>Docker</b>, GitHub Actions, Jenkins, Prometheus, <b>OpenTelemetry</b> + OpenLit, Nginx Proxy Manager.</p>
+    </div>
+    <div class="stack-cell reveal">
+      <h3>// data &amp; creative</h3>
+      <p><b>PostgreSQL</b> + pgvector, ChromaDB · <b>p5.js</b>, Processing, Plotly, Streamlit for generative art and viz.</p>
+    </div>
+  </div>
+</section>
+
+<section id="photo" class="wrap">
+  <div class="sec-head reveal"><span class="sec-id">[05]</span><h2>Off-instrument</h2></div>
+  <div class="photo-row reveal">
+    <figure>
+      <img src="../public/photography/Landscapes/Swan Lake1-12.webp" alt="Swan Lake — first place, Nature-Seasons, International Photography Awards 2018" loading="lazy">
+      <figcaption>swan_lake.raw — IPA 2018, 1st place</figcaption>
+    </figure>
+    <figure>
+      <img src="../public/photography/Astrophotography/_JOV5275.webp" alt="Astrophotography of the night sky" loading="lazy">
+      <figcaption>milky_way.raw — astro series</figcaption>
+    </figure>
+    <figure>
+      <img src="../public/photography/Infrared/_DSC4084-Edit.webp" alt="Infrared landscape photograph" loading="lazy">
+      <figcaption>ir_720nm.raw — infrared series</figcaption>
+    </figure>
+    <figure>
+      <img src="../public/photography/Street/_DSC2191.webp" alt="Street photograph, Metro Manila" loading="lazy">
+      <figcaption>street_mnl.raw — street series</figcaption>
+    </figure>
+    <figure>
+      <img src="../public/photography/Minimalism/DSC06181.webp" alt="Minimalist photographic composition" loading="lazy">
+      <figcaption>minimal_02.raw — minimalism</figcaption>
+    </figure>
+  </div>
+  <p class="photo-cred">Shortlisted at <b>Siena International Photo Awards 2020</b> · exhibited at <b>Singapore International Photography Festival 2018</b>. Generative art lives in the creative coding lab — Voronoi fields, Mondrian grids, waveclocks.</p>
+</section>
+
+<section id="awards" class="wrap">
+  <div class="sec-head reveal"><span class="sec-id">[06]</span><h2>Recognition log</h2></div>
+  <div class="log reveal" role="list">
+    <div class="log-row" role="listitem"><span class="log-date">2024.01</span><span class="log-what"><b>ASTHRDP-NSC PhD Scholarship</b> — DOST, full tuition + stipend</span><span class="log-badge">active</span></div>
+    <div class="log-row" role="listitem"><span class="log-date">2020.02</span><span class="log-what"><b>Siena International Photo Awards</b> — shortlisted</span><span class="log-badge">photo</span></div>
+    <div class="log-row" role="listitem"><span class="log-date">2019.10</span><span class="log-what"><b>IPA 2019</b> — 3rd place ×2 (Special Effects, Architecture-Interior), honorable mention</span><span class="log-badge">photo</span></div>
+    <div class="log-row" role="listitem"><span class="log-date">2018.10</span><span class="log-what"><b>IPA 2018</b> — "Icarus" 1st place &amp; category winner; "Swan Lake" 1st place; "A Roof in Hong Kong" 2nd place</span><span class="log-badge">photo</span></div>
+    <div class="log-row" role="listitem"><span class="log-date">2018.10</span><span class="log-what"><b>Singapore Intl. Photography Festival</b> — Depth of Feel exhibit, DECK</span><span class="log-badge">exhibit</span></div>
+    <div class="log-row" role="listitem"><span class="log-date">2018.08</span><span class="log-what"><b>ASTHRDP-NSC MS Scholarship</b> — DOST, through 2020</span><span class="log-badge">academic</span></div>
+    <div class="log-row" role="listitem"><span class="log-date">2011–22</span><span class="log-what"><b>University &amp; College Scholar</b> — UP, seven semesters total</span><span class="log-badge">academic</span></div>
+  </div>
+</section>
+
+</main>
+
+<footer id="contact">
+  <div class="wrap">
+    <p class="label reveal">// open to collaboration</p>
+    <p class="foot-cta reveal" style="margin-top:1rem;">AI leadership, sustainable nanomaterials, or ML × blockchain — <a href="mailto:jovenpaoloangeles@gmail.com">jovenpaoloangeles@gmail.com</a></p>
+    <div class="foot-row reveal">
+      <a href="https://github.com/jovenpaoloangeles" target="_blank" rel="noopener noreferrer">github/jovenpaoloangeles</a>
+      <a href="https://www.instagram.com/jovenpaolo/" target="_blank" rel="noopener noreferrer">instagram/jovenpaolo</a>
+      <a href="https://print3dmnl.vercel.app/" target="_blank" rel="noopener noreferrer">print3d.mnl</a>
+      <a href="../public/Angeles_CV.pdf" download>academic_cv.pdf</a>
+    </div>
+    <div class="foot-fine">
+      <span>© 2026 joven paolo d. angeles — quezon city, ph</span>
+      <span>built with plain html/css — no tracking</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // spotlight border follows cursor
+  document.querySelectorAll('.proj-card').forEach((card) => {
+    card.addEventListener('pointermove', (e) => {
+      const r = card.getBoundingClientRect();
+      card.style.setProperty('--mx', `${e.clientX - r.left}px`);
+      card.style.setProperty('--my', `${e.clientY - r.top}px`);
+    });
+  });
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    }
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+</script>
+</body>
+</html>

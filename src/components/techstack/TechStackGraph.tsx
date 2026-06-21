@@ -38,12 +38,16 @@ function nodeTile(n: SimNode): number {
 
 const graphStyles = `
   .ts-node, .ts-link {
-    transition: opacity ${SPOTLIGHT.activeDuration}ms ease;
+    transition: opacity 300ms ease;
     opacity: 1;
   }
 
   .ts-node.dimmed, .ts-link.dimmed {
     opacity: ${SPOTLIGHT.dimmedOpacity};
+  }
+
+  .ts-hidden {
+    opacity: 0 !important;
   }
 `;
 
@@ -394,14 +398,14 @@ export function TechStackGraph() {
 
         // Semantic zooming: hide tool nodes at low zoom
         if (scale < ZOOM.semanticThresholds.showOnlyDomains) {
-          nodeG.filter(n => n.kind === 'tool').style('opacity', '0');
-          linkSel.filter(l => l.kind === 'tech' || l.kind === 'member').style('opacity', '0');
+          nodeG.filter(n => n.kind === 'tool').classed('ts-hidden', true);
+          linkSel.filter(l => l.kind === 'tech' || l.kind === 'member').classed('ts-hidden', true);
         } else if (scale < ZOOM.semanticThresholds.hideToolLabels) {
-          nodeG.filter(n => n.kind === 'tool').style('opacity', '1');
-          linkSel.style('opacity', '1');
+          nodeG.filter(n => n.kind === 'tool').classed('ts-hidden', false);
+          linkSel.classed('ts-hidden', false);
         } else {
-          nodeG.style('opacity', '1');
-          linkSel.style('opacity', '1');
+          nodeG.classed('ts-hidden', false);
+          linkSel.classed('ts-hidden', false);
         }
       });
     svg.call(zoom);

@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tech Stack Redesign Preview</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&display=swap');
+
+  :root {
+    --bg: 0 0% 12%;
+    --fg: 0 0% 98%;
+    --card: 0 0% 16%;
+    --muted: 0 0% 18%;
+    --muted-fg: 0 0% 65%;
+    --accent: 0 0% 22%;
+    --accent-fg: 0 0% 98%;
+    --border: 0 0% 22%;
+    --primary: 0 0% 98%;
+    --primary-fg: 0 0% 12%;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: hsl(var(--bg));
+    color: hsl(var(--fg));
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  h1 {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: hsl(var(--fg));
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+    color: hsl(var(--muted-fg));
+    margin-bottom: 2.5rem;
+  }
+
+  /* ── Core Section ── */
+  .section-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: hsl(var(--muted-fg));
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: hsl(var(--border));
+  }
+
+  .core-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .core-card {
+    background: hsl(var(--muted));
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.5rem;
+    padding: 1rem 1.25rem;
+    transition: background 0.15s, border-color 0.15s;
+    cursor: default;
+  }
+
+  .core-card:hover {
+    background: hsl(var(--accent));
+    border-color: hsl(0 0% 32%);
+  }
+
+  .core-card .card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .core-card .card-icon {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    filter: brightness(0) invert(1) opacity(0.85);
+  }
+
+  .core-card .card-icon.colored {
+    filter: none;
+  }
+
+  .core-card h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: hsl(var(--fg));
+  }
+
+  .core-card p {
+    font-size: 0.8rem;
+    color: hsl(var(--muted-fg));
+    margin-top: 0.15rem;
+  }
+
+  /* ── Domain Groups ── */
+  .domain-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .domain-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.65rem 1rem;
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+  }
+
+  .domain-header:hover {
+    background: hsl(var(--muted));
+  }
+
+  .domain-header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .domain-header h3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: hsl(var(--fg));
+  }
+
+  .domain-count {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: hsl(var(--muted-fg));
+    background: hsl(var(--muted));
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+  }
+
+  .domain-chevron {
+    width: 16px;
+    height: 16px;
+    color: hsl(var(--muted-fg));
+    transition: transform 0.2s;
+  }
+
+  .domain-group.open .domain-chevron {
+    transform: rotate(180deg);
+  }
+
+  .domain-body {
+    display: none;
+    padding: 0.75rem 0;
+  }
+
+  .domain-group.open .domain-body {
+    display: block;
+  }
+
+  .tool-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0 1rem;
+  }
+
+  .tool-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    color: hsl(var(--fg));
+    background: hsl(var(--muted));
+    border: 1px solid hsl(var(--border));
+    padding: 0.35rem 0.7rem;
+    border-radius: 0.35rem;
+    transition: background 0.15s;
+    cursor: default;
+  }
+
+  .tool-badge:hover {
+    background: hsl(var(--accent));
+  }
+
+  .tool-badge img {
+    width: 14px;
+    height: 14px;
+    filter: brightness(0) invert(1) opacity(0.75);
+  }
+
+  .tool-badge img.colored {
+    filter: none;
+  }
+
+  .tool-badge .badge-sub {
+    font-size: 0.7rem;
+    color: hsl(var(--muted-fg));
+    font-weight: 400;
+  }
+
+  .tool-badge .badge-group {
+    font-size: 0.7rem;
+    color: hsl(var(--muted-fg));
+    background: hsl(var(--accent));
+    padding: 0.1rem 0.35rem;
+    border-radius: 0.25rem;
+    margin-left: 0.15rem;
+  }
+
+  /* ── Also Experienced With ── */
+  .also-section {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid hsl(var(--border));
+  }
+
+  .also-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .also-chip {
+    font-size: 0.75rem;
+    color: hsl(var(--muted-fg));
+    padding: 0.25rem 0.6rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.25rem;
+    transition: color 0.15s, border-color 0.15s;
+    cursor: default;
+  }
+
+  .also-chip:hover {
+    color: hsl(var(--fg));
+    border-color: hsl(0 0% 35%);
+  }
+
+  /* ── Layout Annotations ── */
+  .annotation {
+    font-size: 0.7rem;
+    color: hsl(0 0% 45%);
+    font-style: italic;
+    margin-top: 0.25rem;
+    padding-left: 1rem;
+  }
+
+  .spacer { margin-bottom: 2.5rem; }
+
+  /* ── Responsive ── */
+  @media (max-width: 640px) {
+    .core-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <h1>Technical Skills</h1>
+  <p class="subtitle">Redesigned layout — 3-tier hierarchy with visual weight</p>
+
+  <!-- ═══════════ TIER 1: CORE ═══════════ -->
+  <div class="section-label">Core Competencies</div>
+  <div class="annotation">What I build with every day. These define my professional identity.</div>
+
+  <div class="core-grid">
+    <div class="core-card">
+      <div class="card-header">
+        <img class="card-icon colored" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="">
+        <h3>Python</h3>
+      </div>
+      <p>Scientific computing, ML, data engineering, and backend</p>
+    </div>
+
+    <div class="core-card">
+      <div class="card-header">
+        <img class="card-icon colored" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pytorch/pytorch-original.svg" alt="">
+        <h3>PyTorch</h3>
+      </div>
+      <p>Deep learning, GP surrogates, and model training</p>
+    </div>
+
+    <div class="core-card">
+      <div class="card-header">
+        <img class="card-icon colored" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="">
+        <h3>Bayesian Optimization</h3>
+      </div>
+      <p>BoTorch / GPyTorch / Ax — experiment design & optimization</p>
+    </div>
+
+    <div class="core-card">
+      <div class="card-header">
+        <img class="card-icon colored" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/languagemodel/languagemodel-original.svg" alt="">
+        <h3>RAG & LLM Systems</h3>
+      </div>
+      <p>Agentic retrieval, deep research agents, multi-agent architectures</p>
+    </div>
+  </div>
+
+  <!-- ═══════════ TIER 2: BY DOMAIN ═══════════ -->
+  <div class="section-label">By Domain</div>
+  <div class="annotation">Grouped tools I work with in production or research. Click to expand.</div>
+  <div style="height: 0.5rem;"></div>
+
+  <!-- Materials Science & Research -->
+  <div class="domain-group open" onclick="this.classList.toggle('open')">
+    <div class="domain-header">
+      <div class="domain-header-left">
+        <h3>Materials Science & Research</h3>
+        <span class="domain-count">9 tools</span>
+      </div>
+      <svg class="domain-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="domain-body">
+      <div class="tool-badges">
+        <span class="tool-badge">
+          <img colored src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/matlab/matlab-original.svg" alt=""> MATLAB
+        </span>
+        <span class="tool-badge">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/r/r-original.svg" alt=""> R
+        </span>
+        <span class="tool-badge">
+          <img colored src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/jupyter/jupyter-original.svg" alt=""> JupyterLab
+        </span>
+        <span class="tool-badge">scipy</span>
+        <span class="tool-badge">numpy</span>
+        <span class="tool-badge">matplotlib</span>
+        <span class="tool-badge">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pandas/pandas-original.svg" alt=""> Pandas
+        </span>
+        <span class="tool-badge">LaTeX</span>
+        <span class="tool-badge">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/plotly/plotly-original.svg" alt=""> Plotly
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Engineering -->
+  <div class="domain-group open" onclick="this.classList.toggle('open')">
+    <div class="domain-header">
+      <div class="domain-header-left">
+        <h3>AI Engineering</h3>
+        <span class="domain-count">12 tools</span>
+      </div>
+      <svg class="domain-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="domain-body">
+      <div class="tool-badges">
+        <span class="tool-badge">
+          <img colored src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/langchain/langchain-original.svg" alt=""> LangChain
+        </span>
+        <span class="tool-badge">Agno</span>
+        <span class="tool-badge">
+          <img colored src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/openai/openai-original.svg" alt=""> OpenAI
+        </span>
+        <span class="tool-badge">Gemini</span>
+        <span class="tool-badge">Ollama</span>
+        <span class="tool-badge">OpenRouter</span>
+        <span class="tool-badge">
+          <img colored src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/huggingface/huggingface-original.svg" alt=""> Hugging Face
+        </span>
+        <span class="tool-badge">vLLM</span>
+        <span class="tool-badge">Unsloth</span>
+        <span class="tool-badge">JAX</span>
+        <span class="tool-badge">ChromaDB</span>
+        <span class="tool-badge">
+          PostgreSQL <span class="badge-group">pgvector</span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Web & APIs -->
+  <div class="domain-group open" onclick="this.classList.toggle('open')">
+    <div class="domain-header">
+      <div class="domain-header-left">
+        <h3>Web & APIs</h3>
+        <span class="domain-count">5 tools</span>
+      </div>
+      <svg class="domain-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="domain-body">
+      <div class="tool-badges">
+        <span class="tool-badge">
+          <img colored src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/fastapi/fastapi-original.svg" alt=""> FastAPI
+        </span>
+        <span class="tool-badge">
+          <img colored src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/flask/flask-original.svg" alt=""> Flask
+        </span>
+        <span class="tool-badge">
+          <img colored src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/streamlit/streamlit-original.svg" alt=""> Streamlit
+        </span>
+        <span class="tool-badge">n8n</span>
+        <span class="tool-badge">Deno Edge Functions</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Infrastructure & DevOps -->
+  <div class="domain-group" onclick="this.classList.toggle('open')">
+    <div class="domain-header">
+      <div class="domain-header-left">
+        <h3>Infrastructure & DevOps</h3>
+        <span class="domain-count">8 tools</span>
+      </div>
+      <svg class="domain-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="domain-body">
+      <div class="tool-badges">
+        <span class="tool-badge">
+          <img colored src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" alt=""> Docker
+        </span>
+        <span class="tool-badge">
+          <img colored src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/githubactions/githubactions-original.svg" alt=""> GitHub Actions
+        </span>
+        <span class="tool-badge">Prometheus</span>
+        <span class="tool-badge">OpenTelemetry</span>
+        <span class="tool-badge">OpenLit</span>
+        <span class="tool-badge">Nginx</span>
+        <span class="tool-badge">Jenkins</span>
+        <span class="tool-badge">CUDA</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Creative & Visualization -->
+  <div class="domain-group" onclick="this.classList.toggle('open')">
+    <div class="domain-header">
+      <div class="domain-header-left">
+        <h3>Creative & Visualization</h3>
+        <span class="domain-count">5 tools</span>
+      </div>
+      <svg class="domain-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="domain-body">
+      <div class="tool-badges">
+        <span class="tool-badge">p5.js</span>
+        <span class="tool-badge">Processing</span>
+        <span class="tool-badge">3D Printing & CAD</span>
+        <span class="tool-badge">Photography (Lightroom)</span>
+        <span class="tool-badge">Generative Art</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ TIER 3: ALSO EXPERIENCED ═══════════ -->
+  <div class="also-section">
+    <div class="section-label" style="margin-bottom: 0.75rem;">Also experienced with</div>
+    <div class="also-chips">
+      <span class="also-chip">React</span>
+      <span class="also-chip">TypeScript</span>
+      <span class="also-chip">Vite</span>
+      <span class="also-chip">Node.js</span>
+      <span class="also-chip">Vercel</span>
+      <span class="also-chip">WSO2</span>
+      <span class="also-chip">Supabase</span>
+      <span class="also-chip">Home Lab / Self-hosted</span>
+      <span class="also-chip">Linux</span>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
