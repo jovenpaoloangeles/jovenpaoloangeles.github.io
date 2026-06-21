@@ -336,6 +336,26 @@ export function TechStackGraph() {
     };
   }, []);
 
+  // Progressive cooling effect
+  useEffect(() => {
+    const sim = simulationRef.current;
+    if (!sim) return;
+
+    let ticks = 0;
+    const coolingListener = () => {
+      ticks++;
+      if (ticks === ANIMATION.coolingTickThreshold) {
+        sim.alphaDecay(ANIMATION.finalAlphaDecay);
+      }
+    };
+
+    sim.on('tick.cooling', coolingListener);
+
+    return () => {
+      sim.on('tick.cooling', null);
+    };
+  }, []);
+
   // keep popover attached to the selected node across ticks
   useEffect(() => {
     if (!selected) return;
