@@ -4,7 +4,10 @@ import {
   TECHSTACK_DOMAINS, TECHSTACK_TOOLS, TECHSTACK_TECH_LINKS, TECHSTACK_CENTER,
   domainById, iconSrc, monogram, neighborsOf, type Tool,
 } from '@/content/techstack';
-import { SPOTLIGHT } from './techstack-graph-config';
+import {
+  TILE_SIZES, NODE_RADII, COLLISION_PADDING, BOUNDARY_PADDING,
+  PHYSICS, ANIMATION, ZOOM, SPOTLIGHT
+} from './techstack-graph-config';
 
 interface SimNode extends d3.SimulationNodeDatum {
   id: string;
@@ -19,16 +22,17 @@ interface SimLink extends d3.SimulationLinkDatum<SimNode> {
 }
 
 const CENTER_ID = '__me';
-const TILE: Record<string, number> = { sig: 28, sup: 24, chip: 20 };
+
 function nodeRadius(n: SimNode): number {
-  if (n.kind === 'center') return 23;
-  if (n.kind === 'domain') return 22;
-  return (n.level ? TILE[n.level] : 22) / 2;
+  if (n.kind === 'center') return NODE_RADII.center;
+  if (n.kind === 'domain') return NODE_RADII.domain;
+  return (n.level ? TILE_SIZES[n.level] : 22) / 2;
 }
+
 function nodeTile(n: SimNode): number {
   if (n.kind === 'center') return 46;
   if (n.kind === 'domain') return 44;
-  return n.level ? TILE[n.level] : 22;
+  return n.level ? TILE_SIZES[n.level] : 22;
 }
 
 interface Selected {
@@ -52,12 +56,66 @@ const graphStyles = `
 export function TechStackGraph() {
   const wrapRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
-  const [size, setSize] = useState({ w: 600, h: 460 });
   const [selected, setSelected] = useState<Selected | null>(null);
 
-  // #3: refs so both the d3 SVG click handler and the React onClose can unpin
+  const simulationRef = useRef<d3.Simulation<SimNode, SimLink> | null>(null);
   const nodesRef = useRef<SimNode[]>([]);
+  const linksRef = useRef<SimLink[]>([]);
+  const sizeRef = useRef({ w: 600, h: 460 });
   const selectedIdRef = useRef<string | null>(null);
+
+  const releaseSelectedNode = () => {
+    const id = selectedIdRef.current;
+    if (id == null) return;
+
+    const node = nodesRef.current.find(n => n.id === id);
+    if (node && node.kind !== 'center') {
+      node.fx = null;
+      node.fy = null;
+    }
+    selectedIdRef.current = null;
+  };
+
+  const handleResize = (newSize: { w: number; h: number }) => {
+    sizeRef.current = newSize;
+
+    if (!simulationRef.current || !svgRef.current) return;
+
+    const { w, h } = newSize;
+    const cx = w / 2;
+    const cy = h / 2;
+    const R1 = Math.min(w, h) * PHYSICS.radialRings.innerFactor;
+    const R2 = Math.min(w, h) * PHYSICS.radialRings.outerFactor;
+
+    // Update SVG viewBox
+    d3.select(svgRef.current).attr('viewBox', `0 0 ${w} ${h}`);
+
+    // Update force centers imperatively
+    simulationRef.current
+      .force('center', d3.forceCenter(cx, cy).strength(PHYSICS.centerForceStrength))
+      .force('radial', d3.forceRadial<SimNode>(
+        (n) => (n.kind === 'center' ? 0 : n.kind === 'domain' ? R1 : R2),
+        cx, cy
+      ).strength(PHYSICS.radialStrength));
+
+    // Update link distances based on new R1/R2
+    const linkForce = simulationRef.current.force('link') as d3.ForceLink<SimNode, SimLink>;
+    if (linkForce) {
+      linkForce.distance((l) =>
+        l.kind === 'spoke' ? R1 : l.kind === 'member' ? R2 - R1 : PHYSICS.linkDistances.tech
+      );
+    }
+
+    // Update center node position
+    const centerNode = nodesRef.current.find(n => n.id === CENTER_ID);
+    if (centerNode) {
+      centerNode.fx = cx;
+      centerNode.fy = cy;
+    }
+
+    // Gently reheat simulation
+    simulationRef.current.alpha(0.3).restart();
+  };
 
   // #1: coalesce ResizeObserver updates to one per animation frame
   useEffect(() => {
@@ -71,10 +129,10 @@ export function TechStackGraph() {
       if (typeof requestAnimationFrame === 'function') {
         rafId = requestAnimationFrame(() => {
           rafId = null;
-          setSize(next);
+          handleResize(next);
         });
       } else {
-        setSize(next);
+        handleResize(next);
       }
     });
     ro.observe(el);
@@ -87,7 +145,7 @@ export function TechStackGraph() {
   useEffect(() => {
     const svgEl = svgRef.current;
     if (!svgEl) return;
-    const { w, h } = size;
+    const { w, h } = sizeRef.current;
     const cx = w / 2;
     const cy = h / 2;
 
@@ -106,9 +164,10 @@ export function TechStackGraph() {
       ...TECHSTACK_TOOLS.map<SimLink>((t) => ({ kind: 'member', source: t.domainId, target: t.id })),
       ...TECHSTACK_TECH_LINKS.map<SimLink>(([a, b]) => ({ kind: 'tech', source: a, target: b })),
     ];
+    linksRef.current = links;
 
-    const R1 = Math.min(w, h) * 0.26;
-    const R2 = Math.min(w, h) * 0.46;
+    const R1 = Math.min(w, h) * PHYSICS.radialRings.innerFactor;
+    const R2 = Math.min(w, h) * PHYSICS.radialRings.outerFactor;
 
     const svg = d3.select(svgEl);
     svg.selectAll('*').remove();
@@ -172,31 +231,64 @@ export function TechStackGraph() {
 
     // simulation
     const sim = d3.forceSimulation<SimNode>(nodes)
-      .force('charge', d3.forceManyBody().strength((n) =>
-        n.kind === 'center' ? -700 : n.kind === 'domain' ? -280 : -55))
-      .force('collide', d3.forceCollide<SimNode>().radius((n) => nodeRadius(n) + 6).iterations(2))
+      .force('charge', d3.forceManyBody<SimNode>().strength((n) =>
+        n.kind === 'center' ? PHYSICS.charge.center :
+        n.kind === 'domain' ? PHYSICS.charge.domain :
+        PHYSICS.charge.tool))
+      .force('collide', d3.forceCollide<SimNode>()
+        .radius((n) => nodeRadius(n) + COLLISION_PADDING)
+        .iterations(PHYSICS.collideIterations))
       .force('radial', d3.forceRadial<SimNode>(
-        (n) => (n.kind === 'center' ? 0 : n.kind === 'domain' ? R1 : R2), cx, cy).strength(0.6))
+        (n) => (n.kind === 'center' ? 0 : n.kind === 'domain' ? R1 : R2),
+        cx, cy
+      ).strength(PHYSICS.radialStrength))
       .force('link', d3.forceLink<SimNode, SimLink>(links).id((n) => n.id)
-        .distance((l) => (l.kind === 'spoke' ? R1 : l.kind === 'member' ? R2 - R1 : 120))
-        .strength((l) => (l.kind === 'spoke' ? 0.9 : l.kind === 'member' ? 0.5 : 0.05)))
-      .force('center', d3.forceCenter(cx, cy).strength(0.03))
-      .alpha(1).alphaDecay(0.025);
+        .distance((l) => l.kind === 'spoke' ? R1 : l.kind === 'member' ? R2 - R1 : PHYSICS.linkDistances.tech)
+        .strength((l) =>
+          l.kind === 'spoke' ? PHYSICS.linkStrengths.spoke :
+          l.kind === 'member' ? PHYSICS.linkStrengths.member :
+          PHYSICS.linkStrengths.tech))
+      .force('center', d3.forceCenter(cx, cy).strength(PHYSICS.centerForceStrength))
+      .alpha(ANIMATION.initialAlpha).alphaDecay(ANIMATION.initialAlphaDecay);
+
+    simulationRef.current = sim;
 
     center.fx = cx;
     center.fy = cy;
 
     // drag (tools + domains only; center is pinned)
     const drag = d3.drag<SVGGElement, SimNode>()
-      .on('start', (e, n) => { if (n.kind !== 'center') { if (!e.active) sim.alphaTarget(0.25).restart(); n.fx = n.x; n.fy = n.y; } })
+      .on('start', (e, n) => {
+        if (n.kind !== 'center') {
+          if (!e.active) sim.alphaTarget(ANIMATION.dragAlphaTarget).restart();
+          n.fx = n.x;
+          n.fy = n.y;
+        }
+      })
       .on('drag', (e, n) => { if (n.kind !== 'center') { n.fx = e.x; n.fy = e.y; } })
       .on('end', (e, n) => { if (n.kind !== 'center') { if (!e.active) sim.alphaTarget(0); n.fx = null; n.fy = null; } });
     nodeG.call(drag);
 
     // pan/zoom
     const zoom = d3.zoom<SVGSVGElement, unknown>()
-      .scaleExtent([0.5, 2.5])
-      .on('zoom', (e) => root.attr('transform', e.transform.toString()));
+      .scaleExtent(ZOOM.scaleExtent)
+      .on('zoom', (event) => {
+        root.attr('transform', event.transform.toString());
+
+        const scale = event.transform.k;
+
+        // Semantic zooming: hide tool nodes at low zoom
+        if (scale < ZOOM.semanticThresholds.showOnlyDomains) {
+          nodeG.filter(n => n.kind === 'tool').style('opacity', '0');
+          linkSel.filter(l => l.kind === 'tech' || l.kind === 'member').style('opacity', '0');
+        } else if (scale < ZOOM.semanticThresholds.hideToolLabels) {
+          nodeG.filter(n => n.kind === 'tool').style('opacity', '1');
+          linkSel.style('opacity', '1');
+        } else {
+          nodeG.style('opacity', '1');
+          linkSel.style('opacity', '1');
+        }
+      });
     svg.call(zoom);
 
     // click -> select (ignore drag-induced clicks via movement tracking)
@@ -225,7 +317,7 @@ export function TechStackGraph() {
 
     sim.on('tick', () => {
       // keep nodes inside the box (account for zoom scale 1 at rest)
-      const pad = 24;
+      const pad = BOUNDARY_PADDING;
       for (const n of nodes) {
         if (n.kind === 'center') continue;
         if (n.x! < pad) n.x = pad; else if (n.x! > w - pad) n.x = w - pad;
@@ -240,8 +332,9 @@ export function TechStackGraph() {
     return () => {
       svg.on('.zoom', null);
       sim.stop();
+      simulationRef.current = null;
     };
-  }, [size]);
+  }, []);
 
   // keep popover attached to the selected node across ticks
   useEffect(() => {
@@ -276,7 +369,7 @@ export function TechStackGraph() {
     setSelected(null);
   };
 
-  const pop = selected ? renderPopover(selected, handleClose, size.w) : null;
+  const pop = selected ? renderPopover(selected, handleClose, sizeRef.current.w) : null;
 
   return (
     <div className="space-y-3">
