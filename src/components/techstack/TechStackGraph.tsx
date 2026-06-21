@@ -181,6 +181,36 @@ export function TechStackGraph() {
       .attr('data-id', (n) => n.id)
       .style('cursor', 'pointer');
 
+    // Spotlight dimming effect
+    const activateSpotlight = (nodeId: string) => {
+      const connected = new Set<string>();
+      connected.add(nodeId);
+
+      // Find all first-degree neighbors
+      linksRef.current.forEach(link => {
+        const srcId = typeof link.source === 'string' ? link.source : link.source.id;
+        const tgtId = typeof link.target === 'string' ? link.target : link.target.id;
+
+        if (srcId === nodeId) connected.add(tgtId);
+        if (tgtId === nodeId) connected.add(srcId);
+      });
+
+      // Dim nodes not in connected set
+      nodeG.classed('dimmed', n => !connected.has(n.id));
+
+      // Dim links not connected to selected node
+      linkSel.classed('dimmed', l => {
+        const srcId = typeof l.source === 'string' ? l.source : l.source.id;
+        const tgtId = typeof l.target === 'string' ? l.target : l.target.id;
+        return srcId !== nodeId && tgtId !== nodeId;
+      });
+    };
+
+    const clearSpotlight = () => {
+      nodeG.classed('dimmed', false);
+      linkSel.classed('dimmed', false);
+    };
+
     // tile background
     nodeG.append('rect')
       .attr('class', 'ts-tile')
@@ -337,6 +367,7 @@ export function TechStackGraph() {
 
     const handleClosePopover = () => {
       releaseSelectedNode();
+      clearSpotlight();
       popoverG.selectAll('*').remove();
     };
 
@@ -388,12 +419,15 @@ export function TechStackGraph() {
       node.fy = node.y;
       selectedIdRef.current = node.id;
 
+      activateSpotlight(node.id);
+
       // Render popover
       renderPopoverInSVG(popoverG, node, handleClosePopover);
     });
     // #3: unpin on SVG background click
     svg.on('click', () => {
       releaseSelectedNode();
+      clearSpotlight();
       popoverG.selectAll('*').remove();
     });
 
