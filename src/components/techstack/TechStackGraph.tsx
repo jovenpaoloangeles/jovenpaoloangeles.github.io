@@ -35,12 +35,6 @@ function nodeTile(n: SimNode): number {
   return n.level ? TILE_SIZES[n.level] : 22;
 }
 
-interface Selected {
-  id: string;
-  kind: 'center' | 'domain' | 'tool';
-  x: number;
-  y: number;
-}
 
 const graphStyles = `
   .ts-node, .ts-link {
@@ -56,7 +50,6 @@ const graphStyles = `
 export function TechStackGraph() {
   const wrapRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
-  const [selected, setSelected] = useState<Selected | null>(null);
 
   const simulationRef = useRef<d3.Simulation<SimNode, SimLink> | null>(null);
   const nodesRef = useRef<SimNode[]>([]);
@@ -179,6 +172,8 @@ export function TechStackGraph() {
       .selectAll('line').data(links).join('line')
       .attr('class', (l) => 'ts-link ' + l.kind);
 
+    const popoverG = root.append('g').attr('class', 'ts-popover-container');
+
     const nodeG = root.append('g').attr('class', 'ts-nodes')
       .selectAll('g').data(nodes, (n) => (n as SimNode).id).join('g')
       .attr('class', (n) => 'ts-node ts-' + n.kind)
@@ -256,6 +251,95 @@ export function TechStackGraph() {
     center.fx = cx;
     center.fy = cy;
 
+    // Popover rendering
+    function renderPopoverInSVG(
+      container: d3.Selection<SVGGElement, unknown, null, undefined>,
+      node: SimNode,
+      handleClose: () => void
+    ) {
+      container.selectAll('*').remove();
+
+      // Gather popover data
+      let title = '';
+      let tag = '';
+      let body = '';
+      let connects: string[] = [];
+
+      if (node.kind === 'center') {
+        title = TECHSTACK_CENTER.name;
+        tag = 'Profile';
+        body = TECHSTACK_CENTER.title;
+      } else if (node.kind === 'domain') {
+        const d = domainById(node.id);
+        title = d.name;
+        tag = 'Domain';
+        body = d.role;
+        connects = TECHSTACK_TOOLS.filter(t => t.domainId === d.id).slice(0, 6).map(t => t.name);
+      } else {
+        const t = node.tool!;
+        title = t.name;
+        tag = domainById(t.domainId).name;
+        body = t.role;
+        connects = [...neighborsOf(t.id)].filter(id => id !== t.id)
+          .map(id => TECHSTACK_TOOLS.find(x => x.id === id)!.name);
+      }
+
+      // foreignObject positioned above node
+      const fo = container.append('foreignObject')
+        .attr('width', 224)
+        .attr('height', 200)
+        .attr('x', 16)
+        .attr('y', -200)
+        .attr('class', 'ts-popover-fo');
+
+      // HTML content with Tailwind classes
+      const div = fo.append('xhtml:div')
+        .attr('xmlns', 'http://www.w3.org/1999/xhtml')
+        .attr('class', 'pointer-events-auto w-56 rounded-md border border-border bg-card p-3 shadow-lg')
+        .on('click', (e) => e.stopPropagation());
+
+      // Header
+      const header = div.append('div')
+        .attr('class', 'mb-1 flex items-center justify-between');
+
+      header.append('span')
+        .attr('class', 'text-[0.6rem] font-semibold uppercase tracking-wider text-muted-foreground')
+        .text(tag);
+
+      header.append('button')
+        .attr('class', 'text-muted-foreground hover:text-foreground')
+        .attr('aria-label', 'Close')
+        .text('×')
+        .on('click', handleClose);
+
+      // Title
+      div.append('div')
+        .attr('class', 'text-sm font-semibold text-foreground')
+        .text(title);
+
+      // Body
+      div.append('div')
+        .attr('class', 'mt-1 text-xs text-muted-foreground')
+        .text(body);
+
+      // Connections
+      if (connects.length > 0) {
+        const connectDiv = div.append('div')
+          .attr('class', 'mt-2 border-t border-dashed border-border pt-2 text-[0.7rem] text-muted-foreground');
+
+        connectDiv.append('span')
+          .attr('class', 'font-semibold text-foreground')
+          .text('Connects to: ');
+
+        connectDiv.append('span').text(connects.join(' · '));
+      }
+    }
+
+    const handleClosePopover = () => {
+      releaseSelectedNode();
+      popoverG.selectAll('*').remove();
+    };
+
     // drag (tools + domains only; center is pinned)
     const drag = d3.drag<SVGGElement, SimNode>()
       .on('start', (e, n) => {
@@ -295,24 +379,22 @@ export function TechStackGraph() {
     let moved = false;
     nodeG.on('mousedown', () => { moved = false; });
     nodeG.on('mousemove', () => { moved = true; });
-    nodeG.on('click', (e, n) => {
+    nodeG.on('click', (event, node) => {
       if (moved) return;
-      e.stopPropagation();
-      const t = d3.zoomTransform(svgEl);
-      const [sx, sy] = t.apply([n.x ?? cx, n.y ?? cy]);
-      n.fx = n.x; n.fy = n.y; // pin while open
-      selectedIdRef.current = n.id;
-      setSelected({ id: n.id, kind: n.kind, x: sx, y: sy });
+      event.stopPropagation();
+
+      // Pin node
+      node.fx = node.x;
+      node.fy = node.y;
+      selectedIdRef.current = node.id;
+
+      // Render popover
+      renderPopoverInSVG(popoverG, node, handleClosePopover);
     });
     // #3: unpin on SVG background click
     svg.on('click', () => {
-      const id = selectedIdRef.current;
-      if (id != null) {
-        const node = nodes.find((n) => n.id === id);
-        if (node && node.kind !== 'center') { node.fx = null; node.fy = null; }
-        selectedIdRef.current = null;
-      }
-      setSelected(null);
+      releaseSelectedNode();
+      popoverG.selectAll('*').remove();
     });
 
     sim.on('tick', () => {
@@ -327,6 +409,14 @@ export function TechStackGraph() {
       linkSel
         .attr('x1', (l) => (l.source as SimNode).x!).attr('y1', (l) => (l.source as SimNode).y!)
         .attr('x2', (l) => (l.target as SimNode).x!).attr('y2', (l) => (l.target as SimNode).y!);
+
+      // Update popover position if active
+      if (selectedIdRef.current) {
+        const node = nodes.find(n => n.id === selectedIdRef.current);
+        if (node && node.x != null && node.y != null) {
+          popoverG.attr('transform', `translate(${node.x},${node.y - 20})`);
+        }
+      }
     });
 
     return () => {
@@ -356,40 +446,7 @@ export function TechStackGraph() {
     };
   }, []);
 
-  // keep popover attached to the selected node across ticks
-  useEffect(() => {
-    if (!selected) return;
-    let lastX = selected.x;
-    let lastY = selected.y;
-    const id = setInterval(() => {
-      const el = svgRef.current?.querySelector(`[data-id="${selected.id}"]`) as SVGGElement | null;
-      if (!el) return;
-      const m = el.getAttribute('transform')?.match(/translate\(([^,]+),([^)]+)\)/);
-      if (!m) return;
-      const t = d3.zoomTransform(svgRef.current!);
-      const [sx, sy] = t.apply([+m[1], +m[2]]);
-      // #2: only call setSelected when position actually changed
-      if (sx === lastX && sy === lastY) return;
-      lastX = sx;
-      lastY = sy;
-      setSelected((s) => (s ? { ...s, x: sx, y: sy } : s));
-    }, 120);
-    return () => clearInterval(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- depend on id only so the interval doesn't restart on every position update
-  }, [selected?.id]);
 
-  // #3: unpin on popover close
-  const handleClose = () => {
-    const id = selectedIdRef.current;
-    if (id != null) {
-      const node = nodesRef.current.find((n) => n.id === id);
-      if (node && node.kind !== 'center') { node.fx = null; node.fy = null; }
-      selectedIdRef.current = null;
-    }
-    setSelected(null);
-  };
-
-  const pop = selected ? renderPopover(selected, handleClose, sizeRef.current.w) : null;
 
   return (
     <div className="space-y-3">
@@ -406,54 +463,7 @@ export function TechStackGraph() {
         <span className="pointer-events-none absolute bottom-2 left-3 font-mono text-[0.7rem] text-muted-foreground">
           drag · scroll to zoom · click for details
         </span>
-        {pop}
       </div>
-    </div>
-  );
-}
-
-// #7: accept stageWidth for proper clamping
-function renderPopover(sel: Selected, onClose: () => void, stageWidth: number) {
-  let title = '';
-  let tag = '';
-  let body = '';
-  let connects: string[] = [];
-  if (sel.kind === 'center') {
-    title = TECHSTACK_CENTER.name;
-    tag = 'Profile';
-    body = TECHSTACK_CENTER.title;
-  } else if (sel.kind === 'domain') {
-    const d = domainById(sel.id);
-    title = d.name;
-    tag = 'Domain';
-    body = d.role;
-    connects = TECHSTACK_TOOLS.filter((t) => t.domainId === d.id).slice(0, 6).map((t) => t.name);
-  } else {
-    const t = TECHSTACK_TOOLS.find((x) => x.id === sel.id)!;
-    title = t.name;
-    tag = domainById(t.domainId).name;
-    body = t.role;
-    connects = [...neighborsOf(t.id)].filter((id) => id !== t.id).map((id) => TECHSTACK_TOOLS.find((x) => x.id === id)!.name);
-  }
-  const left = Math.max(6, Math.min(sel.x + 16, stageWidth - 240));
-  const top = sel.y - 20;
-  return (
-    <div
-      className="pointer-events-auto absolute z-10 w-56 rounded-md border border-border bg-card p-3 shadow-lg"
-      style={{ left, top, transform: 'translate(0, -100%)' }}
-      onClick={(e) => e.stopPropagation()}
-    >
-      <div className="mb-1 flex items-center justify-between">
-        <span className="text-[0.6rem] font-semibold uppercase tracking-wider text-muted-foreground">{tag}</span>
-        <button className="text-muted-foreground hover:text-foreground" aria-label="Close" onClick={onClose}>×</button>
-      </div>
-      <div className="text-sm font-semibold text-foreground">{title}</div>
-      <div className="mt-1 text-xs text-muted-foreground">{body}</div>
-      {connects.length > 0 && (
-        <div className="mt-2 border-t border-dashed border-border pt-2 text-[0.7rem] text-muted-foreground">
-          <span className="font-semibold text-foreground">Connects to:</span> {connects.join(' · ')}
-        </div>
-      )}
     </div>
   );
 }
