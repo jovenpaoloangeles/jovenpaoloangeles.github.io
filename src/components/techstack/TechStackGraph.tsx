@@ -4,6 +4,7 @@ import {
   TECHSTACK_DOMAINS, TECHSTACK_TOOLS, TECHSTACK_TECH_LINKS, TECHSTACK_CENTER,
   domainById, iconSrc, monogram, neighborsOf, type Tool,
 } from '@/content/techstack';
+import { SPOTLIGHT } from './techstack-graph-config';
 
 interface SimNode extends d3.SimulationNodeDatum {
   id: string;
@@ -36,6 +37,17 @@ interface Selected {
   x: number;
   y: number;
 }
+
+const graphStyles = `
+  .ts-node, .ts-link {
+    transition: opacity ${SPOTLIGHT.activeDuration}ms ease;
+    opacity: 1;
+  }
+
+  .ts-node.dimmed, .ts-link.dimmed {
+    opacity: ${SPOTLIGHT.dimmedOpacity};
+  }
+`;
 
 export function TechStackGraph() {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -268,6 +280,7 @@ export function TechStackGraph() {
 
   return (
     <div className="space-y-3">
+      <style>{graphStyles}</style>
       <p className="max-w-prose text-sm text-muted-foreground">
         A map of my technical range — six domains and the tools within each, with lines tracing how the
         stack connects. Drag to rearrange, scroll to zoom, click any tool for the details.
