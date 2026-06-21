@@ -88,3 +88,14 @@
 .react-activity-calendar__legend-colors span {
   color: hsl(var(--foreground));
 }
+
+/* ── TechStackGraph scoped styles (use theme CSS vars; re-theme for free) ── */
+.ts-link { stroke: hsl(var(--muted-foreground)); stroke-opacity: 0.18; stroke-width: 1; }
+.ts-link.member { stroke-opacity: 0.1; }
+.ts-link.tech { stroke-opacity: 0.3; stroke-dasharray: 4 4; }
+.ts-node { transition: opacity .15s; }
+.ts-node:hover .ts-tile { stroke: hsl(var(--foreground)); }
+.ts-tile { fill: hsl(var(--card)); stroke: hsl(var(--border)); stroke-width: 1; }
+.ts-center .ts-tile { fill: hsl(var(--primary)); stroke: hsl(var(--foreground)); }
+.ts-mg { fill: hsl(var(--muted-foreground)); font-weight: 700; }
+.ts-dom-label { fill: hsl(var(--muted-foreground)); font-size: 12px; opacity: .8; pointer-events: none; }

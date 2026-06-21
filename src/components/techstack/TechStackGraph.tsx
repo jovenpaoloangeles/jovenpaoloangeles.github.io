@@ -43,16 +43,33 @@ export function TechStackGraph() {
   const [size, setSize] = useState({ w: 600, h: 460 });
   const [selected, setSelected] = useState<Selected | null>(null);
 
-  // Track container size
+  // #3: refs so both the d3 SVG click handler and the React onClose can unpin
+  const nodesRef = useRef<SimNode[]>([]);
+  const selectedIdRef = useRef<string | null>(null);
+
+  // #1: coalesce ResizeObserver updates to one per animation frame
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
+    let rafId: number | null = null;
     const ro = new ResizeObserver((entries) => {
       const r = entries[0].contentRect;
-      setSize({ w: Math.max(320, r.width), h: Math.max(360, r.height) });
+      const next = { w: Math.max(320, r.width), h: Math.max(360, r.height) };
+      if (rafId != null) cancelAnimationFrame(rafId);
+      if (typeof requestAnimationFrame === 'function') {
+        rafId = requestAnimationFrame(() => {
+          rafId = null;
+          setSize(next);
+        });
+      } else {
+        setSize(next);
+      }
     });
     ro.observe(el);
-    return () => ro.disconnect();
+    return () => {
+      ro.disconnect();
+      if (rafId != null) cancelAnimationFrame(rafId);
+    };
   }, []);
 
   useEffect(() => {
@@ -70,6 +87,7 @@ export function TechStackGraph() {
       id: t.id, kind: 'tool', label: t.name, tool: t, domainId: t.domainId, level: t.level,
     }));
     const nodes: SimNode[] = [center, ...domNodes, ...toolNodes];
+    nodesRef.current = nodes;
 
     const links: SimLink[] = [
       ...TECHSTACK_DOMAINS.map<SimLink>((d) => ({ kind: 'spoke', source: CENTER_ID, target: d.id })),
@@ -169,7 +187,7 @@ export function TechStackGraph() {
       .on('zoom', (e) => root.attr('transform', e.transform.toString()));
     svg.call(zoom);
 
-    // click → select (ignore drag-induced clicks via movement tracking)
+    // click -> select (ignore drag-induced clicks via movement tracking)
     let moved = false;
     nodeG.on('mousedown', () => { moved = false; });
     nodeG.on('mousemove', () => { moved = true; });
@@ -179,9 +197,19 @@ export function TechStackGraph() {
       const t = d3.zoomTransform(svgEl);
       const [sx, sy] = t.apply([n.x ?? cx, n.y ?? cy]);
       n.fx = n.x; n.fy = n.y; // pin while open
+      selectedIdRef.current = n.id;
       setSelected({ id: n.id, kind: n.kind, x: sx, y: sy });
     });
-    svg.on('click', () => setSelected(null));
+    // #3: unpin on SVG background click
+    svg.on('click', () => {
+      const id = selectedIdRef.current;
+      if (id != null) {
+        const node = nodes.find((n) => n.id === id);
+        if (node && node.kind !== 'center') { node.fx = null; node.fy = null; }
+        selectedIdRef.current = null;
+      }
+      setSelected(null);
+    });
 
     sim.on('tick', () => {
       // keep nodes inside the box (account for zoom scale 1 at rest)
@@ -206,6 +234,8 @@ export function TechStackGraph() {
   // keep popover attached to the selected node across ticks
   useEffect(() => {
     if (!selected) return;
+    let lastX = selected.x;
+    let lastY = selected.y;
     const id = setInterval(() => {
       const el = svgRef.current?.querySelector(`[data-id="${selected.id}"]`) as SVGGElement | null;
       if (!el) return;
@@ -213,13 +243,28 @@ export function TechStackGraph() {
       if (!m) return;
       const t = d3.zoomTransform(svgRef.current!);
       const [sx, sy] = t.apply([+m[1], +m[2]]);
+      // #2: only call setSelected when position actually changed
+      if (sx === lastX && sy === lastY) return;
+      lastX = sx;
+      lastY = sy;
       setSelected((s) => (s ? { ...s, x: sx, y: sy } : s));
     }, 120);
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- depend on id only so the interval doesn't restart on every position update
   }, [selected?.id]);
 
-  const pop = selected ? renderPopover(selected, () => setSelected(null)) : null;
+  // #3: unpin on popover close
+  const handleClose = () => {
+    const id = selectedIdRef.current;
+    if (id != null) {
+      const node = nodesRef.current.find((n) => n.id === id);
+      if (node && node.kind !== 'center') { node.fx = null; node.fy = null; }
+      selectedIdRef.current = null;
+    }
+    setSelected(null);
+  };
+
+  const pop = selected ? renderPopover(selected, handleClose, size.w) : null;
 
   return (
     <div className="space-y-3">
@@ -237,23 +282,12 @@ export function TechStackGraph() {
         </span>
         {pop}
       </div>
-      {/* scoped graph styles (use theme CSS vars; re-theme for free) */}
-      <style>{`
-        .ts-link { stroke: hsl(var(--muted-foreground)); stroke-opacity: 0.18; stroke-width: 1; }
-        .ts-link.member { stroke-opacity: 0.1; }
-        .ts-link.tech { stroke-opacity: 0.3; stroke-dasharray: 4 4; }
-        .ts-node { transition: opacity .15s; }
-        .ts-node:hover .ts-tile { stroke: hsl(var(--foreground)); }
-        .ts-tile { fill: hsl(var(--card)); stroke: hsl(var(--border)); stroke-width: 1; }
-        .ts-center .ts-tile { fill: hsl(var(--primary)); stroke: hsl(var(--foreground)); }
-        .ts-mg { fill: hsl(var(--muted-foreground)); font-weight: 700; }
-        .ts-dom-label { fill: hsl(var(--muted-foreground)); font-family: 'Newsreader', serif; font-size: 12px; opacity: .8; pointer-events: none; }
-      `}</style>
     </div>
   );
 }
 
-function renderPopover(sel: Selected, onClose: () => void) {
+// #7: accept stageWidth for proper clamping
+function renderPopover(sel: Selected, onClose: () => void, stageWidth: number) {
   let title = '';
   let tag = '';
   let body = '';
@@ -275,7 +309,7 @@ function renderPopover(sel: Selected, onClose: () => void) {
     body = t.role;
     connects = [...neighborsOf(t.id)].filter((id) => id !== t.id).map((id) => TECHSTACK_TOOLS.find((x) => x.id === id)!.name);
   }
-  const left = Math.min(sel.x + 16, 1000);
+  const left = Math.max(6, Math.min(sel.x + 16, stageWidth - 240));
   const top = sel.y - 20;
   return (
     <div
