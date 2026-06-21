@@ -1,135 +1,57 @@
-import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
+import { Network, List } from 'lucide-react';
+import { TechStackList } from './techstack/TechStackList';
+import { TechStackGraph } from './techstack/TechStackGraph';
+import { cn } from '@/lib/utils';
 
-// Custom SVG icon component
-const TechIcon = ({ name }: { name: string }) => (
-  <img
-    src={`/icons/${name.toLowerCase()}.${['matlab', 'jax', 'openlit', 'unsloth'].includes(name.toLowerCase()) ? 'png' : ['agno', 'huggingface', 'vllm'].includes(name.toLowerCase()) ? 'jpeg' : 'svg'}`}
-    alt={`${name} icon`}
-    className="w-5 h-5"
-    loading="lazy"
-  />
-);
+type View = 'graph' | 'list';
+const KEY = 'techstack-view';
+
+function readView(): View {
+  if (typeof window === 'undefined') return 'graph';
+  return localStorage.getItem(KEY) === 'list' ? 'list' : 'graph';
+}
 
 export function TechStack() {
-  const categories = [
-    {
-      title: 'Programming & Scientific Computing',
-      description: 'For core algorithm development, numerical analysis, or prototyping.',
-      items: [
-        { name: 'Python', description: 'Scientific computing & data analysis', icon: 'python' },
-        { name: 'MATLAB', description: 'Engineering & numerical computing', icon: 'matlab' },
-        { name: 'R', description: 'Statistical analysis & data visualization', icon: 'r' },
-        { name: 'JupyterLab', description: 'Interactive computing environment', icon: 'jupyter' },
-        { name: 'Pandas', description: 'Data manipulation & analysis', icon: 'pandas' },
-      ]
-    },
-    {
-      title: 'Machine Learning & Optimization',
-      description: 'For modeling, training, and optimization.',
-      items: [
-        { name: 'PyTorch', description: 'Deep learning framework', icon: 'pytorch' },
-        { name: 'GPyTorch', description: 'Gaussian processes with PyTorch', icon: 'pytorch' }, // fallback icon
-        { name: 'Botorch', description: 'Bayesian optimization', icon: 'pytorch' }, // fallback icon
-        { name: 'Ax', description: 'Adaptive experimentation platform', icon: 'python' }, // fallback icon
-        { name: 'JAX', description: 'High-performance ML & computing', icon: 'jax' },
-        { name: 'CUDA', description: 'NVIDIA GPU computing platform', icon: 'cuda' },
-      ]
-    },
-    {
-      title: 'LLMs & Generative AI Tooling',
-      description: 'For Retrieval-Augmented Generation (RAG), LLM APIs, and prompt-driven workflows.',
-      items: [
-        { name: 'LangChain', description: 'Framework for building LLM-powered applications', icon: 'langchain' },
-        { name: 'Agno', description: 'Multi-agent systems framework & runtime', icon: 'agno' },
-        { name: 'n8n', description: 'Workflow automation platform', icon: 'n8n' },
-        { name: 'OpenAI', description: 'LLM API provider', icon: 'openai' },
-        { name: 'Gemini', description: 'Google’s generative AI model', icon: 'gemini' },
-        { name: 'Ollama', description: 'Local LLMs & orchestration', icon: 'ollama' },
-        { name: 'Openrouter', description: 'Unified API for LLMs', icon: 'openrouter' },
-        { name: 'vLLM', description: 'High-throughput LLM inference engine', icon: 'vllm' },
-        { name: 'Unsloth', description: 'Fast LLM fine-tuning (2-5x faster)', icon: 'unsloth' },
-        { name: 'Hugging Face', description: 'Model hub & transformers library', icon: 'huggingface' },
-      ]
-    },
-    {
-      title: 'Web Development & Interface',
-      description: 'For frontend/backend and app deployment.',
-      items: [
-        { name: 'React', description: 'Frontend development', icon: 'react' },
-        { name: 'Vite', description: 'Frontend build tool', icon: 'vite' },
-        { name: 'TypeScript', description: 'Typed JavaScript', icon: 'typescript' },
-        { name: 'FastAPI', description: 'Modern Python web APIs', icon: 'fastapi' },
-        { name: 'Flask', description: 'Lightweight web framework', icon: 'flask' },
-        { name: 'Node.js', description: 'JavaScript runtime', icon: 'nodejs' },
-      ]
-    },
-    {
-      title: 'DevOps & Deployment',
-      description: 'Infrastructure tools that support reproducibility, scalability, or deployment.',
-      items: [
-        { name: 'Docker', description: 'Containerization & deployment', icon: 'docker' },
-        { name: 'Nginx Proxy Manager', description: 'Web-based nginx reverse proxy', icon: 'nginx' },
-        { name: 'GitHub Actions', description: 'CI/CD automation workflows', icon: 'githubactions' },
-        { name: 'Jenkins', description: 'Automation server for CI/CD', icon: 'jenkins' },
-        { name: 'Prometheus', description: 'Metrics & monitoring system', icon: 'prometheus' },
-        { name: 'OpenTelemetry', description: 'Observability framework', icon: 'opentelemetry' },
-        { name: 'OpenLit', description: 'OpenTelemetry-native LLM observability', icon: 'openlit' },
-        { name: 'Vercel', description: 'Frontend deployment platform', icon: 'vercel' },
-      ]
-    },
-    {
-      title: 'Data & Vector Storage',
-      description: 'Databases and vector stores for data persistence and semantic search.',
-      items: [
-        { name: 'PostgreSQL', description: 'Advanced relational database', icon: 'postgresql' },
-        { name: 'ChromaDB', description: 'Embeddings database for AI apps', icon: 'chromadb' },
-      ]
-    },
-    {
-      title: 'Creative Coding & Visualization',
-      description: 'For generative art, simulations, and interactive visualizations.',
-      items: [
-        { name: 'p5.js', description: 'Creative coding in JavaScript', icon: 'p5js' },
-        { name: 'Processing', description: 'Visual arts & creative coding', icon: 'processing' },
-        { name: 'Plotly', description: 'Interactive dashboards', icon: 'plotly' },
-        { name: 'Streamlit', description: 'Data apps', icon: 'streamlit' },
-      ]
-    },
-  ];
+  const [view, setView] = useState<View>(readView);
+
+  useEffect(() => {
+    localStorage.setItem(KEY, view);
+  }, [view]);
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="space-y-8"
-    >
-      <h2 className="text-2xl font-serif text-foreground mb-6">Technical Skills</h2>
-      
-      <div className="space-y-8">
-        {categories.map((category, idx) => (
-          <div key={idx} className="space-y-4">
-            <h3 className="text-lg font-medium text-foreground">{category.title}</h3>
-            <p className="text-sm text-muted-foreground mb-2">{category.description}</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {category.items.map((item, index) => (
-                <div
-                  key={index}
-                  className="flex items-start gap-3 p-4 bg-muted rounded-lg hover:bg-accent transition-colors"
-                >
-                  <div className="flex-shrink-0 mt-1">
-                    <TechIcon name={item.icon} />
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-foreground">{item.name}</h4>
-                    <p className="text-sm text-muted-foreground">{item.description}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
+    <div className="space-y-5">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="font-serif text-2xl text-foreground">Technical Skills</h2>
+        <div role="group" aria-label="Tech stack view" className="inline-flex rounded-md border border-border bg-card p-0.5">
+          <button
+            type="button"
+            aria-label="Graph view"
+            aria-pressed={view === 'graph'}
+            onClick={() => setView('graph')}
+            className={cn(
+              'inline-flex items-center gap-1.5 rounded-[calc(var(--radius)-2px)] px-2.5 py-1.5 text-xs font-medium transition-colors',
+              view === 'graph' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+            )}
+          >
+            <Network className="h-3.5 w-3.5" /> Graph
+          </button>
+          <button
+            type="button"
+            aria-label="List view"
+            aria-pressed={view === 'list'}
+            onClick={() => setView('list')}
+            className={cn(
+              'inline-flex items-center gap-1.5 rounded-[calc(var(--radius)-2px)] px-2.5 py-1.5 text-xs font-medium transition-colors',
+              view === 'list' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+            )}
+          >
+            <List className="h-3.5 w-3.5" /> List
+          </button>
+        </div>
       </div>
-    </motion.div>
+
+      {view === 'graph' ? <TechStackGraph /> : <TechStackList />}
+    </div>
   );
 }
