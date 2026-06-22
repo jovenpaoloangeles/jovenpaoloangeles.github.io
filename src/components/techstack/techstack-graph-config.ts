@@ -29,8 +29,8 @@ export const ANIMATION = {
 export const ZOOM = {
   scaleExtent: [0.5, 2.5] as [number, number],
   semanticThresholds: {
-    hideToolLabels: 1.1,        // Below this, hide tool labels
-    showOnlyDomains: 1.0,       // At or below this, hide tool nodes (need to zoom in to see tools)
+    hideToolLabels: 1.15,       // Below this, hide tool labels
+    showOnlyDomains: 1.05,      // Below this, hide tool nodes (so default 1.0x shows only domains)
   },
 };
 

@@ -388,27 +388,29 @@ export function TechStackGraph() {
       .on('end', (e, n) => { if (n.kind !== 'center') { if (!e.active) sim.alphaTarget(0); n.fx = null; n.fy = null; } });
     nodeG.call(drag);
 
+    // Semantic zooming: show/hide tool nodes based on zoom scale
+    const applySemanticZoom = (scale: number) => {
+      if (scale < ZOOM.semanticThresholds.showOnlyDomains) {
+        // Overview: hide tool nodes and their links, keep domains + center
+        nodeG.filter(n => n.kind === 'tool').classed('ts-hidden', true);
+        linkSel.filter(l => l.kind === 'tech' || l.kind === 'member').classed('ts-hidden', true);
+      } else {
+        // Zoomed in: show everything
+        nodeG.classed('ts-hidden', false);
+        linkSel.classed('ts-hidden', false);
+      }
+    };
+
     // pan/zoom
     const zoom = d3.zoom<SVGSVGElement, unknown>()
       .scaleExtent(ZOOM.scaleExtent)
       .on('zoom', (event) => {
         root.attr('transform', event.transform.toString());
-
-        const scale = event.transform.k;
-
-        // Semantic zooming: hide tool nodes at low zoom
-        if (scale < ZOOM.semanticThresholds.showOnlyDomains) {
-          nodeG.filter(n => n.kind === 'tool').classed('ts-hidden', true);
-          linkSel.filter(l => l.kind === 'tech' || l.kind === 'member').classed('ts-hidden', true);
-        } else if (scale < ZOOM.semanticThresholds.hideToolLabels) {
-          nodeG.filter(n => n.kind === 'tool').classed('ts-hidden', false);
-          linkSel.classed('ts-hidden', false);
-        } else {
-          nodeG.classed('ts-hidden', false);
-          linkSel.classed('ts-hidden', false);
-        }
+        applySemanticZoom(event.transform.k);
       });
     svg.call(zoom);
+    // Apply initial visibility state (zoom handler only fires on user interaction)
+    applySemanticZoom(d3.zoomTransform(svgEl).k);
 
     // click -> select (ignore drag-induced clicks via movement tracking)
     let moved = false;
