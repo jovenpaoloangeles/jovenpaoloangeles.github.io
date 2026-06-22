@@ -378,12 +378,13 @@ export function TechStackGraph() {
           .map(id => TECHSTACK_TOOLS.find(x => x.id === id)!.name);
       }
 
-      // foreignObject positioned above node
+      // foreignObject anchored at the group origin; the tick handler positions
+      // the popover group so the box stays on-screen (flips above/below/left/right).
       const fo = container.append('foreignObject')
         .attr('width', 224)
         .attr('height', 200)
-        .attr('x', 16)
-        .attr('y', -200)
+        .attr('x', 0)
+        .attr('y', 0)
         .attr('class', 'ts-popover-fo');
 
       // HTML content with Tailwind classes
@@ -472,12 +473,13 @@ export function TechStackGraph() {
     // Apply initial visibility state (zoom handler only fires on user interaction)
     applySemanticZoom(d3.zoomTransform(svgEl).k);
 
-    // click -> select (ignore drag-induced clicks via movement tracking)
-    let moved = false;
-    nodeG.on('mousedown', () => { moved = false; });
-    nodeG.on('mousemove', () => { moved = true; });
+    // click -> select. Distinguish a click from a drag by pointer travel distance:
+    // tracking any mousemove (as before) rejected nearly every real click because of
+    // sub-pixel movement. A genuine drag moves more than a few pixels.
+    let downX = 0, downY = 0;
+    nodeG.on('mousedown', (event) => { downX = event.clientX; downY = event.clientY; });
     nodeG.on('click', (event, node) => {
-      if (moved) return;
+      if (Math.hypot(event.clientX - downX, event.clientY - downY) > 5) return;
       event.stopPropagation();
 
       // Pin node
@@ -512,11 +514,19 @@ export function TechStackGraph() {
         .attr('x1', (l) => (l.source as SimNode).x!).attr('y1', (l) => (l.source as SimNode).y!)
         .attr('x2', (l) => (l.target as SimNode).x!).attr('y2', (l) => (l.target as SimNode).y!);
 
-      // Update popover position if active
+      // Update popover position if active — keep the box on-screen by flipping
+      // above/below and left/right based on the node's position in the viewport.
       if (selectedIdRef.current) {
         const node = nodes.find(n => n.id === selectedIdRef.current);
         if (node && node.x != null && node.y != null) {
-          popoverG.attr('transform', `translate(${node.x},${node.y - 20})`);
+          const popW = 224, popH = 180, gap = 18;
+          let px = node.x + gap;
+          if (px + popW > cw - 4) px = node.x - popW - gap; // not enough room right → left
+          if (px < 4) px = Math.min(Math.max(node.x - popW / 2, 4), cw - popW - 4); // clamp center
+          let py = node.y - popH - gap; // prefer above
+          if (py < 4) py = node.y + gap; // not enough room above → below
+          if (py + popH > ch - 4) py = Math.max(4, ch - popH - 4); // clamp bottom
+          popoverG.attr('transform', `translate(${px},${py})`);
         }
       }
     });
