@@ -6,11 +6,13 @@ export const BOUNDARY_PADDING = 24;
 
 // Physics parameters
 export const PHYSICS = {
-  charge: { center: -600, domain: -250, tool: -45 },
+  charge: { center: -600, domain: -250, tool: -35 },
   radialRings: { innerFactor: 0.32, outerFactor: 0.55 },
   radialStrength: 0.7,
-  linkDistances: { spoke: 'R1', member: 'R2-R1', tech: 120 },
-  linkStrengths: { spoke: 0.9, member: 0.6, tech: 0.08 },
+  // Tools ring around their own domain at a radius that scales with tool count
+  toolRing: { minRadius: 44, perTool: 7 },
+  linkDistances: { spoke: 'R1', member: 'toolRing', tech: 90 },
+  linkStrengths: { spoke: 0.9, member: 0.8, tech: 0.05 },
   centerForceStrength: 0.02,
   collideIterations: 3,
 };
@@ -29,8 +31,8 @@ export const ANIMATION = {
 export const ZOOM = {
   scaleExtent: [0.5, 2.5] as [number, number],
   semanticThresholds: {
-    hideToolLabels: 1.15,       // Below this, hide tool labels
-    showOnlyDomains: 1.05,      // Below this, hide tool nodes (so default 1.0x shows only domains)
+    hideToolLabels: 0.95,       // Below this, hide tool labels
+    showOnlyDomains: 0.85,      // Below this, hide tool nodes (default 1.0x shows full graph)
   },
 };
 

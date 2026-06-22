@@ -35,6 +35,18 @@ function nodeTile(n: SimNode): number {
   return n.level ? TILE_SIZES[n.level] : 22;
 }
 
+// Ring radius for a domain's tools — scales with tool count so even rings don't overlap.
+function toolRingRadius(domainId: string): number {
+  const count = TECHSTACK_TOOLS.filter((t) => t.domainId === domainId).length;
+  return Math.max(PHYSICS.toolRing.minRadius, count * PHYSICS.toolRing.perTool);
+}
+
+// Angle (from center) at which a domain sits on its ring.
+function domainAngle(domainId: string): number {
+  const i = TECHSTACK_DOMAINS.findIndex((d) => d.id === domainId);
+  return (i / TECHSTACK_DOMAINS.length) * 2 * Math.PI - Math.PI / 2;
+}
+
 
 const graphStyles = `
   .ts-node, .ts-link {
@@ -91,16 +103,22 @@ export function TechStackGraph() {
     simulationRef.current
       .force('center', d3.forceCenter(cx, cy).strength(PHYSICS.centerForceStrength))
       .force('radial', d3.forceRadial<SimNode>(
-        (n) => (n.kind === 'center' ? 0 : n.kind === 'domain' ? R1 : R2),
+        (n) => (n.kind === 'center' ? 0 : R1),
         cx, cy
       ).strength(PHYSICS.radialStrength));
 
     // Update link distances based on new R1/R2
     const linkForce = simulationRef.current.force('link') as d3.ForceLink<SimNode, SimLink>;
     if (linkForce) {
-      linkForce.distance((l) =>
-        l.kind === 'spoke' ? R1 : l.kind === 'member' ? R2 - R1 : PHYSICS.linkDistances.tech
-      );
+      linkForce.distance((l) => {
+        if (l.kind === 'spoke') return R1;
+        if (l.kind === 'member') {
+          const tgt = l.target as SimNode;
+          const toolNode = nodesRef.current.find((n) => n.id === (typeof tgt === 'string' ? tgt : tgt.id));
+          return toolRingRadius(toolNode?.domainId ?? '');
+        }
+        return PHYSICS.linkDistances.tech;
+      });
     }
 
     // Update center node position
@@ -157,24 +175,36 @@ export function TechStackGraph() {
     // Seed domains on a symmetric ring so the simulation starts balanced — random
     // initial positions can freeze mid-convergence and produce a persistent drift.
     const center: SimNode = { id: CENTER_ID, kind: 'center', label: TECHSTACK_CENTER.name, x: cx, y: cy };
-    const domNodes: SimNode[] = TECHSTACK_DOMAINS.map((d, i) => {
-      const angle = (i / TECHSTACK_DOMAINS.length) * 2 * Math.PI - Math.PI / 2;
+    const domNodes: SimNode[] = TECHSTACK_DOMAINS.map((d) => {
+      const a = domainAngle(d.id);
       return {
         id: d.id, kind: 'domain', label: d.short,
-        x: cx + R1 * Math.cos(angle),
-        y: cy + R1 * Math.sin(angle),
+        x: cx + R1 * Math.cos(a),
+        y: cy + R1 * Math.sin(a),
       };
     });
-    const toolNodes: SimNode[] = TECHSTACK_TOOLS.map((t, i) => {
-      const dom = TECHSTACK_DOMAINS.findIndex((d) => d.id === t.domainId);
-      const angle = (dom / TECHSTACK_DOMAINS.length) * 2 * Math.PI - Math.PI / 2;
-      const jitter = ((i % 5) - 2) * (R2 - R1) * 0.18;
-      return {
-        id: t.id, kind: 'tool', label: t.name, tool: t, domainId: t.domainId, level: t.level,
-        x: cx + (R2 + jitter) * Math.cos(angle),
-        y: cy + (R2 + jitter) * Math.sin(angle),
-      };
-    });
+    // Seed each domain's tools on an EVEN ring around that domain node.
+    const toolsByDomain = new Map<string, typeof TECHSTACK_TOOLS>();
+    for (const t of TECHSTACK_TOOLS) {
+      const arr = toolsByDomain.get(t.domainId) ?? [];
+      arr.push(t);
+      toolsByDomain.set(t.domainId, arr);
+    }
+    const toolNodes: SimNode[] = [];
+    for (const [domId, tools] of toolsByDomain) {
+      const a = domainAngle(domId);
+      const domX = cx + R1 * Math.cos(a);
+      const domY = cy + R1 * Math.sin(a);
+      const ringR = toolRingRadius(domId);
+      tools.forEach((t, i) => {
+        const ta = (i / tools.length) * 2 * Math.PI;
+        toolNodes.push({
+          id: t.id, kind: 'tool', label: t.name, tool: t, domainId: t.domainId, level: t.level,
+          x: domX + ringR * Math.cos(ta),
+          y: domY + ringR * Math.sin(ta),
+        });
+      });
+    }
     const nodes: SimNode[] = [center, ...domNodes, ...toolNodes];
     nodesRef.current = nodes;
 
@@ -287,11 +317,22 @@ export function TechStackGraph() {
         .radius((n) => nodeRadius(n) + COLLISION_PADDING)
         .iterations(PHYSICS.collideIterations))
       .force('radial', d3.forceRadial<SimNode>(
-        (n) => (n.kind === 'center' ? 0 : n.kind === 'domain' ? R1 : R2),
+        // Domains sit on the R1 ring; tools target R1 too so they hug their domain's ring.
+        (n) => (n.kind === 'center' ? 0 : R1),
         cx, cy
       ).strength(PHYSICS.radialStrength))
       .force('link', d3.forceLink<SimNode, SimLink>(links).id((n) => n.id)
-        .distance((l) => l.kind === 'spoke' ? R1 : l.kind === 'member' ? R2 - R1 : PHYSICS.linkDistances.tech)
+        .distance((l) => {
+          if (l.kind === 'spoke') return R1;
+          if (l.kind === 'member') {
+            const tgt = l.target as SimNode;
+            const domId = typeof tgt === 'string' ? tgt : tgt.domainId ?? '';
+            // target is the tool; look up its domain's ring radius
+            const toolNode = nodes.find((n) => n.id === (typeof tgt === 'string' ? tgt : tgt.id));
+            return toolRingRadius(toolNode?.domainId ?? domId);
+          }
+          return PHYSICS.linkDistances.tech;
+        })
         .strength((l) =>
           l.kind === 'spoke' ? PHYSICS.linkStrengths.spoke :
           l.kind === 'member' ? PHYSICS.linkStrengths.member :
