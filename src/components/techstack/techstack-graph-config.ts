@@ -1,18 +1,18 @@
 // Visual constants
 export const TILE_SIZES = { sig: 28, sup: 24, chip: 20 };
 export const NODE_RADII = { center: 23, domain: 22 };
-export const COLLISION_PADDING = 6;
+export const COLLISION_PADDING = 12;
 export const BOUNDARY_PADDING = 24;
 
 // Physics parameters
 export const PHYSICS = {
-  charge: { center: -700, domain: -280, tool: -55 },
-  radialRings: { innerFactor: 0.26, outerFactor: 0.46 },
-  radialStrength: 0.6,
+  charge: { center: -600, domain: -250, tool: -45 },
+  radialRings: { innerFactor: 0.32, outerFactor: 0.55 },
+  radialStrength: 0.7,
   linkDistances: { spoke: 'R1', member: 'R2-R1', tech: 120 },
-  linkStrengths: { spoke: 0.9, member: 0.5, tech: 0.05 },
-  centerForceStrength: 0.03,
-  collideIterations: 2,
+  linkStrengths: { spoke: 0.9, member: 0.6, tech: 0.08 },
+  centerForceStrength: 0.02,
+  collideIterations: 3,
 };
 
 // Animation & interaction
