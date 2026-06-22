@@ -71,6 +71,7 @@ export function TechStackGraph() {
   const nodesRef = useRef<SimNode[]>([]);
   const linksRef = useRef<SimLink[]>([]);
   const sizeRef = useRef({ w: 600, h: 460 });
+  const lastSizeRef = useRef({ w: 0, h: 0 });
   const selectedIdRef = useRef<string | null>(null);
 
   const releaseSelectedNode = () => {
@@ -128,8 +129,14 @@ export function TechStackGraph() {
       centerNode.fy = cy;
     }
 
-    // Gently reheat simulation
-    simulationRef.current.alpha(0.3).restart();
+    // Only reheat on a meaningful size change — avoid reheating on every sub-pixel
+    // ResizeObserver tick (which would keep the simulation alive and jank the UI).
+    const prev = lastSizeRef.current;
+    const changed = Math.abs(prev.w - w) > 2 || Math.abs(prev.h - h) > 2;
+    if (changed) {
+      lastSizeRef.current = { w, h };
+      simulationRef.current.alpha(0.2).restart();
+    }
   };
 
   // #1: coalesce ResizeObserver updates to one per animation frame
@@ -547,26 +554,6 @@ export function TechStackGraph() {
       svg.on('.zoom', null);
       sim.stop();
       simulationRef.current = null;
-    };
-  }, []);
-
-  // Progressive cooling effect
-  useEffect(() => {
-    const sim = simulationRef.current;
-    if (!sim) return;
-
-    let ticks = 0;
-    const coolingListener = () => {
-      ticks++;
-      if (ticks === ANIMATION.coolingTickThreshold) {
-        sim.alphaDecay(ANIMATION.finalAlphaDecay);
-      }
-    };
-
-    sim.on('tick.cooling', coolingListener);
-
-    return () => {
-      sim.on('tick.cooling', null);
     };
   }, []);
 

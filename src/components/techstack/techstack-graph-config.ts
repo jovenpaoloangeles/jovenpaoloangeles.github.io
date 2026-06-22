@@ -14,16 +14,15 @@ export const PHYSICS = {
   linkDistances: { spoke: 'R1', member: 'toolRing', tech: 90 },
   linkStrengths: { spoke: 0.9, member: 0.8, tech: 0.05 },
   centerForceStrength: 0.02,
-  collideIterations: 3,
+  collideIterations: 2,
 };
 
-// Animation & interaction
+// Animation & interaction. alphaDecay is deliberately high so the simulation settles
+// and STOPS quickly (nodes are seeded near-equilibrium, so little work is needed) —
+// a low alphaDecay here kept the sim alive for ~450 ticks and froze slower machines.
 export const ANIMATION = {
-  initialAlpha: 1,
-  initialAlphaDecay: 0.025,
-  coolingPhaseDecay: 0.04,     // Higher friction for first 100 ticks
-  coolingTickThreshold: 100,
-  finalAlphaDecay: 0.015,       // Relaxed after settling
+  initialAlpha: 0.8,
+  initialAlphaDecay: 0.06,
   dragAlphaTarget: 0.25,
 };
 
