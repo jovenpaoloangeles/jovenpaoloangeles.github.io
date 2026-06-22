@@ -438,12 +438,14 @@ export function TechStackGraph() {
     });
 
     sim.on('tick', () => {
-      // keep nodes inside the box (account for zoom scale 1 at rest)
+      // keep nodes inside the box — read live dimensions so clamping matches the
+      // current viewport (forces are updated imperatively on resize via handleResize)
       const pad = BOUNDARY_PADDING;
+      const { w: cw, h: ch } = sizeRef.current;
       for (const n of nodes) {
         if (n.kind === 'center') continue;
-        if (n.x! < pad) n.x = pad; else if (n.x! > w - pad) n.x = w - pad;
-        if (n.y! < pad) n.y = pad; else if (n.y! > h - pad) n.y = h - pad;
+        if (n.x! < pad) n.x = pad; else if (n.x! > cw - pad) n.x = cw - pad;
+        if (n.y! < pad) n.y = pad; else if (n.y! > ch - pad) n.y = ch - pad;
       }
       nodeG.attr('transform', (n) => `translate(${n.x},${n.y})`);
       linkSel
