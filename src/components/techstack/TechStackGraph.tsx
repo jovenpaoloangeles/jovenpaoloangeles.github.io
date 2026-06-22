@@ -458,7 +458,7 @@ export function TechStackGraph() {
     //  - clickDistance lets the native click event still fire for small movements,
     //    so a real `click` listener handles selection. d3 suppresses that click
     //    after a genuine drag, so dragging a node won't also select it.
-    const CLICK_THRESHOLD = 8;
+    const CLICK_THRESHOLD = 20; // generous threshold for real hardware (trackpads/mice drift ~10px on a tap)
     let pressX = 0, pressY = 0, didDrag = false;
     const drag = d3.drag<SVGGElement, SimNode>()
       .clickDistance(CLICK_THRESHOLD)
