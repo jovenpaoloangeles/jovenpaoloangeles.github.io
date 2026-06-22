@@ -436,18 +436,49 @@ export function TechStackGraph() {
       popoverG.selectAll('*').remove();
     };
 
-    // drag (tools + domains only; center is pinned)
+    // Selecting a node: pin it, spotlight its connections, show the popover.
+    const selectNode = (node: SimNode) => {
+      node.fx = node.x; node.fy = node.y; // pin while open
+      selectedIdRef.current = node.id;
+      activateSpotlight(node.id);
+      renderPopoverInSVG(popoverG, node, handleClosePopover);
+    };
+
+    // Drag vs click are decoupled:
+    //  - drag only "activates" once the pointer travels past CLICK_THRESHOLD, so a
+    //    plain click never reheats the simulation (which would jitter the graph)
+    //    and never moves the node.
+    //  - clickDistance lets the native click event still fire for small movements,
+    //    so a real `click` listener handles selection. d3 suppresses that click
+    //    after a genuine drag, so dragging a node won't also select it.
+    const CLICK_THRESHOLD = 8;
+    let pressX = 0, pressY = 0, didDrag = false;
     const drag = d3.drag<SVGGElement, SimNode>()
+      .clickDistance(CLICK_THRESHOLD)
       .on('start', (e, n) => {
-        if (n.kind !== 'center') {
-          if (!e.active) sim.alphaTarget(ANIMATION.dragAlphaTarget).restart();
-          n.fx = n.x;
-          n.fy = n.y;
-        }
+        pressX = e.x; pressY = e.y; didDrag = false;
       })
-      .on('drag', (e, n) => { if (n.kind !== 'center') { n.fx = e.x; n.fy = e.y; } })
-      .on('end', (e, n) => { if (n.kind !== 'center') { if (!e.active) sim.alphaTarget(0); n.fx = null; n.fy = null; } });
+      .on('drag', (e, n) => {
+        if (n.kind === 'center') return;
+        if (!didDrag && Math.hypot(e.x - pressX, e.y - pressY) >= CLICK_THRESHOLD) {
+          didDrag = true; // promote the gesture to a real drag
+          if (!e.active) sim.alphaTarget(ANIMATION.dragAlphaTarget).restart();
+        }
+        if (didDrag) { n.fx = e.x; n.fy = e.y; }
+      })
+      .on('end', (e, n) => {
+        if (didDrag) {
+          if (!e.active) sim.alphaTarget(0);
+          if (n.kind !== 'center') { n.fx = null; n.fy = null; } // release after a real drag
+        }
+      });
     nodeG.call(drag);
+
+    // Selection — fires for clicks (movement <= clickDistance); suppressed after a drag.
+    nodeG.on('click', (event, node) => {
+      event.stopPropagation();
+      selectNode(node);
+    });
 
     // Semantic zooming: show/hide tool nodes based on zoom scale
     const applySemanticZoom = (scale: number) => {
@@ -473,26 +504,7 @@ export function TechStackGraph() {
     // Apply initial visibility state (zoom handler only fires on user interaction)
     applySemanticZoom(d3.zoomTransform(svgEl).k);
 
-    // click -> select. Distinguish a click from a drag by pointer travel distance:
-    // tracking any mousemove (as before) rejected nearly every real click because of
-    // sub-pixel movement. A genuine drag moves more than a few pixels.
-    let downX = 0, downY = 0;
-    nodeG.on('mousedown', (event) => { downX = event.clientX; downY = event.clientY; });
-    nodeG.on('click', (event, node) => {
-      if (Math.hypot(event.clientX - downX, event.clientY - downY) > 5) return;
-      event.stopPropagation();
-
-      // Pin node
-      node.fx = node.x;
-      node.fy = node.y;
-      selectedIdRef.current = node.id;
-
-      activateSpotlight(node.id);
-
-      // Render popover
-      renderPopoverInSVG(popoverG, node, handleClosePopover);
-    });
-    // #3: unpin on SVG background click
+    // Deselect on SVG background click (empty space, not a node drag).
     svg.on('click', () => {
       releaseSelectedNode();
       clearSpotlight();
