@@ -142,17 +142,39 @@ export function TechStackGraph() {
   useEffect(() => {
     const svgEl = svgRef.current;
     if (!svgEl) return;
-    const { w, h } = sizeRef.current;
+    // Synchronously measure the real container size so forces are built from correct
+    // dimensions from the first tick (sizeRef may still hold stale defaults on mount).
+    const measured = wrapRef.current?.getBoundingClientRect();
+    const w = measured ? Math.max(320, measured.width) : sizeRef.current.w;
+    const h = measured ? Math.max(360, measured.height) : sizeRef.current.h;
+    sizeRef.current = { w, h };
     const cx = w / 2;
     const cy = h / 2;
 
-    const center: SimNode = { id: CENTER_ID, kind: 'center', label: TECHSTACK_CENTER.name };
-    const domNodes: SimNode[] = TECHSTACK_DOMAINS.map((d) => ({
-      id: d.id, kind: 'domain', label: d.short,
-    }));
-    const toolNodes: SimNode[] = TECHSTACK_TOOLS.map((t) => ({
-      id: t.id, kind: 'tool', label: t.name, tool: t, domainId: t.domainId, level: t.level,
-    }));
+    const R1 = Math.min(w, h) * PHYSICS.radialRings.innerFactor;
+    const R2 = Math.min(w, h) * PHYSICS.radialRings.outerFactor;
+
+    // Seed domains on a symmetric ring so the simulation starts balanced — random
+    // initial positions can freeze mid-convergence and produce a persistent drift.
+    const center: SimNode = { id: CENTER_ID, kind: 'center', label: TECHSTACK_CENTER.name, x: cx, y: cy };
+    const domNodes: SimNode[] = TECHSTACK_DOMAINS.map((d, i) => {
+      const angle = (i / TECHSTACK_DOMAINS.length) * 2 * Math.PI - Math.PI / 2;
+      return {
+        id: d.id, kind: 'domain', label: d.short,
+        x: cx + R1 * Math.cos(angle),
+        y: cy + R1 * Math.sin(angle),
+      };
+    });
+    const toolNodes: SimNode[] = TECHSTACK_TOOLS.map((t, i) => {
+      const dom = TECHSTACK_DOMAINS.findIndex((d) => d.id === t.domainId);
+      const angle = (dom / TECHSTACK_DOMAINS.length) * 2 * Math.PI - Math.PI / 2;
+      const jitter = ((i % 5) - 2) * (R2 - R1) * 0.18;
+      return {
+        id: t.id, kind: 'tool', label: t.name, tool: t, domainId: t.domainId, level: t.level,
+        x: cx + (R2 + jitter) * Math.cos(angle),
+        y: cy + (R2 + jitter) * Math.sin(angle),
+      };
+    });
     const nodes: SimNode[] = [center, ...domNodes, ...toolNodes];
     nodesRef.current = nodes;
 
@@ -162,9 +184,6 @@ export function TechStackGraph() {
       ...TECHSTACK_TECH_LINKS.map<SimLink>(([a, b]) => ({ kind: 'tech', source: a, target: b })),
     ];
     linksRef.current = links;
-
-    const R1 = Math.min(w, h) * PHYSICS.radialRings.innerFactor;
-    const R2 = Math.min(w, h) * PHYSICS.radialRings.outerFactor;
 
     const svg = d3.select(svgEl);
     svg.selectAll('*').remove();
