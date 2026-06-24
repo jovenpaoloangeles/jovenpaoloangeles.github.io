@@ -13,6 +13,7 @@ export interface Tool {
   id: string;
   name: string;
   domainId: string;
+  also?: string[];      // NEW — secondary domain ids
   level: ToolLevel;
   role: string;
   icon: IconSpec;
@@ -32,6 +33,7 @@ interface NestedTool {
   role: string;
   icon: IconSpec;
   isNew?: true;
+  also?: readonly string[];   // NEW
 }
 
 interface NestedDomain {
@@ -51,7 +53,7 @@ const RAW = [
     role: 'Numerical methods, statistics & the lab notebook of a materials-science PhD.',
     proof: ['XRD Analyzer'],
     tools: [
-      { id: 'python', name: 'Python', level: 'sig', role: 'Scientific computing, data analysis, ML & backend', icon: local('icons/python.svg') },
+      { id: 'python', name: 'Python', level: 'sig', role: 'Scientific computing, data analysis, ML & backend', icon: local('icons/python.svg'), also: ['d2', 'd4'] },
       { id: 'jupyter', name: 'JupyterLab', level: 'sig', role: 'Interactive computing environment', icon: local('icons/jupyter.svg') },
       { id: 'pandas', name: 'Pandas', level: 'sig', role: 'Data manipulation & analysis', icon: local('icons/pandas.svg') },
       { id: 'numpy', name: 'NumPy', level: 'sig', role: 'Numerical arrays & linear algebra', icon: cdn('numpy/numpy'), isNew: true },
@@ -67,7 +69,7 @@ const RAW = [
     role: 'Surrogate models, Gaussian processes & adaptive experiment design.',
     proof: ['Bayesian Optimization Framework'],
     tools: [
-      { id: 'pytorch', name: 'PyTorch', level: 'sig', role: 'Deep learning framework & tensors', icon: local('icons/pytorch.svg') },
+      { id: 'pytorch', name: 'PyTorch', level: 'sig', role: 'Deep learning framework & tensors', icon: local('icons/pytorch.svg'), also: ['d1', 'd3'] },
       { id: 'botorch', name: 'BoTorch', level: 'sig', role: 'Bayesian optimization research', icon: mono('BO') },
       { id: 'gpytorch', name: 'GPyTorch', level: 'sup', role: 'Gaussian processes on PyTorch', icon: mono('GP') },
       { id: 'ax', name: 'Ax', level: 'sup', role: 'Adaptive experimentation platform', icon: mono('Ax') },
@@ -99,7 +101,7 @@ const RAW = [
     proof: ['This Portfolio', 'ChunkingExpress'],
     tools: [
       { id: 'react', name: 'React', level: 'sig', role: 'Component-based UI', icon: local('icons/react.svg') },
-      { id: 'typescript', name: 'TypeScript', level: 'sig', role: 'Typed JavaScript', icon: local('icons/typescript.svg') },
+      { id: 'typescript', name: 'TypeScript', level: 'sig', role: 'Typed JavaScript', icon: local('icons/typescript.svg'), also: ['d3'] },
       { id: 'vite', name: 'Vite', level: 'sig', role: 'Frontend build tool', icon: local('icons/vite.svg') },
       { id: 'fastapi', name: 'FastAPI', level: 'sup', role: 'Modern Python web APIs', icon: local('icons/fastapi.svg') },
       { id: 'streamlit', name: 'Streamlit', level: 'sup', role: 'Data apps in Python', icon: local('icons/streamlit.svg') },
@@ -113,9 +115,9 @@ const RAW = [
     proof: ['Home Lab', 'Deploy Pipeline'],
     tools: [
       { id: 'postgresql', name: 'PostgreSQL', level: 'sig', role: 'Relational database', icon: cdn('postgresql/postgresql') },
-      { id: 'docker', name: 'Docker', level: 'sig', role: 'Containerization & deployment', icon: local('icons/docker.svg') },
+      { id: 'docker', name: 'Docker', level: 'sig', role: 'Containerization & deployment', icon: local('icons/docker.svg'), also: ['d4'] },
       { id: 'githubactions', name: 'GitHub Actions', level: 'sig', role: 'CI/CD workflows', icon: local('icons/githubactions.svg') },
-      { id: 'supabase', name: 'Supabase', level: 'sig', role: 'Postgres, storage, auth & edge functions', icon: cdn('supabase/supabase'), isNew: true },
+      { id: 'supabase', name: 'Supabase', level: 'sig', role: 'Postgres, storage, auth & edge functions', icon: cdn('supabase/supabase'), isNew: true, also: ['d3'] },
       { id: 'pgvector', name: 'pgvector', level: 'sup', role: 'Vector search inside Postgres', icon: mono('pg'), isNew: true },
       { id: 'nginx', name: 'Nginx', level: 'sup', role: 'Reverse proxy', icon: local('icons/nginx.svg') },
       { id: 'vercel', name: 'Vercel', level: 'sup', role: 'Frontend deployment', icon: local('icons/vercel.svg') },
@@ -141,6 +143,14 @@ const RAW = [
 export type DomainId = (typeof RAW)[number]['id'];
 export type ToolId = (typeof RAW)[number]['tools'][number]['id'];
 
+// Compile-time guard: every id listed in a tool's `also` must be a known domain.
+type ToolWithAlso = Extract<(typeof RAW)[number]['tools'][number], { also: readonly string[] }>;
+type AllAlso = ToolWithAlso extends { also: infer A }
+  ? A extends readonly (infer E)[] ? E : never
+  : never;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _alsoCheck: AllAlso extends DomainId ? true : `✖ unknown domain id in 'also': ${AllAlso & string}` = true;
+
 export const TECHSTACK_DOMAINS: Domain[] = RAW.map((d) => {
   const domain: Domain = { id: d.id, num: d.num, name: d.name, short: d.short, role: d.role };
   if (d.proof) domain.proof = [...d.proof];
@@ -153,6 +163,7 @@ export const TECHSTACK_TOOLS: Tool[] = RAW.flatMap((d) =>
       id: t.id, name: t.name, domainId: d.id, level: t.level, role: t.role, icon: t.icon,
     };
     if (t.isNew) tool.isNew = true;
+    if (t.also) tool.also = [...t.also];
     return tool;
   }),
 );

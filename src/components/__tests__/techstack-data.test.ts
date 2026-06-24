@@ -72,4 +72,19 @@ describe('techstack data', () => {
     expect(TECHSTACK_CENTER.name).toBeTruthy();
     expect(TECHSTACK_CENTER.photo).toContain('profile-photo');
   });
+
+  it('every tool `also` entry is a known domain and not its own primary domain', () => {
+    const ids = new Set(TECHSTACK_DOMAINS.map((d) => d.id));
+    for (const t of TECHSTACK_TOOLS) {
+      for (const a of t.also ?? []) {
+        expect(ids.has(a)).toBe(true);
+        expect(a).not.toBe(t.domainId);
+      }
+    }
+  });
+
+  it('exposes starter multi-domain memberships', () => {
+    const py = TECHSTACK_TOOLS.find((t) => t.id === 'python')!;
+    expect(py.also).toEqual(['d2', 'd4']);
+  });
 });
