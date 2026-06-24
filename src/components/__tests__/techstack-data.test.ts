@@ -93,4 +93,23 @@ describe('techstack data', () => {
     const py = TECHSTACK_TOOLS.find((t) => t.id === 'python')!;
     expect(py.also).toEqual(['d2', 'd4']);
   });
+
+  it('every tool `parent` is a real tool in the same domain, not a child, not self', () => {
+    const byId = new Map(TECHSTACK_TOOLS.map((t) => [t.id, t]));
+    for (const t of TECHSTACK_TOOLS) {
+      if (!t.parent) continue;
+      const p = byId.get(t.parent);
+      expect(p).toBeDefined();
+      expect(p!.domainId).toBe(t.domainId);
+      expect(p!.parent).toBeUndefined();
+      expect(t.parent).not.toBe(t.id);
+    }
+  });
+
+  it('exposes starter parent-child memberships', () => {
+    const pgvector = TECHSTACK_TOOLS.find((t) => t.id === 'pgvector')!;
+    expect(pgvector.parent).toBe('postgresql');
+    const openlit = TECHSTACK_TOOLS.find((t) => t.id === 'openlit')!;
+    expect(openlit.parent).toBe('opentelemetry');
+  });
 });

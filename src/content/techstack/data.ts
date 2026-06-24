@@ -14,6 +14,7 @@ export interface Tool {
   name: string;
   domainId: string;
   also?: string[];      // NEW — secondary domain ids
+  parent?: string;      // NEW — id of parent tool (same domain, single level only)
   level: ToolLevel;
   role: string;
   icon: IconSpec;
@@ -34,6 +35,7 @@ interface NestedTool {
   icon: IconSpec;
   isNew?: true;
   also?: readonly string[];   // NEW
+  parent?: string;       // NEW
 }
 
 interface NestedDomain {
@@ -118,12 +120,12 @@ const RAW = [
       { id: 'docker', name: 'Docker', level: 'sig', role: 'Containerization & deployment', icon: local('icons/docker.svg'), also: ['d4'] },
       { id: 'githubactions', name: 'GitHub Actions', level: 'sig', role: 'CI/CD workflows', icon: local('icons/githubactions.svg') },
       { id: 'supabase', name: 'Supabase', level: 'sig', role: 'Postgres, storage, auth & edge functions', icon: cdn('supabase/supabase'), isNew: true, also: ['d3'] },
-      { id: 'pgvector', name: 'pgvector', level: 'sup', role: 'Vector search inside Postgres', icon: mono('pg'), isNew: true },
+      { id: 'pgvector', name: 'pgvector', level: 'sup', role: 'Vector search inside Postgres', icon: mono('pg'), isNew: true, parent: 'postgresql' },
       { id: 'nginx', name: 'Nginx', level: 'sup', role: 'Reverse proxy', icon: local('icons/nginx.svg') },
       { id: 'vercel', name: 'Vercel', level: 'sup', role: 'Frontend deployment', icon: local('icons/vercel.svg') },
       { id: 'prometheus', name: 'Prometheus', level: 'chip', role: 'Metrics & monitoring', icon: local('icons/prometheus.svg') },
       { id: 'opentelemetry', name: 'OpenTelemetry', level: 'chip', role: 'Observability framework', icon: local('icons/opentelemetry.svg') },
-      { id: 'openlit', name: 'OpenLit', level: 'chip', role: 'OTel-native LLM observability', icon: local('icons/openlit.png') },
+      { id: 'openlit', name: 'OpenLit', level: 'chip', role: 'OTel-native LLM observability', icon: local('icons/openlit.png'), parent: 'opentelemetry' },
       { id: 'jenkins', name: 'Jenkins', level: 'chip', role: 'Automation server for CI/CD', icon: local('icons/jenkins.svg') },
     ],
   },
@@ -151,6 +153,12 @@ type AllAlso = ToolWithAlso extends { also: infer A }
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _alsoCheck: AllAlso extends DomainId ? true : `✖ unknown domain id in 'also': ${AllAlso & string}` = true;
 
+// Compile-time guard: every tool's `parent` must be a known tool id.
+type ToolWithParent = Extract<(typeof RAW)[number]['tools'][number], { parent: string }>;
+type AllParents = ToolWithParent['parent'];
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _parentCheck: AllParents extends ToolId ? true : `✖ unknown tool id in 'parent': ${AllParents & string}` = true;
+
 export const TECHSTACK_DOMAINS: Domain[] = RAW.map((d) => {
   const domain: Domain = { id: d.id, num: d.num, name: d.name, short: d.short, role: d.role };
   if (d.proof) domain.proof = [...d.proof];
@@ -164,6 +172,8 @@ export const TECHSTACK_TOOLS: Tool[] = RAW.flatMap((d) =>
     };
     if (t.isNew) tool.isNew = true;
     if (t.also) tool.also = [...t.also];
+    const parent = (t as NestedTool).parent;
+    if (parent) tool.parent = parent;
     return tool;
   }),
 );
