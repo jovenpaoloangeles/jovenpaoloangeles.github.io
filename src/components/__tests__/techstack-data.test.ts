@@ -66,15 +66,15 @@ describe('techstack data', () => {
     const oa = TECHSTACK_TOOLS.find(t => t.id === 'openai')!;
     expect(iconSrc(oa)).toContain('lobehub');
     expect(iconSrc(oa)).toContain('openai-color.svg');
-    const sp = TECHSTACK_TOOLS.find(t => t.id === 'scipy')!;
-    expect(iconSrc(sp)).toBe(''); // mono has no src
+    const gp = TECHSTACK_TOOLS.find(t => t.id === 'gpytorch')!;
+    expect(iconSrc(gp)).toBe(''); // mono has no src
   });
 
   it('monogram returns 1-2 chars', () => {
     const py = TECHSTACK_TOOLS.find(t => t.id === 'python')!;
     expect(monogram(py).length).toBeLessThanOrEqual(2);
-    const sp = TECHSTACK_TOOLS.find(t => t.id === 'scipy')!;
-    expect(monogram(sp)).toBe('Sp');
+    const gp = TECHSTACK_TOOLS.find(t => t.id === 'gpytorch')!;
+    expect(monogram(gp)).toBe('GP');
   });
 
   it('exposes the center identity', () => {

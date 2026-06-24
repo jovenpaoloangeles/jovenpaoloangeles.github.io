@@ -14,9 +14,9 @@ describe('TechIcon', () => {
   });
 
   it('renders a monogram span for a mono tool (no img)', () => {
-    const sp = TECHSTACK_TOOLS.find(t => t.id === 'scipy')!;
-    const { container } = render(<TechIcon tool={sp} size={20} />);
+    const gp = TECHSTACK_TOOLS.find(t => t.id === 'gpytorch')!;
+    const { container } = render(<TechIcon tool={gp} size={20} />);
     expect(container.querySelector('img')).toBeNull();
-    expect(container.textContent).toContain('Sp');
+    expect(container.textContent).toContain('GP');
   });
 });
