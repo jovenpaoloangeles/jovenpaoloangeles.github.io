@@ -10,7 +10,7 @@ export const PHYSICS = {
   radialRings: { innerFactor: 0.32 },
   radialStrength: 0.7,
   // Tools ring around their own domain at a radius that scales with tool count
-  toolRing: { minRadius: 44, perTool: 7 },
+  toolRing: { minRadius: 44, perTool: 7, childGap: 48 },
   linkDistances: { spoke: 'R1', member: 'toolRing', tech: 90 },
   linkStrengths: { spoke: 0.9, member: 0.8, tech: 0.05 },
   centerForceStrength: 0.02,

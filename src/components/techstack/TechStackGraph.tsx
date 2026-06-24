@@ -18,7 +18,7 @@ interface SimNode extends d3.SimulationNodeDatum {
   level?: Tool['level'];
 }
 interface SimLink extends d3.SimulationLinkDatum<SimNode> {
-  kind: 'spoke' | 'member' | 'tech' | 'cross';
+  kind: 'spoke' | 'member' | 'tech' | 'cross' | 'child';
 }
 
 const CENTER_ID = '__me';
@@ -37,7 +37,7 @@ function nodeTile(n: SimNode): number {
 
 // Ring radius for a domain's tools — scales with tool count so even rings don't overlap.
 function toolRingRadius(domainId: string): number {
-  const count = TECHSTACK_TOOLS.filter((t) => t.domainId === domainId).length;
+  const count = TECHSTACK_TOOLS.filter((t) => t.domainId === domainId && !t.parent).length;
   return Math.max(PHYSICS.toolRing.minRadius, count * PHYSICS.toolRing.perTool);
 }
 
@@ -117,6 +117,7 @@ export function TechStackGraph() {
           const toolNode = nodesRef.current.find((n) => n.id === (typeof tgt === 'string' ? tgt : tgt.id));
           return toolRingRadius(toolNode?.domainId ?? '');
         }
+        if (l.kind === 'child') return PHYSICS.toolRing.childGap;
         return PHYSICS.linkDistances.tech;
       });
     }
@@ -188,9 +189,10 @@ export function TechStackGraph() {
         y: cy + R1 * Math.sin(a),
       };
     });
-    // Seed each domain's tools on an EVEN ring around that domain node.
+    // Seed non-child tools on even rings around their domain node.
     const toolsByDomain = new Map<string, typeof TECHSTACK_TOOLS>();
     for (const t of TECHSTACK_TOOLS) {
+      if (t.parent) continue; // children are seeded in the second pass
       const arr = toolsByDomain.get(t.domainId) ?? [];
       arr.push(t);
       toolsByDomain.set(t.domainId, arr);
@@ -210,17 +212,40 @@ export function TechStackGraph() {
         });
       });
     }
+    // Second pass: seed each child at childGap distance from its parent, toward the domain
+    // node. This starts at the force-link equilibrium so the sim settles with near-zero work.
+    for (const t of TECHSTACK_TOOLS) {
+      if (!t.parent) continue;
+      const parentNode = toolNodes.find((n) => n.id === t.parent);
+      const px = parentNode?.x ?? cx;
+      const py = parentNode?.y ?? cy;
+      const a = domainAngle(t.domainId);
+      const domX = cx + R1 * Math.cos(a);
+      const domY = cy + R1 * Math.sin(a);
+      const dx = domX - px;
+      const dy = domY - py;
+      const len = Math.hypot(dx, dy) || 1;
+      toolNodes.push({
+        id: t.id, kind: 'tool', label: t.name, tool: t, domainId: t.domainId, level: t.level,
+        x: px + (dx / len) * PHYSICS.toolRing.childGap,
+        y: py + (dy / len) * PHYSICS.toolRing.childGap,
+      });
+    }
     const nodes: SimNode[] = [center, ...domNodes, ...toolNodes];
     nodesRef.current = nodes;
 
     const crossLinks: SimLink[] = TECHSTACK_TOOLS.flatMap<SimLink>((t) =>
       (t.also ?? []).map((domId) => ({ kind: 'cross', source: t.id, target: domId })),
     );
+    const childLinks: SimLink[] = TECHSTACK_TOOLS
+      .filter((t) => t.parent != null)
+      .map<SimLink>((t) => ({ kind: 'child', source: t.parent!, target: t.id }));
     const links: SimLink[] = [
       ...TECHSTACK_DOMAINS.map<SimLink>((d) => ({ kind: 'spoke', source: CENTER_ID, target: d.id })),
-      ...TECHSTACK_TOOLS.map<SimLink>((t) => ({ kind: 'member', source: t.domainId, target: t.id })),
+      ...TECHSTACK_TOOLS.filter((t) => !t.parent).map<SimLink>((t) => ({ kind: 'member', source: t.domainId, target: t.id })),
       ...TECHSTACK_TECH_LINKS.map<SimLink>(([a, b]) => ({ kind: 'tech', source: a, target: b })),
       ...crossLinks,
+      ...childLinks,
     ];
     linksRef.current = links;
 
@@ -335,16 +360,16 @@ export function TechStackGraph() {
           if (l.kind === 'spoke') return R1;
           if (l.kind === 'member') {
             const tgt = l.target as SimNode;
-            const domId = typeof tgt === 'string' ? tgt : tgt.domainId ?? '';
-            // target is the tool; look up its domain's ring radius
             const toolNode = nodes.find((n) => n.id === (typeof tgt === 'string' ? tgt : tgt.id));
-            return toolRingRadius(toolNode?.domainId ?? domId);
+            return toolRingRadius(toolNode?.domainId ?? '');
           }
+          if (l.kind === 'child') return PHYSICS.toolRing.childGap;
           return PHYSICS.linkDistances.tech;
         })
         .strength((l) =>
           l.kind === 'spoke' ? PHYSICS.linkStrengths.spoke :
           l.kind === 'member' ? PHYSICS.linkStrengths.member :
+          l.kind === 'child' ? PHYSICS.linkStrengths.member :
           l.kind === 'cross' ? 0 :
           PHYSICS.linkStrengths.tech))
       .force('center', d3.forceCenter(cx, cy).strength(PHYSICS.centerForceStrength))
@@ -503,7 +528,7 @@ export function TechStackGraph() {
       if (scale < ZOOM.semanticThresholds.showOnlyDomains) {
         // Overview: hide tool nodes and their links, keep domains + center
         nodeG.filter(n => n.kind === 'tool').classed('ts-hidden', true);
-        linkSel.filter(l => l.kind === 'tech' || l.kind === 'member' || l.kind === 'cross').classed('ts-hidden', true);
+        linkSel.filter(l => l.kind === 'tech' || l.kind === 'member' || l.kind === 'cross' || l.kind === 'child').classed('ts-hidden', true);
       } else {
         // Zoomed in: show everything
         nodeG.classed('ts-hidden', false);
