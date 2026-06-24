@@ -22,7 +22,7 @@ describe('techstack data', () => {
     for (const t of TECHSTACK_TOOLS) {
       expect(['sig', 'sup', 'chip']).toContain(t.level);
       expect(Array.isArray(t.icon)).toBe(true);
-      expect(['local', 'cdn', 'mono']).toContain(t.icon[0]);
+      expect(['local', 'cdn', 'lobe', 'mono']).toContain(t.icon[0]);
     }
   });
 
@@ -58,11 +58,14 @@ describe('techstack data', () => {
     expect(n.has('pytorch')).toBe(true); // python—pytorch is a tech link
   });
 
-  it('iconSrc resolves local and cdn and mono', () => {
+  it('iconSrc resolves local, cdn, lobe, and mono', () => {
     const py = TECHSTACK_TOOLS.find(t => t.id === 'python')!;
     expect(iconSrc(py)).toBe('/icons/python.svg');
     const np = TECHSTACK_TOOLS.find(t => t.id === 'numpy')!;
     expect(iconSrc(np)).toContain('devicon');
+    const oa = TECHSTACK_TOOLS.find(t => t.id === 'openai')!;
+    expect(iconSrc(oa)).toContain('lobehub');
+    expect(iconSrc(oa)).toContain('openai-color.svg');
     const sp = TECHSTACK_TOOLS.find(t => t.id === 'scipy')!;
     expect(iconSrc(sp)).toBe(''); // mono has no src
   });

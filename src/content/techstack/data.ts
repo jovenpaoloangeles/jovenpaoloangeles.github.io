@@ -1,4 +1,4 @@
-import { local, cdn, mono, type IconSpec, type ToolLevel } from './icons';
+import { local, cdn, lobe, mono, type IconSpec, type ToolLevel } from './icons';
 
 export interface Domain {
   id: string;
@@ -85,17 +85,17 @@ const RAW = [
     proof: ['JuanaKNOW', 'RAG Chatbot'],
     tools: [
       { id: 'agno', name: 'Agno', level: 'sig', role: 'Multi-agent framework & runtime', icon: local('icons/agno.jpeg') },
-      { id: 'openai', name: 'OpenAI', level: 'sig', role: 'LLM API provider', icon: local('icons/openai.svg') },
-      { id: 'gemini', name: 'Gemini', level: 'sig', role: 'Google generative models', icon: local('icons/gemini.svg') },
-      { id: 'huggingface', name: 'Hugging Face', level: 'sig', role: 'Model hub & transformers', icon: local('icons/huggingface.jpeg') },
+      { id: 'openai', name: 'OpenAI', level: 'sig', role: 'LLM API provider', icon: lobe('openai') },
+      { id: 'gemini', name: 'Gemini', level: 'sig', role: 'Google generative models', icon: lobe('gemini') },
+      { id: 'huggingface', name: 'Hugging Face', level: 'sig', role: 'Model hub & transformers', icon: lobe('huggingface') },
       { id: 'langchain', name: 'LangChain', level: 'sup', role: 'Framework for LLM applications', icon: local('icons/langchain.svg') },
       { id: 'chromadb', name: 'ChromaDB', level: 'sup', role: 'Embedding database for RAG', icon: local('icons/chromadb.svg') },
       { id: 'mcp', name: 'MCP & Tool Use', level: 'sup', role: 'Model Context Protocol & function calling', icon: mono('MCP'), isNew: true },
       { id: 'supabaseedge', name: 'Supabase Edge Fns', level: 'sup', role: 'Serverless (Deno) functions for AI APIs', icon: cdn('supabase/supabase'), isNew: true },
-      { id: 'ollama', name: 'Ollama', level: 'sup', role: 'Local LLM orchestration', icon: local('icons/ollama.svg') },
-      { id: 'openrouter', name: 'OpenRouter', level: 'sup', role: 'Unified API across LLMs', icon: local('icons/openrouter.svg') },
+      { id: 'ollama', name: 'Ollama', level: 'sup', role: 'Local LLM orchestration', icon: lobe('ollama') },
+      { id: 'openrouter', name: 'OpenRouter', level: 'sup', role: 'Unified API across LLMs', icon: lobe('openrouter') },
       { id: 'unsloth', name: 'Unsloth', level: 'sup', role: 'Fast LLM fine-tuning', icon: local('icons/unsloth.png') },
-      { id: 'vllm', name: 'vLLM', level: 'chip', role: 'High-throughput inference', icon: local('icons/vllm.jpeg') },
+      { id: 'vllm', name: 'vLLM', level: 'chip', role: 'High-throughput inference', icon: lobe('vllm') },
     ],
   },
   { id: 'd4', num: '04', name: 'Web Development & Interfaces', short: 'Web & Interfaces',
@@ -122,7 +122,7 @@ const RAW = [
       { id: 'supabase', name: 'Supabase', level: 'sig', role: 'Postgres, storage, auth & edge functions', icon: cdn('supabase/supabase'), isNew: true, also: ['d3'] },
       { id: 'pgvector', name: 'pgvector', level: 'sup', role: 'Vector search inside Postgres', icon: mono('pg'), isNew: true, parent: 'postgresql' },
       { id: 'nginx', name: 'Nginx', level: 'sup', role: 'Reverse proxy', icon: local('icons/nginx.svg') },
-      { id: 'vercel', name: 'Vercel', level: 'sup', role: 'Frontend deployment', icon: local('icons/vercel.svg') },
+      { id: 'vercel', name: 'Vercel', level: 'sup', role: 'Frontend deployment', icon: lobe('vercel') },
       { id: 'prometheus', name: 'Prometheus', level: 'chip', role: 'Metrics & monitoring', icon: local('icons/prometheus.svg') },
       { id: 'opentelemetry', name: 'OpenTelemetry', level: 'chip', role: 'Observability framework', icon: local('icons/opentelemetry.svg') },
       { id: 'openlit', name: 'OpenLit', level: 'chip', role: 'OTel-native LLM observability', icon: local('icons/openlit.png'), parent: 'opentelemetry' },
