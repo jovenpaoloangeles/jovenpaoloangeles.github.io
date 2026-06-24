@@ -172,10 +172,10 @@ export const TECHSTACK_TOOLS: Tool[] = RAW.flatMap((d) =>
     const tool: Tool = {
       id: t.id, name: t.name, domainId: d.id, level: t.level, role: t.role, icon: t.icon,
     };
-    if (t.isNew) tool.isNew = true;
-    if (t.also) tool.also = [...t.also];
-    const parent = (t as NestedTool).parent;
-    if (parent) tool.parent = parent;
+    const nt = t as NestedTool;
+    if (nt.isNew) tool.isNew = true;
+    if (nt.also) tool.also = [...nt.also];
+    if (nt.parent) tool.parent = nt.parent;
     return tool;
   }),
 );
