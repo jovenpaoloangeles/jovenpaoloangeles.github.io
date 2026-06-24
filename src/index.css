@@ -93,6 +93,7 @@
 .ts-link { stroke: hsl(var(--muted-foreground)); stroke-opacity: 0.18; stroke-width: 1; }
 .ts-link.member { stroke-opacity: 0.1; }
 .ts-link.tech { stroke-opacity: 0.3; stroke-dasharray: 4 4; }
+.ts-link.cross { stroke-opacity: 0.22; stroke-dasharray: 2 3; }
 .ts-node { transition: opacity .15s; }
 .ts-node:hover .ts-tile { stroke: hsl(var(--foreground)); }
 .ts-tile { fill: hsl(var(--card)); stroke: hsl(var(--border)); stroke-width: 1; }

@@ -18,4 +18,11 @@ describe('TechStackGraph', () => {
     expect(nodes.length).toBeGreaterThanOrEqual(TECHSTACK_DOMAINS.length);
     expect(container.querySelectorAll('[data-node="tool"]').length).toBeLessThanOrEqual(TECHSTACK_TOOLS.length);
   });
+
+  it('renders a cross link per secondary-domain membership', async () => {
+    const { container } = render(<div style={{ width: 800, height: 500 }}><TechStackGraph /></div>);
+    await new Promise((r) => setTimeout(r, 60));
+    const expected = TECHSTACK_TOOLS.reduce((n, t) => n + (t.also?.length ?? 0), 0);
+    expect(container.querySelectorAll('.ts-link.cross').length).toBe(expected);
+  });
 });

@@ -18,7 +18,7 @@ interface SimNode extends d3.SimulationNodeDatum {
   level?: Tool['level'];
 }
 interface SimLink extends d3.SimulationLinkDatum<SimNode> {
-  kind: 'spoke' | 'member' | 'tech';
+  kind: 'spoke' | 'member' | 'tech' | 'cross';
 }
 
 const CENTER_ID = '__me';
@@ -213,10 +213,14 @@ export function TechStackGraph() {
     const nodes: SimNode[] = [center, ...domNodes, ...toolNodes];
     nodesRef.current = nodes;
 
+    const crossLinks: SimLink[] = TECHSTACK_TOOLS.flatMap<SimLink>((t) =>
+      (t.also ?? []).map((domId) => ({ kind: 'cross', source: t.id, target: domId })),
+    );
     const links: SimLink[] = [
       ...TECHSTACK_DOMAINS.map<SimLink>((d) => ({ kind: 'spoke', source: CENTER_ID, target: d.id })),
       ...TECHSTACK_TOOLS.map<SimLink>((t) => ({ kind: 'member', source: t.domainId, target: t.id })),
       ...TECHSTACK_TECH_LINKS.map<SimLink>(([a, b]) => ({ kind: 'tech', source: a, target: b })),
+      ...crossLinks,
     ];
     linksRef.current = links;
 
@@ -341,6 +345,7 @@ export function TechStackGraph() {
         .strength((l) =>
           l.kind === 'spoke' ? PHYSICS.linkStrengths.spoke :
           l.kind === 'member' ? PHYSICS.linkStrengths.member :
+          l.kind === 'cross' ? 0 :
           PHYSICS.linkStrengths.tech))
       .force('center', d3.forceCenter(cx, cy).strength(PHYSICS.centerForceStrength))
       .alpha(ANIMATION.initialAlpha).alphaDecay(ANIMATION.initialAlphaDecay);
@@ -498,7 +503,7 @@ export function TechStackGraph() {
       if (scale < ZOOM.semanticThresholds.showOnlyDomains) {
         // Overview: hide tool nodes and their links, keep domains + center
         nodeG.filter(n => n.kind === 'tool').classed('ts-hidden', true);
-        linkSel.filter(l => l.kind === 'tech' || l.kind === 'member').classed('ts-hidden', true);
+        linkSel.filter(l => l.kind === 'tech' || l.kind === 'member' || l.kind === 'cross').classed('ts-hidden', true);
       } else {
         // Zoomed in: show everything
         nodeG.classed('ts-hidden', false);
