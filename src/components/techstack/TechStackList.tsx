@@ -44,7 +44,7 @@ export function TechStackList() {
       </p>
 
       {TECHSTACK_DOMAINS.map((d) => {
-        const tools = TECHSTACK_TOOLS.filter((t) => t.domainId === d.id);
+        const tools = TECHSTACK_TOOLS.filter((t) => t.domainId === d.id || t.also?.includes(d.id));
         const group = (lv: ToolLevel) => tools.filter((t) => t.level === lv);
         return (
           <section key={d.id} className="space-y-3">

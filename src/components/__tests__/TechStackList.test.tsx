@@ -22,4 +22,11 @@ describe('TechStackList', () => {
     render(<TechStackList />);
     expect(screen.getAllByText(/Seen in/i).length).toBeGreaterThan(0);
   });
+
+  it('shows a multi-domain tool under each of its domains', () => {
+    render(<TechStackList />);
+    const py = TECHSTACK_TOOLS.find((t) => t.id === 'python')!;
+    // python is primary in d1 and `also` in d2, d4 → appears more than once
+    expect(screen.getAllByText(py.name).length).toBeGreaterThanOrEqual(2);
+  });
 });
