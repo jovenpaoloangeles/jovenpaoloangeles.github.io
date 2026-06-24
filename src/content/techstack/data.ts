@@ -154,6 +154,8 @@ type AllAlso = ToolWithAlso extends { also: infer A }
 const _alsoCheck: AllAlso extends DomainId ? true : `✖ unknown domain id in 'also': ${AllAlso & string}` = true;
 
 // Compile-time guard: every tool's `parent` must be a known tool id.
+// Note: does NOT enforce same-domain constraint — the runtime test in
+// techstack-data.test.ts ('every tool parent…') is the enforcer for that.
 type ToolWithParent = Extract<(typeof RAW)[number]['tools'][number], { parent: string }>;
 type AllParents = ToolWithParent['parent'];
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
