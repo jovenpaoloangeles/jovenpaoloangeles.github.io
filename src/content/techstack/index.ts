@@ -15,7 +15,12 @@ export function domainById(id: string): Domain {
 export function toolsByDomain(): Record<string, Tool[]> {
   const groups: Record<string, Tool[]> = {};
   for (const d of TECHSTACK_DOMAINS) groups[d.id] = [];
-  for (const t of TECHSTACK_TOOLS) groups[t.domainId].push(t);
+  for (const t of TECHSTACK_TOOLS) {
+    groups[t.domainId].push(t);
+    for (const a of t.also ?? []) {
+      if (groups[a]) groups[a].push(t);
+    }
+  }
   return groups;
 }
 

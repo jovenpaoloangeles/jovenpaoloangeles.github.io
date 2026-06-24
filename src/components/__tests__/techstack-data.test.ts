@@ -39,11 +39,17 @@ describe('techstack data', () => {
     expect(domainById('d1').name).toBeTruthy();
   });
 
-  it('toolsByDomain groups tools', () => {
+  it('toolsByDomain groups tools including secondary domains', () => {
     const groups = toolsByDomain();
     expect(Object.keys(groups)).toHaveLength(6);
-    const all = Object.values(groups).flat();
-    expect(all).toHaveLength(TECHSTACK_TOOLS.length);
+    // every tool appears under at least its primary domain
+    for (const t of TECHSTACK_TOOLS) {
+      expect(groups[t.domainId].some((x) => x.id === t.id)).toBe(true);
+    }
+    // a multi-domain tool also appears under each secondary domain
+    for (const d of ['d1', 'd2', 'd4']) {
+      expect(groups[d].some((x) => x.id === 'python')).toBe(true);
+    }
   });
 
   it('neighborsOf returns self + linked tools', () => {
