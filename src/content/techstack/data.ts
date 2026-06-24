@@ -6,15 +6,15 @@ export interface Domain {
   name: string;
   short: string;
   role: string;
-  proof?: string[];
+  proof?: readonly string[];
 }
 
 export interface Tool {
   id: string;
   name: string;
   domainId: string;
-  also?: string[];      // NEW — secondary domain ids
-  parent?: string;      // NEW — id of parent tool (same domain, single level only)
+  also?: readonly string[];
+  parent?: string;
   level: ToolLevel;
   role: string;
   icon: IconSpec;
@@ -161,11 +161,7 @@ type AllParents = ToolWithParent['parent'];
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _parentCheck: AllParents extends ToolId ? true : `✖ unknown tool id in 'parent': ${AllParents & string}` = true;
 
-export const TECHSTACK_DOMAINS: Domain[] = RAW.map((d) => {
-  const domain: Domain = { id: d.id, num: d.num, name: d.name, short: d.short, role: d.role };
-  if (d.proof) domain.proof = [...d.proof];
-  return domain;
-});
+export const TECHSTACK_DOMAINS: Domain[] = RAW.map(({ tools: _tools, ...d }) => d);
 
 export const TECHSTACK_TOOLS: Tool[] = RAW.flatMap((d) =>
   d.tools.map((t) => {
@@ -174,8 +170,13 @@ export const TECHSTACK_TOOLS: Tool[] = RAW.flatMap((d) =>
     };
     const nt = t as NestedTool;
     if (nt.isNew) tool.isNew = true;
-    if (nt.also) tool.also = [...nt.also];
+    if (nt.also) tool.also = nt.also;
     if (nt.parent) tool.parent = nt.parent;
     return tool;
   }),
 );
+
+export const TOOLS_BY_ID: Record<ToolId, Tool> = TECHSTACK_TOOLS.reduce((acc, tool) => {
+  acc[tool.id as ToolId] = tool;
+  return acc;
+}, {} as Record<ToolId, Tool>);
