@@ -63,9 +63,9 @@ describe('techstack data', () => {
     expect(iconSrc(py)).toBe('/icons/python.svg');
     const np = TECHSTACK_TOOLS.find(t => t.id === 'numpy')!;
     expect(iconSrc(np)).toContain('devicon');
-    const oa = TECHSTACK_TOOLS.find(t => t.id === 'openai')!;
-    expect(iconSrc(oa)).toContain('lobehub');
-    expect(iconSrc(oa)).toContain('openai-color.svg');
+    const cl = TECHSTACK_TOOLS.find(t => t.id === 'claude')!;
+    expect(iconSrc(cl)).toContain('lobehub');
+    expect(iconSrc(cl)).toContain('claude-color.svg');
     const gp = TECHSTACK_TOOLS.find(t => t.id === 'gpytorch')!;
     expect(iconSrc(gp)).toBe(''); // mono has no src
   });
