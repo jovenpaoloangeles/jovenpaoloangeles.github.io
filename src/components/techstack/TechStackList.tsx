@@ -3,7 +3,7 @@ import { TECHSTACK_DOMAINS, TECHSTACK_TOOLS, type Tool, type ToolLevel } from '@
 import { TechIcon } from './icon';
 import { cn } from '@/lib/utils';
 
-function ToolCard({ tool, tier }: { tool: Tool; tier: 'sig' | 'sup' }) {
+function ToolCard({ tool, tier, parentName }: { tool: Tool; tier: 'sig' | 'sup'; parentName?: string }) {
   return (
     <div
       className={cn(
@@ -27,6 +27,9 @@ function ToolCard({ tool, tier }: { tool: Tool; tier: 'sig' | 'sup' }) {
             </span>
           )}
         </span>
+        {parentName && (
+          <p className="mt-0 text-[0.6rem] text-muted-foreground">↳ {parentName}</p>
+        )}
         {tier === 'sig' && (
           <p className="mt-0.5 text-xs leading-snug text-muted-foreground">{tool.role}</p>
         )}
@@ -36,6 +39,7 @@ function ToolCard({ tool, tier }: { tool: Tool; tier: 'sig' | 'sup' }) {
 }
 
 export function TechStackList() {
+  const toolById = new Map(TECHSTACK_TOOLS.map((t) => [t.id, t]));
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }} className="space-y-10">
       <p className="max-w-prose text-sm text-muted-foreground">
@@ -59,12 +63,26 @@ export function TechStackList() {
 
             {group('sig').length > 0 && (
               <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                {group('sig').map((t) => <ToolCard key={t.id} tool={t} tier="sig" />)}
+                {group('sig').map((t) => (
+                  <ToolCard
+                    key={t.id}
+                    tool={t}
+                    tier="sig"
+                    parentName={t.parent ? toolById.get(t.parent)?.name : undefined}
+                  />
+                ))}
               </div>
             )}
             {group('sup').length > 0 && (
               <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-                {group('sup').map((t) => <ToolCard key={t.id} tool={t} tier="sup" />)}
+                {group('sup').map((t) => (
+                  <ToolCard
+                    key={t.id}
+                    tool={t}
+                    tier="sup"
+                    parentName={t.parent ? toolById.get(t.parent)?.name : undefined}
+                  />
+                ))}
               </div>
             )}
             {group('chip').length > 0 && (

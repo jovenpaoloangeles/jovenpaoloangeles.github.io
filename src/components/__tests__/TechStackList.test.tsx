@@ -29,4 +29,11 @@ describe('TechStackList', () => {
     // python is primary in d1 and `also` in d2, d4 → appears more than once
     expect(screen.getAllByText(py.name).length).toBeGreaterThanOrEqual(2);
   });
+
+  it('shows parent indicator on child tool cards', () => {
+    render(<TechStackList />);
+    const indicators = screen.getAllByText(/↳/);
+    expect(indicators.length).toBeGreaterThan(0);
+    expect(indicators.some((el) => el.textContent?.includes('PostgreSQL'))).toBe(true);
+  });
 });
