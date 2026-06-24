@@ -7,7 +7,7 @@ export const BOUNDARY_PADDING = 24;
 // Physics parameters
 export const PHYSICS = {
   charge: { center: -600, domain: -250, tool: -35 },
-  radialRings: { innerFactor: 0.32, outerFactor: 0.55 },
+  radialRings: { innerFactor: 0.32 },
   radialStrength: 0.7,
   // Tools ring around their own domain at a radius that scales with tool count
   toolRing: { minRadius: 44, perTool: 7 },

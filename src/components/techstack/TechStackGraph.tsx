@@ -95,7 +95,6 @@ export function TechStackGraph() {
     const cx = w / 2;
     const cy = h / 2;
     const R1 = Math.min(w, h) * PHYSICS.radialRings.innerFactor;
-    const R2 = Math.min(w, h) * PHYSICS.radialRings.outerFactor;
 
     // Update SVG viewBox
     d3.select(svgRef.current).attr('viewBox', `0 0 ${w} ${h}`);
@@ -108,7 +107,7 @@ export function TechStackGraph() {
         cx, cy
       ).strength(PHYSICS.radialStrength));
 
-    // Update link distances based on new R1/R2
+    // Update link distances based on new R1
     const linkForce = simulationRef.current.force('link') as d3.ForceLink<SimNode, SimLink>;
     if (linkForce) {
       linkForce.distance((l) => {
@@ -177,7 +176,6 @@ export function TechStackGraph() {
     const cy = h / 2;
 
     const R1 = Math.min(w, h) * PHYSICS.radialRings.innerFactor;
-    const R2 = Math.min(w, h) * PHYSICS.radialRings.outerFactor;
 
     // Seed domains on a symmetric ring so the simulation starts balanced — random
     // initial positions can freeze mid-convergence and produce a persistent drift.
@@ -248,8 +246,8 @@ export function TechStackGraph() {
 
       // Find all first-degree neighbors
       linksRef.current.forEach(link => {
-        const srcId = typeof link.source === 'string' ? link.source : link.source.id;
-        const tgtId = typeof link.target === 'string' ? link.target : link.target.id;
+        const srcId = typeof link.source === 'string' ? link.source : (link.source as SimNode).id;
+        const tgtId = typeof link.target === 'string' ? link.target : (link.target as SimNode).id;
 
         if (srcId === nodeId) connected.add(tgtId);
         if (tgtId === nodeId) connected.add(srcId);
@@ -260,8 +258,8 @@ export function TechStackGraph() {
 
       // Dim links not connected to selected node
       linkSel.classed('dimmed', l => {
-        const srcId = typeof l.source === 'string' ? l.source : l.source.id;
-        const tgtId = typeof l.target === 'string' ? l.target : l.target.id;
+        const srcId = typeof l.source === 'string' ? l.source : (l.source as SimNode).id;
+        const tgtId = typeof l.target === 'string' ? l.target : (l.target as SimNode).id;
         return srcId !== nodeId && tgtId !== nodeId;
       });
     };
@@ -462,24 +460,32 @@ export function TechStackGraph() {
     let pressX = 0, pressY = 0, didDrag = false;
     const drag = d3.drag<SVGGElement, SimNode>()
       .clickDistance(CLICK_THRESHOLD)
-      .on('start', (e, n) => {
+      .on('start', (e) => {
         pressX = e.x; pressY = e.y; didDrag = false;
       })
       .on('drag', (e, n) => {
         if (n.kind === 'center') return;
         if (!didDrag && Math.hypot(e.x - pressX, e.y - pressY) >= CLICK_THRESHOLD) {
           didDrag = true; // promote the gesture to a real drag
-          if (!e.active) sim.alphaTarget(ANIMATION.dragAlphaTarget).restart();
+          // Reheat so the simulation ticks while we drag. This must NOT be gated on
+          // !e.active: during 'drag' events e.active is already 1, so that guard would
+          // skip the reheat, leave the settled sim cold, and the node — whose position
+          // is repainted only in the tick handler — would never move even though fx/fy
+          // are set. (The node visually "freezes": click works, drag does not.)
+          sim.alphaTarget(ANIMATION.dragAlphaTarget).restart();
         }
         if (didDrag) { n.fx = e.x; n.fy = e.y; }
       })
-      .on('end', (e, n) => {
+      .on('end', (_event, n) => {
         if (didDrag) {
-          if (!e.active) sim.alphaTarget(0);
+          sim.alphaTarget(0); // cool down now that the drag is over (gated by didDrag)
           if (n.kind !== 'center') { n.fx = null; n.fy = null; } // release after a real drag
         }
       });
-    nodeG.call(drag);
+    // d3's DragBehavior and Selection generics don't unify across .call (the node
+    // selection's first generic is BaseType|SVGGElement); assert nodeG as the exact
+    // selection type the behavior expects so the call type-checks.
+    (nodeG as unknown as Parameters<typeof drag>[0]).call(drag);
 
     // Selection — fires for clicks (movement <= clickDistance); suppressed after a drag.
     nodeG.on('click', (event, node) => {
