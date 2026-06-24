@@ -30,9 +30,7 @@ function ToolCard({ tool, tier, parentName }: { tool: Tool; tier: 'sig' | 'sup';
         {parentName && (
           <p className="mt-0 text-[0.6rem] text-muted-foreground">↳ {parentName}</p>
         )}
-        {tier === 'sig' && (
-          <p className="mt-0.5 text-xs leading-snug text-muted-foreground">{tool.role}</p>
-        )}
+        <p className="mt-0.5 text-xs leading-snug text-muted-foreground">{tool.role}</p>
       </div>
     </div>
   );
