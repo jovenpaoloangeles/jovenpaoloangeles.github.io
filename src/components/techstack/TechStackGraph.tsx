@@ -266,7 +266,8 @@ export function TechStackGraph() {
       .attr('data-id', (n) => n.id)
       .style('cursor', 'pointer');
 
-    const popoverG = root.append('g').attr('class', 'ts-popover-container');
+    // Popover lives OUTSIDE the root group so it's not affected by zoom transform
+    const popoverG = svg.append('g').attr('class', 'ts-popover-container');
 
     // Spotlight dimming effect
     const activateSpotlight = (nodeId: string) => {
@@ -471,12 +472,53 @@ export function TechStackGraph() {
       popoverG.selectAll('*').remove();
     };
 
+    // Update popover position based on current node position and zoom transform
+    const updatePopoverPosition = () => {
+      if (!selectedIdRef.current) {
+        popoverG.attr('transform', null);
+        return;
+      }
+
+      const node = nodes.find(n => n.id === selectedIdRef.current);
+      if (!node || node.x == null || node.y == null) {
+        popoverG.attr('transform', null);
+        return;
+      }
+
+      // Get canvas dimensions
+      const { w: cw, h: ch } = sizeRef.current;
+
+      // Get the current zoom transform
+      const transform = d3.zoomTransform(svgEl);
+
+      // Apply zoom transform to get screen coordinates
+      const screenX = node.x * transform.k + transform.x;
+      const screenY = node.y * transform.k + transform.y;
+
+      // Get visible viewport in screen coordinates
+      const visibleX = -transform.x;
+      const visibleY = -transform.y;
+      const visibleW = cw * transform.k;
+      const visibleH = ch * transform.k;
+
+      const popW = 224, popH = 180, gap = 18;
+      let px = screenX + gap;
+      if (px + popW > visibleX + visibleW - 4) px = screenX - popW - gap; // not enough room right → left
+      if (px < visibleX + 4) px = Math.min(Math.max(screenX - popW / 2, visibleX + 4), visibleX + visibleW - popW - 4); // clamp center
+      let py = screenY - popH - gap; // prefer above
+      if (py < visibleY + 4) py = screenY + gap; // not enough room above → below
+      if (py + popH > visibleY + visibleH - 4) py = Math.max(visibleY + 4, visibleY + visibleH - popH - 4); // clamp bottom
+      popoverG.attr('transform', `translate(${px},${py})`);
+    };
+
     // Selecting a node: pin it, spotlight its connections, show the popover.
     const selectNode = (node: SimNode) => {
       node.fx = node.x; node.fy = node.y; // pin while open
       selectedIdRef.current = node.id;
       activateSpotlight(node.id);
       renderPopoverInSVG(popoverG, node, handleClosePopover);
+      // Restart simulation so the tick handler runs to position the popover
+      sim.alpha(0.3).restart();
     };
 
     // Drag vs click are decoupled:
@@ -542,6 +584,7 @@ export function TechStackGraph() {
       .on('zoom', (event) => {
         root.attr('transform', event.transform.toString());
         applySemanticZoom(event.transform.k);
+        updatePopoverPosition(); // Update popover position when zooming/panning
       });
     svg.call(zoom);
     // Apply initial visibility state (zoom handler only fires on user interaction)
@@ -569,21 +612,8 @@ export function TechStackGraph() {
         .attr('x1', (l) => (l.source as SimNode).x!).attr('y1', (l) => (l.source as SimNode).y!)
         .attr('x2', (l) => (l.target as SimNode).x!).attr('y2', (l) => (l.target as SimNode).y!);
 
-      // Update popover position if active — keep the box on-screen by flipping
-      // above/below and left/right based on the node's position in the viewport.
-      if (selectedIdRef.current) {
-        const node = nodes.find(n => n.id === selectedIdRef.current);
-        if (node && node.x != null && node.y != null) {
-          const popW = 224, popH = 180, gap = 18;
-          let px = node.x + gap;
-          if (px + popW > cw - 4) px = node.x - popW - gap; // not enough room right → left
-          if (px < 4) px = Math.min(Math.max(node.x - popW / 2, 4), cw - popW - 4); // clamp center
-          let py = node.y - popH - gap; // prefer above
-          if (py < 4) py = node.y + gap; // not enough room above → below
-          if (py + popH > ch - 4) py = Math.max(4, ch - popH - 4); // clamp bottom
-          popoverG.attr('transform', `translate(${px},${py})`);
-        }
-      }
+      // Update popover position if active
+      updatePopoverPosition();
     });
 
     return () => {
