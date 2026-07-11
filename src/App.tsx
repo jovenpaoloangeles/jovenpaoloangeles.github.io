@@ -209,7 +209,7 @@ function App() {
 
   return (
     <>
-    <div className="min-h-screen bg-background">
+    <main className="min-h-screen w-full max-w-full overflow-x-hidden bg-background">
       <div className="container px-4 py-12 mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -280,7 +280,7 @@ function App() {
           </div>
         </motion.div>
       </div>
-    </div>
+    </main>
     <ChatbotWidget />
     </>
   );
