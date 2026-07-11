@@ -23,6 +23,11 @@ dist-ssr
 *.sln
 *.sw?
 *.md
+
+# Private review documents — never commit (kept explicit even though *.md covers them)
+UI_UX_DESIGN_RECOMMENDATIONS.md
+PORTFOLIO_CRITIQUE.md
+PORTFOLIO_ADVISE.md
 .superpowers/
 .playwright-mcp/
 codedb.snapshot

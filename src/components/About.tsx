@@ -2,14 +2,16 @@ import { motion } from 'framer-motion';
 import { Briefcase, Download, FlaskConical, Mail, Printer, Users, Github, Cpu } from 'lucide-react';
 import { GitHubCalendar } from 'react-github-calendar';
 import { useTheme } from '@/hooks/useTheme';
+import { reveal } from '@/lib/motion';
 
 export function About() {
   const { theme } = useTheme();
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
+      variants={reveal}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, margin: '-12%' }}
     >
 <div className="grid md:grid-cols-[auto_1fr] gap-x-6 gap-y-8 items-start">
   
