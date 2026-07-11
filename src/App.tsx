@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Sun, Moon } from 'lucide-react';
 import { Header } from './components/Header';
 import { useTheme } from './hooks/useTheme';
+import { reveal } from '@/lib/motion';
 import { About } from './components/About';
 const Research = lazy(() =>
   import('./components/Research').then((m) => ({ default: m.Research }))
@@ -212,9 +213,10 @@ function App() {
     <main className="min-h-screen w-full max-w-full overflow-x-hidden bg-background">
       <div className="container px-4 py-12 mx-auto">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          variants={reveal}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: '-12%' }}
           className="grid gap-6 lg:grid-cols-3"
         >
           <Header />

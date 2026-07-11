@@ -56,7 +56,7 @@ export function Achievements() {
     <section id="achievements" className="py-16 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <h2 className="font-display tracking-tight leading-[1.05] text-[var(--step-h2)] text-foreground sm:text-4xl">
+          <h2 className="font-display tracking-tight leading-[1.05] text-[var(--step-h2)] text-foreground">
             Academic Achievements
           </h2>
           <p className="mt-3 max-w-2xl mx-auto text-xl text-muted-foreground sm:mt-4">

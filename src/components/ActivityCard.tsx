@@ -30,7 +30,6 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
       initial="hidden"
       animate={isMounted ? "show" : "hidden"}
       exit={{ opacity: 0, y: -20 }}
-      viewport={{ once: true, margin: '-12%' }}
     >
       <Card className="p-4 hover:shadow-lg transition-all duration-200">
         <div className="flex items-start justify-between">
