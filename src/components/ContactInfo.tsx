@@ -57,7 +57,7 @@ export function ContactInfo() {
 
   return (
     <div className="space-y-2">
-      <h3 className="font-semibold text-primary">Contact</h3>
+      <h3 className="font-mono text-xs font-medium uppercase tracking-wider text-muted-foreground">Contact</h3>
 
       {/* Email Address */}
       <div className="flex justify-center">

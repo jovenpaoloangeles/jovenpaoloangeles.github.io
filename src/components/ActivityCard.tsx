@@ -4,6 +4,7 @@ import { Card } from './ui/card';
 import type { Activity } from './types';
 import { formatDistanceToNow, format } from 'date-fns';
 import { useState, useEffect } from 'react';
+import { reveal } from '@/lib/motion';
 
 interface ActivityCardProps {
   activity: Activity;
@@ -16,21 +17,8 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
   useEffect(() => {
     setIsMounted(true);
   }, []);
-  // Type-specific styling with consistent color scheme
-  const getTypeColor = (type: Activity['type'][number]) => {
-    switch (type) {
-      case 'blog':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300';
-      case 'research':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300';
-      case 'achievement':
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300';
-      case 'photography':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
-    }
-  };
+
+  const achromaticBadge = 'inline-flex items-center rounded-md border border-border bg-muted px-2 py-0.5 font-mono text-[0.65rem] uppercase tracking-wide text-foreground';
 
   // Format dates for both tooltip and display
   const formattedDate = format(new Date(activity.timestamp), 'MMMM d, yyyy');
@@ -38,10 +26,11 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: isMounted ? 1 : 0, y: isMounted ? 0 : 20 }}
+      variants={reveal}
+      initial="hidden"
+      animate={isMounted ? "show" : "hidden"}
       exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3 }}
+      viewport={{ once: true, margin: '-12%' }}
     >
       <Card className="p-4 hover:shadow-lg transition-all duration-200">
         <div className="flex items-start justify-between">
@@ -49,15 +38,15 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
             {/* Header with type badges and timestamp */}
             <div className="flex items-center gap-2 flex-wrap">
               {activity.type.map((type) => (
-                <span 
+                <span
                   key={type}
-                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${getTypeColor(type)}`}
+                  className={achromaticBadge}
                   role="status"
                 >
                   {type.charAt(0).toUpperCase() + type.slice(1)}
                 </span>
               ))}
-              <time 
+              <time
                 className="flex items-center text-sm text-muted-foreground"
                 dateTime={activity.timestamp.toISOString()}
                 title={formattedDate}

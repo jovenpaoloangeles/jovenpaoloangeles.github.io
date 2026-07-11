@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, Award, Wrench, MapPin, ExternalLink } from 'lucide-react';
+import { reveal } from '@/lib/motion';
 import {
   Accordion,
   AccordionContent,
@@ -98,7 +99,7 @@ const SubmittedCard = ({ publication }: { publication: SubmittedPublication }) =
         <p className="text-sm text-muted-foreground mt-1">{highlightName(publication.authors)}</p>
         <div className="mt-2 space-y-1">
           <p className="text-sm text-muted-foreground italic">{publication.journal}</p>
-          <span className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-semibold text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300">
+          <span className="inline-flex items-center rounded-md border border-border bg-muted px-2 py-0.5 font-mono text-[0.65rem] uppercase tracking-wide text-muted-foreground">
             {publication.status}
           </span>
         </div>
@@ -116,7 +117,7 @@ const InPreparationCard = ({ publication }: { publication: InPreparationPublicat
         <p className="text-sm text-muted-foreground mt-1">{highlightName(publication.authors)}</p>
         <div className="mt-2 space-y-1">
           <p className="text-sm text-muted-foreground italic">{publication.journal}</p>
-          <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">
+          <span className="inline-flex items-center rounded-md border border-border bg-muted px-2 py-0.5 font-mono text-[0.65rem] uppercase tracking-wide text-muted-foreground">
             {publication.status}
           </span>
         </div>
@@ -259,14 +260,15 @@ export function Research() {
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
+      variants={reveal}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, margin: '-12%' }}
       className="space-y-6"
     >
       <Accordion type="multiple" defaultValue={['experience']} className="w-full space-y-4">
         <AccordionItem value="experience">
-          <AccordionTrigger className="text-2xl font-serif text-foreground py-4">
+          <AccordionTrigger className="text-2xl font-display text-foreground py-4">
             Research Experience
           </AccordionTrigger>
           <AccordionContent>
@@ -280,7 +282,7 @@ export function Research() {
 
         {content.publications && (
           <AccordionItem value="publications">
-            <AccordionTrigger className="text-2xl font-serif text-foreground py-4">
+            <AccordionTrigger className="text-2xl font-display text-foreground py-4">
               Publications
             </AccordionTrigger>
             <AccordionContent>
@@ -329,7 +331,7 @@ export function Research() {
         )}
 
         <AccordionItem value="books">
-          <AccordionTrigger className="text-2xl font-serif text-foreground py-4">
+          <AccordionTrigger className="text-2xl font-display text-foreground py-4">
             Books and Book Chapters
           </AccordionTrigger>
           <AccordionContent>
@@ -342,7 +344,7 @@ export function Research() {
         </AccordionItem>
 
         <AccordionItem value="conferences">
-          <AccordionTrigger className="text-2xl font-serif text-foreground py-4">
+          <AccordionTrigger className="text-2xl font-display text-foreground py-4">
             Conference Presentations
           </AccordionTrigger>
           <AccordionContent>
@@ -356,7 +358,7 @@ export function Research() {
 
         {content.certifications && content.certifications.length > 0 && (
           <AccordionItem value="certifications">
-            <AccordionTrigger className="text-2xl font-serif text-foreground py-4">
+            <AccordionTrigger className="text-2xl font-display text-foreground py-4">
               Certifications
             </AccordionTrigger>
             <AccordionContent>

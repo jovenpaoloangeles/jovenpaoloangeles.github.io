@@ -50,7 +50,7 @@ export function Certifications() {
 
   return (
     <div className="space-y-2">
-      <h3 className="font-semibold text-primary">Certifications</h3>
+      <h3 className="font-mono text-xs font-medium uppercase tracking-wider text-muted-foreground">Certifications</h3>
       <Accordion type="multiple" className="w-full">
         {certifications.map((cert, index) => (
           <AccordionItem value={`item-${index}`} key={index}>

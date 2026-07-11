@@ -13,7 +13,7 @@ export function ResearchInterests() {
 
   return (
     <div className="space-y-2">
-      <h3 className="font-semibold text-primary">Research Interests</h3>
+      <h3 className="font-mono text-xs font-medium uppercase tracking-wider text-muted-foreground">Research Interests</h3>
       <div className="flex flex-wrap justify-center gap-2 text-sm text-muted-foreground">
         {interests.map((interest, index) => (
           <Badge key={index}>
