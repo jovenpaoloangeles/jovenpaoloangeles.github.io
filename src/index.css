@@ -30,7 +30,7 @@
     --secondary-foreground: 0 0% 15%;
  
     --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
+    --muted-foreground: 0 0% 42%;
  
     --accent: 0 0% 94%;
     --accent-foreground: 0 0% 15%;
@@ -43,6 +43,15 @@
     --ring: 0 0% 12%;
  
     --radius: 0.5rem;
+    /* Fluid type scale */
+    --step-display: clamp(2.25rem, 1.4rem + 3.4vw, 4rem);
+    --step-h2: clamp(1.5rem, 1.2rem + 1.4vw, 2.25rem);
+    --step-h3: clamp(1.125rem, 1rem + 0.6vw, 1.375rem);
+    /* Section rhythm */
+    --section-y: clamp(3.5rem, 2rem + 6vw, 7rem);
+    /* Optional near-imperceptible brand accent (cool steel). Leave unused to stay pure grayscale. */
+    --brand: 215 14% 50%;
+    --brand-foreground: 0 0% 100%;
   }
  
   .dark {
@@ -73,12 +82,15 @@
     --border: 0 0% 18%;
     --input: 0 0% 18%;
     --ring: 0 0% 83.9%;
+    --brand: 215 18% 62%;
+    --brand-foreground: 0 0% 8%;
   }
 
   /* Theme-aware default text/background. Without this, elements with no explicit
      text color (e.g. the chatbot input) inherit the browser default (black) and
      become unreadable in dark mode. */
   body {
+    font-family: '"Geist Variable"', Geist, ui-sans-serif, system-ui, sans-serif;
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
   }

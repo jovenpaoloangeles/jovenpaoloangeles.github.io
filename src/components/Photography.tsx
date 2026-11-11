@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Camera } from 'lucide-react';
 import Carousel from './Carousel';
 import { FullscreenViewer } from './FullscreenViewer';
+import { reveal } from '@/lib/motion';
 
 export function Photography() {
   // State for fullscreen viewer
@@ -141,15 +142,16 @@ export function Photography() {
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
+      variants={reveal}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, margin: '-12%' }}
       className="space-y-8"
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Camera className="w-5 h-5 text-primary" />
-          <h2 className="text-2xl font-serif text-foreground">Photography Portfolio</h2>
+          <h2 className="font-display tracking-tight leading-[1.05] text-[var(--step-h2)] text-foreground">Photography Portfolio</h2>
         </div>
       </div>
 
@@ -157,9 +159,11 @@ export function Photography() {
         {categories.map((category, categoryIndex) => (
           <motion.div
             key={categoryIndex}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: categoryIndex * 0.1 }}
+            variants={reveal}
+            custom={categoryIndex}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: '-12%' }}
             className="group relative overflow-hidden rounded-xl bg-muted aspect-[4/3] cursor-pointer"
             onClick={() => handleImageClick(categoryIndex, 0)}
           >

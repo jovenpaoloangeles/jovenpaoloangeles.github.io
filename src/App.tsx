@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Sun, Moon } from 'lucide-react';
 import { Header } from './components/Header';
 import { useTheme } from './hooks/useTheme';
+import { reveal } from '@/lib/motion';
 import { About } from './components/About';
 const Research = lazy(() =>
   import('./components/Research').then((m) => ({ default: m.Research }))
@@ -32,6 +33,12 @@ const RecentActivities = lazy(() =>
   }))
 );
 
+const ChatbotWidget = lazy(() =>
+  import('./components/ChatbotWidget').then((m) => ({
+    default: m.ChatbotWidget,
+  }))
+);
+
 function TabFallback() {
   return (
     <div className="flex items-center justify-center py-12">
@@ -39,8 +46,6 @@ function TabFallback() {
     </div>
   );
 }
-
-import { ChatbotWidget } from './components/ChatbotWidget';
 
 // Define tab interface for better type safety
 interface Tab {
@@ -171,6 +176,10 @@ function App() {
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    const target = event.target as HTMLElement;
+    if (!target.closest('[role="tab"]')) {
+      return; // theme toggle & other non-tab children keep their keys
+    }
     const currentIndex = TABS.findIndex((tab) => tab.value === activeTab);
     if (currentIndex === -1) {
       return;
@@ -209,12 +218,13 @@ function App() {
 
   return (
     <>
-    <div className="min-h-screen bg-background">
+    <main className="min-h-screen w-full max-w-full overflow-x-hidden bg-background">
       <div className="container px-4 py-12 mx-auto">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          variants={reveal}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: '-12%' }}
           className="grid gap-6 lg:grid-cols-3"
         >
           <Header />
@@ -280,8 +290,10 @@ function App() {
           </div>
         </motion.div>
       </div>
-    </div>
-    <ChatbotWidget />
+    </main>
+    <Suspense fallback={null}>
+      <ChatbotWidget />
+    </Suspense>
     </>
   );
 }

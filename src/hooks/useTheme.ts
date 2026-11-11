@@ -9,7 +9,8 @@ function getInitialTheme(): Theme {
   if (stored === 'light' || stored === 'dark') {
     return stored;
   }
-  return 'light';
+  // No stored choice → follow the system, matching the index.html boot script.
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
 export function useTheme() {
@@ -17,11 +18,16 @@ export function useTheme() {
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
-    localStorage.setItem(STORAGE_KEY, theme);
   }, [theme]);
 
+  // Only an explicit toggle persists; a system-following mount must not write
+  // a choice, or the system preference is permanently overridden.
   const toggleTheme = useCallback(() => {
-    setThemeState((prev) => (prev === 'dark' ? 'light' : 'dark'));
+    setThemeState((prev) => {
+      const next = prev === 'dark' ? 'light' : 'dark';
+      localStorage.setItem(STORAGE_KEY, next);
+      return next;
+    });
   }, []);
 
   return { theme, toggleTheme };

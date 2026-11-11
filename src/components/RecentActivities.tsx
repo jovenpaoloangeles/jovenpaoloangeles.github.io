@@ -5,6 +5,7 @@ import { Input } from './ui/input';
 import { ActivityCard } from './ActivityCard';
 import { Activity } from './types';
 import { loadActivities } from '@/lib/content';
+import { reveal } from '@/lib/motion';
 
 const ITEMS_PER_PAGE = 5;
 type AsyncState = 'idle' | 'loading' | 'success' | 'error';
@@ -15,13 +16,7 @@ export function RecentActivities() {
   const [currentPage, setCurrentPage] = useState(1);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [status, setStatus] = useState<AsyncState>('idle');
-  // Track initial mount for animation
-  const [isMounted, setIsMounted] = useState(false);
   const topRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   useEffect(() => {
     let isActive = true;
@@ -73,13 +68,14 @@ export function RecentActivities() {
   return (
     <motion.div
       ref={topRef}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: isMounted ? 1 : 0 }}
-      transition={{ duration: 0.5 }}
+      variants={reveal}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, margin: '-12%' }}
       className="space-y-6"
     >
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-serif text-foreground">Recent Activities</h2>
+        <h2 className="font-display tracking-tight leading-[1.05] text-[var(--step-h2)] text-foreground">Recent Activities</h2>
       </div>
 
       {status !== 'success' && (

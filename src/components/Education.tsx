@@ -3,7 +3,7 @@ import { GraduationCap, School } from 'lucide-react';
 export function Education() {
   return (
     <div className="space-y-2">
-      <h3 className="font-semibold text-primary">Education</h3>
+      <h3 className="font-mono text-xs font-medium uppercase tracking-wider text-muted-foreground">Education</h3>
       <div className="space-y-2">
         <div className="flex items-start gap-2">
           <School className="w-4 h-4 mt-1 text-primary shrink-0" />

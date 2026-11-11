@@ -56,7 +56,7 @@ export function Achievements() {
     <section id="achievements" className="py-16 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <h2 className="text-3xl font-extrabold text-foreground sm:text-4xl font-serif">
+          <h2 className="font-display tracking-tight leading-[1.05] text-[var(--step-h2)] text-foreground">
             Academic Achievements
           </h2>
           <p className="mt-3 max-w-2xl mx-auto text-xl text-muted-foreground sm:mt-4">
@@ -68,7 +68,7 @@ export function Achievements() {
             <div key={category.category} className="space-y-8">
               <div className="text-center">
                 <div className="flex items-center justify-center">
-                  <category.icon className="h-8 w-8 text-blue-600" />
+                  <category.icon className="h-8 w-8 text-muted-foreground" />
                 </div>
                 <h3 className="mt-2 text-lg font-semibold text-foreground">
                   {category.category}
@@ -83,7 +83,7 @@ export function Achievements() {
                     <h4 className="text-lg font-semibold text-foreground">
                       {item.title}
                     </h4>
-                    <p className="mt-1 text-sm text-blue-600">{item.year}</p>
+                    <p className="mt-1 font-mono text-xs text-muted-foreground">{item.year}</p>
                     <p className="mt-2 text-sm text-muted-foreground">
                       {item.description}
                     </p>
