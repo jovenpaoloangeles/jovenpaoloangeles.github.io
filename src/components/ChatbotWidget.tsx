@@ -140,6 +140,10 @@ export function ChatbotWidget() {
     };
 
     setMessages((prev) => [...prev, userMessage]);
+    // Persist the user message immediately: the streaming guard is already on,
+    // so the persistence effect would skip it, and error paths below rely on
+    // this being written before anything can fail.
+    localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify([...messages, userMessage]));
     setInput('');
     setIsLoading(true);
     setError(null);
@@ -251,6 +255,8 @@ export function ChatbotWidget() {
       // user doesn't see a permanent empty assistant message after an error.
       if (hoistedAssistantId) {
         const failedId = hoistedAssistantId;
+        // flip before the fill so it persists
+        isStreamingRef.current = false;
         setMessages((prev) =>
           prev.map((m) =>
             m.id === failedId && m.content === ''
