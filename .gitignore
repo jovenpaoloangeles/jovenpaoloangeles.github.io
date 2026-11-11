@@ -31,4 +31,4 @@ PORTFOLIO_CRITIQUE.md
 PORTFOLIO_ADVISE.md
 .superpowers/
 .playwright-mcp/
-codedb.snapshot
+codedb.snapshot*.tsbuildinfo
