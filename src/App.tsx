@@ -32,6 +32,12 @@ const RecentActivities = lazy(() =>
   }))
 );
 
+const ChatbotWidget = lazy(() =>
+  import('./components/ChatbotWidget').then((m) => ({
+    default: m.ChatbotWidget,
+  }))
+);
+
 function TabFallback() {
   return (
     <div className="flex items-center justify-center py-12">
@@ -39,8 +45,6 @@ function TabFallback() {
     </div>
   );
 }
-
-import { ChatbotWidget } from './components/ChatbotWidget';
 
 // Define tab interface for better type safety
 interface Tab {
@@ -285,7 +289,9 @@ function App() {
         </motion.div>
       </div>
     </div>
-    <ChatbotWidget />
+    <Suspense fallback={null}>
+      <ChatbotWidget />
+    </Suspense>
     </>
   );
 }
