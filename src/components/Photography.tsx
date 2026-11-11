@@ -58,7 +58,7 @@ export function Photography() {
         "/photography/Minimalism/DSC02609.webp",
         "/photography/Minimalism/DSC06181.webp",
         "/photography/Minimalism/DSC06234.webp",
-        "/photography/Minimalism/DSC08217 1.webp",
+        "/photography/Minimalism/DSC08217_1.webp",
         "/photography/Minimalism/DSC08818.webp"
       ],
       description: "The art of simplicity."
