@@ -25,7 +25,7 @@ export function Header() {
     <div className="bg-card rounded-lg shadow-sm p-6">
       <div className="text-center">
         <ProfileCarousel />
-        <h1 className="font-display tracking-tight leading-[1.05] text-[var(--step-display)] text-foreground">Joven Paolo Angeles</h1>
+        <h1 className="font-display tracking-tight leading-[1.05] text-[length:var(--step-display)] text-foreground">Joven Paolo Angeles</h1>
         <TypeAnimation
           sequence={sequence}
           wrapper="p"

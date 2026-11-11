@@ -268,7 +268,7 @@ export function Research() {
     >
       <Accordion type="multiple" defaultValue={['experience']} className="w-full space-y-4">
         <AccordionItem value="experience">
-          <AccordionTrigger className="text-[var(--step-h2)] font-display tracking-tight leading-[1.05] text-foreground py-4">
+          <AccordionTrigger className="text-[length:var(--step-h2)] font-display tracking-tight leading-[1.05] text-foreground py-4">
             Research Experience
           </AccordionTrigger>
           <AccordionContent>
@@ -282,7 +282,7 @@ export function Research() {
 
         {content.publications && (
           <AccordionItem value="publications">
-            <AccordionTrigger className="text-[var(--step-h2)] font-display tracking-tight leading-[1.05] text-foreground py-4">
+            <AccordionTrigger className="text-[length:var(--step-h2)] font-display tracking-tight leading-[1.05] text-foreground py-4">
               Publications
             </AccordionTrigger>
             <AccordionContent>
@@ -331,7 +331,7 @@ export function Research() {
         )}
 
         <AccordionItem value="books">
-          <AccordionTrigger className="text-[var(--step-h2)] font-display tracking-tight leading-[1.05] text-foreground py-4">
+          <AccordionTrigger className="text-[length:var(--step-h2)] font-display tracking-tight leading-[1.05] text-foreground py-4">
             Books and Book Chapters
           </AccordionTrigger>
           <AccordionContent>
@@ -344,7 +344,7 @@ export function Research() {
         </AccordionItem>
 
         <AccordionItem value="conferences">
-          <AccordionTrigger className="text-[var(--step-h2)] font-display tracking-tight leading-[1.05] text-foreground py-4">
+          <AccordionTrigger className="text-[length:var(--step-h2)] font-display tracking-tight leading-[1.05] text-foreground py-4">
             Conference Presentations
           </AccordionTrigger>
           <AccordionContent>
@@ -358,7 +358,7 @@ export function Research() {
 
         {content.certifications && content.certifications.length > 0 && (
           <AccordionItem value="certifications">
-            <AccordionTrigger className="text-[var(--step-h2)] font-display tracking-tight leading-[1.05] text-foreground py-4">
+            <AccordionTrigger className="text-[length:var(--step-h2)] font-display tracking-tight leading-[1.05] text-foreground py-4">
               Certifications
             </AccordionTrigger>
             <AccordionContent>

@@ -75,7 +75,7 @@ export function RecentActivities() {
       className="space-y-6"
     >
       <div className="flex items-center justify-between">
-        <h2 className="font-display tracking-tight leading-[1.05] text-[var(--step-h2)] text-foreground">Recent Activities</h2>
+        <h2 className="font-display tracking-tight leading-[1.05] text-[length:var(--step-h2)] text-foreground">Recent Activities</h2>
       </div>
 
       {status !== 'success' && (

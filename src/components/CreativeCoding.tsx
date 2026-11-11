@@ -89,7 +89,7 @@ export function CreativeCoding() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Code className="w-5 h-5 text-primary" />
-          <h2 className="font-display tracking-tight leading-[1.05] text-[var(--step-h2)] text-foreground">Creative Coding Portfolio</h2>
+          <h2 className="font-display tracking-tight leading-[1.05] text-[length:var(--step-h2)] text-foreground">Creative Coding Portfolio</h2>
         </div>
       </div>
 

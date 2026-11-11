@@ -134,7 +134,7 @@ const projects: Project[] = [
 export const Projects: React.FC = () => {
   return (
     <div>
-      <h2 className="font-display tracking-tight leading-[1.05] text-[var(--step-h2)] text-foreground mb-8">Projects</h2>
+      <h2 className="font-display tracking-tight leading-[1.05] text-[length:var(--step-h2)] text-foreground mb-8">Projects</h2>
       <div className="flex flex-col gap-8">
         {projects.map((project) => {
           const headingId = `project-${project.title.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}`;

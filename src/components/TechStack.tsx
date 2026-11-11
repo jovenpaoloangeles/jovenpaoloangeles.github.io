@@ -22,7 +22,7 @@ export function TechStack() {
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="font-display tracking-tight leading-[1.05] text-[var(--step-h2)] text-foreground">Technical Skills</h2>
+        <h2 className="font-display tracking-tight leading-[1.05] text-[length:var(--step-h2)] text-foreground">Technical Skills</h2>
         <div role="group" aria-label="Tech stack view" className="inline-flex rounded-md border border-border bg-card p-0.5">
           <button
             type="button"

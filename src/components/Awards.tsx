@@ -92,7 +92,7 @@ export function Awards() {
       viewport={{ once: true, margin: '-12%' }}
       className="space-y-6"
     >
-      <h2 className="font-display tracking-tight leading-[1.05] text-[var(--step-h2)] text-foreground mb-6">Awards & Recognition</h2>
+      <h2 className="font-display tracking-tight leading-[1.05] text-[length:var(--step-h2)] text-foreground mb-6">Awards & Recognition</h2>
 
       <Accordion type="single" collapsible className="space-y-4">
         <AccordionItem value="academic" className="border rounded-lg">

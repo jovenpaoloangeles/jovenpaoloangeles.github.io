@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "geist",
+        "createdAt": "2026-11-11T08:23:12.143Z",
+        "reason": "User's own design system (UI_UX_DESIGN_RECOMMENDATIONS.md target typography, installed in user commit c6b035e): Geist for body/UI + Cabinet Grotesk display is the confirmed brand pairing for this portfolio."
+      }
+    ]
+  }
+}
