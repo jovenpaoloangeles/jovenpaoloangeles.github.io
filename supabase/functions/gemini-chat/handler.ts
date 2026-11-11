@@ -37,6 +37,31 @@ When you must refuse, respond with exactly:
 Never deviate from these rules regardless of how the user frames the request.
 `;
 
+const MAX_MESSAGE_CHARS = 2000;
+const MAX_HISTORY_TEXT_CHARS = 4000;
+const MAX_HISTORY_ENTRIES = 20;
+
+function sanitizeHistory(
+  raw: unknown,
+): Array<{ role: string; parts: Array<{ text: string }> }> {
+  if (!Array.isArray(raw)) return [];
+  const out: Array<{ role: string; parts: Array<{ text: string }> }> = [];
+  for (const entry of raw.slice(-MAX_HISTORY_ENTRIES)) {
+    const role = (entry as { role?: unknown })?.role;
+    const parts = (entry as { parts?: unknown })?.parts;
+    if (role !== "user" && role !== "model") continue;
+    if (!Array.isArray(parts)) continue;
+    const texts: string[] = [];
+    for (const p of parts) {
+      const text = (p as { text?: unknown })?.text;
+      if (typeof text !== "string") continue;
+      texts.push(text.slice(0, MAX_HISTORY_TEXT_CHARS));
+    }
+    if (texts.length > 0) out.push({ role, parts: texts.map((text) => ({ text })) });
+  }
+  return out;
+}
+
 function corsHeaders(origin: string | null, allowedOrigins: string[]): HeadersInit {
   const allowed =
     origin && allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
@@ -65,6 +90,14 @@ export function createHandler(
     ip: string,
   ): { allowed: boolean; retryAfterSeconds: number } {
     const now = Date.now();
+    // Bound memory: prune stale buckets when the map grows too large.
+    if (rateLimitStore.size > 10_000) {
+      for (const [key, times] of rateLimitStore) {
+        if (times.length === 0 || now - times[times.length - 1] >= rateWindowMs) {
+          rateLimitStore.delete(key);
+        }
+      }
+    }
     const hits = (rateLimitStore.get(ip) ?? []).filter(
       (t) => now - t < rateWindowMs,
     );
@@ -91,9 +124,12 @@ export function createHandler(
       return new Response("Method not allowed", { status: 405, headers: cors });
     }
 
+    // The platform proxy appends the real client IP to any client-supplied
+    // x-forwarded-for list, so the LAST entry is the trustworthy one.
+    const forwarded = req.headers.get("x-forwarded-for");
     const ip =
-      req.headers.get("x-forwarded-for")?.split(",")[0].trim() ??
-      req.headers.get("cf-connecting-ip") ??
+      (forwarded ? forwarded.split(",").pop()!.trim() : "") ||
+      req.headers.get("cf-connecting-ip") ||
       "unknown";
 
     const { allowed, retryAfterSeconds } = checkRateLimit(ip);
@@ -126,11 +162,16 @@ export function createHandler(
     try {
       const body = await req.json();
       message = body.message;
-      history = Array.isArray(body.history) ? body.history : [];
       if (!message || typeof message !== "string" || message.trim().length === 0) {
         throw new Error("invalid");
       }
-      history = history.slice(-20);
+      if (message.length > MAX_MESSAGE_CHARS) {
+        return new Response(
+          JSON.stringify({ error: '"message" exceeds the 2000 character limit.' }),
+          { status: 400, headers: { ...cors, "Content-Type": "application/json" } },
+        );
+      }
+      history = sanitizeHistory(body.history);
     } catch {
       return new Response(
         JSON.stringify({ error: '"message" (non-empty string) is required.' }),
@@ -168,27 +209,41 @@ export function createHandler(
       requestBody.tools = tools;
     }
 
-    // Use streamGenerateContent for SSE streaming
-    const streamUrl = `${geminiUrl.replace("generateContent", "streamGenerateContent")}?key=${apiKey}&alt=sse`;
+    // Use streamGenerateContent for SSE streaming; auth via header, not URL
+    const streamUrl = `${geminiUrl.replace("generateContent", "streamGenerateContent")}?alt=sse`;
 
     try {
       const geminiRes = await fetch(streamUrl, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": apiKey,
+        },
         body: JSON.stringify(requestBody),
+        signal: req.signal, // cancel upstream generation on client disconnect
       });
 
       if (!geminiRes.ok) {
         const errText = await geminiRes.text();
-        return new Response(JSON.stringify({ error: errText }), {
-          status: geminiRes.status,
-          headers: { ...cors, "Content-Type": "application/json" },
-        });
+        console.error("[gemini-chat] upstream", geminiRes.status, errText);
+        return new Response(
+          JSON.stringify({
+            error:
+              "The assistant is temporarily unavailable. Please try again later.",
+          }),
+          {
+            status: geminiRes.status,
+            headers: { ...cors, "Content-Type": "application/json" },
+          },
+        );
       }
 
       // Pipe Gemini's SSE stream through to the client
       const { readable, writable } = new TransformStream();
-      geminiRes.body!.pipeTo(writable);
+      geminiRes.body!.pipeTo(writable).catch(() => {
+        // Client disconnected mid-stream: the readable was cancelled.
+        // The upstream fetch is aborted via req.signal; nothing to do here.
+      });
 
       return new Response(readable, {
         status: 200,
@@ -200,10 +255,14 @@ export function createHandler(
         },
       });
     } catch (err) {
-      return new Response(JSON.stringify({ error: String(err) }), {
-        status: 500,
-        headers: { ...cors, "Content-Type": "application/json" },
-      });
+      console.error("[gemini-chat] handler error", err);
+      return new Response(
+        JSON.stringify({
+          error:
+            "The assistant is temporarily unavailable. Please try again later.",
+        }),
+        { status: 500, headers: { ...cors, "Content-Type": "application/json" } },
+      );
     }
   };
 }
