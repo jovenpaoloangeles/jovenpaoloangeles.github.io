@@ -3,7 +3,7 @@ import { renderHook, act } from '@testing-library/react';
 import { useTheme } from '@/hooks/useTheme';
 
 function stubMatchMedia(dark: boolean) {
-  (window as any).matchMedia = vi.fn().mockReturnValue({ matches: dark });
+  vi.stubGlobal('matchMedia', vi.fn().mockReturnValue({ matches: dark }));
 }
 
 describe('useTheme', () => {
