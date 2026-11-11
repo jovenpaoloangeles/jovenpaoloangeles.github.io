@@ -153,6 +153,7 @@ export function ChatbotWidget() {
         parts: [{ text: m.content }],
       }));
 
+    let hoistedAssistantId: string | null = null;
     try {
       const res = await fetch(EDGE_FUNCTION_URL, {
         method: 'POST',
@@ -175,10 +176,11 @@ export function ChatbotWidget() {
 
       if (contentType.includes('text/event-stream')) {
         // Streaming response — read SSE chunks and append incrementally
-        const assistantId = crypto.randomUUID();
+        const newAssistantId = crypto.randomUUID();
+        hoistedAssistantId = newAssistantId;
         setMessages((prev) => [
           ...prev,
-          { id: assistantId, role: 'assistant', content: '', timestamp: new Date() },
+          { id: newAssistantId, role: 'assistant', content: '', timestamp: new Date() },
         ]);
 
         const reader = res.body?.getReader();
@@ -206,7 +208,7 @@ export function ChatbotWidget() {
                 if (text) {
                   setMessages((prev) =>
                     prev.map((m) =>
-                      m.id === assistantId ? { ...m, content: m.content + text } : m,
+                      m.id === newAssistantId ? { ...m, content: m.content + text } : m,
                     ),
                   );
                 }
@@ -223,7 +225,7 @@ export function ChatbotWidget() {
         isStreamingRef.current = false;
         setMessages((prev) =>
           prev.map((m) =>
-            m.id === assistantId && m.content === ''
+            m.id === newAssistantId && m.content === ''
               ? { ...m, content: 'Sorry, I could not generate a response.' }
               : m,
           ),
@@ -245,6 +247,18 @@ export function ChatbotWidget() {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
+      // If a streaming placeholder bubble was already appended, fill it so the
+      // user doesn't see a permanent empty assistant message after an error.
+      if (hoistedAssistantId) {
+        const failedId = hoistedAssistantId;
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === failedId && m.content === ''
+              ? { ...m, content: 'Sorry, I could not generate a response.' }
+              : m,
+          ),
+        );
+      }
     } finally {
       isStreamingRef.current = false;
       setIsLoading(false);
