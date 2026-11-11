@@ -69,8 +69,8 @@ export function Awards() {
       ],
       exhibitions: [
         {
-          title: 'Singapore International Photography Festival 2018',
-          details: 'Depth of Feel Exhibit | Festival Village at DECK, Singapore | Oct 5-30, 2018'
+          title: 'Singapore International Photography Festival 2019',
+          details: 'Depth of Feel Exhibit | Festival Village at DECK, Singapore | Oct 5-30, 2019'
         },
         {
           title: 'Works of Fire Exhibit',

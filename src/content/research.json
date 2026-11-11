@@ -24,8 +24,8 @@
       ]
     },
     {
-      "title": "University Researcher I",
-      "dateRange": "January 2023 - December 2023",
+      "title": "University Researcher II",
+      "dateRange": "January 2023 - October 2023",
       "keyAchievements": "Developed a graphene-MOF composite for COVID-19 pandemic mitigation.",
       "techniques": "Electrospinning, Nanocomposite Synthesis",
       "details": [
@@ -36,7 +36,7 @@
     {
       "title": "Visiting PhD Student",
       "dateRange": "Oct 2022 - Dec 2022",
-      "keyAchievements": "Kansai-Asia Platform of Advanced Analytical Technologies (KAPLAT) Program",
+      "keyAchievements": "Kyoto University, Kansai-Asia Platform of Advanced Analytical Technologies (KAPLAT) Program",
       "techniques": "Raman Spectroscopy, SERS Calculations, Chemical Synthesis of Core-Shell Nanoparticles",
       "details": [
         "Synthesized gold-iron oxide core-shell nanoparticles for SERS applications",
@@ -47,7 +47,7 @@
     },
     {
       "title": "University Researcher I",
-      "dateRange": "January 2022 - December 2022",
+      "dateRange": "January 2022 - December 2022, November 2023 - December 2023",
       "keyAchievements": "Assessed wastewater from recycling companies.",
       "techniques": "Zeolite/Bentonite Modification, Adsorption Efficiency Testing",
       "details": [
@@ -247,7 +247,7 @@
       {
         "title": "Fe-Exchanged Philippine Natural Zeolites for Efficient Nitrate Removal from Aqueous Solutions",
         "authors": "J. P. D. Angeles and M. M. Vega",
-        "journal": "Journal of Environmental Science and Health, Part A",
+        "journal": "Journal of Science: Advanced Materials and Devices (JSAMD)",
         "status": "submitted"
       },
       {
@@ -261,7 +261,7 @@
       {
         "title": "Domain-Aware Bayesian Optimization for Tunable Localized Surface Plasmon Resonance in Gold Nanoparticles",
         "authors": "J. P. D. Angeles and M. M. Vega",
-        "journal": "Materials & Design",
+        "journal": "Journal of Science: Advanced Materials and Devices (JSAMD)",
         "status": "in preparation"
       },
       {
