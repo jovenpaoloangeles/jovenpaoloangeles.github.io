@@ -171,6 +171,10 @@ function App() {
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    const target = event.target as HTMLElement;
+    if (!target.closest('[role="tab"]')) {
+      return; // theme toggle & other non-tab children keep their keys
+    }
     const currentIndex = TABS.findIndex((tab) => tab.value === activeTab);
     if (currentIndex === -1) {
       return;
