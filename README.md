@@ -12,10 +12,8 @@ This is a professional academic portfolio website built with React and Vite. The
 - [Usage](#usage)
 - [Development](#development)
 - [Deployment](#deployment)
-  - [Automatic Deployment](#automatic-deployment)
-  - [Manual Deployment](#manual-deployment)
+- [Testing](#testing)
 - [Contributing](#contributing)
-- [License](#license)
 - [Contact](#contact)
 
 ## Features
@@ -31,7 +29,7 @@ This is a professional academic portfolio website built with React and Vite. The
 
 ### Prerequisites
 
-- **Node.js (v14 or later)**: [Download Node.js](https://nodejs.org/en/download/)
+- **Node.js (v18 or later)**: [Download Node.js](https://nodejs.org/en/download/) — CI uses Node 22
 - **npm (v6 or later)**: Comes with Node.js installation
 
 ### Installation
@@ -62,7 +60,7 @@ To run the application locally:
 npm run dev
 ```
 
-Open your browser and navigate to `http://localhost:3000` (or the port specified in your terminal) to view the site.
+Open your browser and navigate to `http://localhost:5173` (or the port specified in your terminal) to view the site.
 
 ## Development
 
@@ -86,37 +84,27 @@ Open your browser and navigate to `http://localhost:3000` (or the port specified
 
 ## Deployment
 
-### Automatic Deployment
+The site deploys to GitHub Pages automatically when changes are pushed to the `main` branch. The `Deploy to GitHub Pages` workflow (`.github/workflows/deploy.yml`) typechecks, lints, tests, builds, and deploys the site.
 
-The site is configured to deploy to GitHub Pages automatically when changes are pushed to the `main` branch. This is handled by GitHub Actions configured in `.github/workflows`.
+## Testing
 
-### Manual Deployment
+- **Run the Vitest test suite**
 
-If you prefer to deploy manually:
+  ```bash
+  npm test
+  ```
 
-1. **Build the Project**
+- **Run tests with coverage**
 
-   ```bash
-   npm run build
-   ```
+  ```bash
+  npm run test:coverage
+  ```
 
-2. **Deploy to GitHub Pages**
+- **Run edge function tests** (requires [Deno](https://deno.com/) installed)
 
-   Install the `gh-pages` package globally if you haven't already:
-
-   ```bash
-   npm install -g gh-pages
-   ```
-
-   Deploy the `dist` folder to the `gh-pages` branch:
-
-   ```bash
-   gh-pages -d dist
-   ```
-
-3. **Access the Deployed Site**
-
-   Your site should now be live at `https://jovenpaoloangeles.github.io`.
+  ```bash
+  npm run test:edge
+  ```
 
 ## Contributing
 
@@ -145,10 +133,6 @@ Contributions are welcome! Please follow these steps:
    ```
 
 6. **Open a Pull Request**
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
 
 ## Contact
 

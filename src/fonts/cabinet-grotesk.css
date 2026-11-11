@@ -1,0 +1,39 @@
+/* Vendored Cabinet Grotesk under the ITF Free Font License — replaces the
+   cross-origin stylesheet previously loaded from the foundry's API.
+   Family name matches tailwind.config.js font-display so no config
+   change is needed. */
+@font-face {
+  font-family: 'Cabinet Grotesk';
+  src: url('/fonts/cabinet-grotesk-400.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Cabinet Grotesk';
+  src: url('/fonts/cabinet-grotesk-500.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Cabinet Grotesk';
+  src: url('/fonts/cabinet-grotesk-700.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Cabinet Grotesk';
+  src: url('/fonts/cabinet-grotesk-800.woff2') format('woff2');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Cabinet Grotesk';
+  src: url('/fonts/cabinet-grotesk-900.woff2') format('woff2');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}

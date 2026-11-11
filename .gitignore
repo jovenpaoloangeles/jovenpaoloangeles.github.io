@@ -23,6 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 *.md
+!CLAUDE.md
 
 # Private review documents — never commit (kept explicit even though *.md covers them)
 UI_UX_DESIGN_RECOMMENDATIONS.md

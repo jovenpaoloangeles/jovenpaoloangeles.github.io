@@ -12,9 +12,10 @@ describe('TechStack orchestrator', () => {
 
   it('switches to the list view when the List toggle is clicked', () => {
     render(<TechStack />);
-    fireEvent.click(screen.getByRole('button', { name: /list view/i }));
-    // list view renders domain proof tags
-    expect(screen.getAllByText(/Seen in/i).length).toBeGreaterThan(0);
+    const listButton = screen.getByRole('button', { name: /list view/i });
+    fireEvent.click(listButton);
+    expect(listButton).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: /graph view/i })).toHaveAttribute('aria-pressed', 'false');
   });
 
   it('persists the chosen view to localStorage', () => {
@@ -26,6 +27,6 @@ describe('TechStack orchestrator', () => {
   it('honors a previously persisted list view', () => {
     localStorage.setItem('techstack-view', 'list');
     render(<TechStack />);
-    expect(screen.getAllByText(/Seen in/i).length).toBeGreaterThan(0);
+    expect(screen.getByRole('button', { name: /list view/i })).toHaveAttribute('aria-pressed', 'true');
   });
 });

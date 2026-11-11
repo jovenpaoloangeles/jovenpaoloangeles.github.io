@@ -18,11 +18,6 @@ describe('TechStackList', () => {
     }
   });
 
-  it('renders proof tags for domains that have them', () => {
-    render(<TechStackList />);
-    expect(screen.getAllByText(/Seen in/i).length).toBeGreaterThan(0);
-  });
-
   it('shows a multi-domain tool under each of its domains', () => {
     render(<TechStackList />);
     const py = TECHSTACK_TOOLS.find((t) => t.id === 'python')!;

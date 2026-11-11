@@ -4,6 +4,11 @@ interface CarouselProps {
   images: string[];
 }
 
+function thumbUrl(src: string): string {
+  // originals live under public/<root>/...; thumbs mirror the tree under public/thumbs/...
+  return src.startsWith('/') ? src.replace(/^\/(photography|creative_coding)\//, '/thumbs/$1/') : src;
+}
+
 const Carousel: React.FC<CarouselProps> = ({ images }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const carouselRef = useRef<HTMLDivElement | null>(null);
@@ -73,7 +78,7 @@ const Carousel: React.FC<CarouselProps> = ({ images }) => {
         >
           <img
             data-src={image}
-            src={image} // Preload current image
+            src={thumbUrl(image)} // thumb variant; originals only in FullscreenViewer
             alt={`Slide ${index + 1}`}
             className="w-full h-full object-cover"
             loading="lazy"

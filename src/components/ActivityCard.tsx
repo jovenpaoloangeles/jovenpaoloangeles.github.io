@@ -2,7 +2,8 @@ import { motion } from 'framer-motion';
 import { Clock } from 'lucide-react';
 import { Card } from './ui/card';
 import type { Activity } from './types';
-import { formatDistanceToNow, format } from 'date-fns';
+import { formatDistanceToNow } from 'date-fns';
+import { formatUtcDate } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { reveal } from '@/lib/motion';
 
@@ -21,7 +22,7 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
   const achromaticBadge = 'inline-flex items-center rounded-md border border-border bg-muted px-2 py-0.5 font-mono text-[0.65rem] uppercase tracking-wide text-foreground';
 
   // Format dates for both tooltip and display
-  const formattedDate = format(new Date(activity.timestamp), 'MMMM d, yyyy');
+  const formattedDate = formatUtcDate(activity.timestamp);
   const relativeTime = formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true });
 
   return (
