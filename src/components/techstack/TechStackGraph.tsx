@@ -513,6 +513,9 @@ export function TechStackGraph() {
 
     // Selecting a node: pin it, spotlight its connections, show the popover.
     const selectNode = (node: SimNode) => {
+      if (selectedIdRef.current && selectedIdRef.current !== node.id) {
+        releaseSelectedNode();
+      }
       node.fx = node.x; node.fy = node.y; // pin while open
       selectedIdRef.current = node.id;
       activateSpotlight(node.id);
