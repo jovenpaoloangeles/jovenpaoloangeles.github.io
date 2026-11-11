@@ -45,9 +45,16 @@ export function ChatbotWidget() {
   // Set briefly when the panel opens via auto-open so the focus effect can skip
   // stealing focus from whatever the user was reading.
   const autoOpenedRef = useRef(false);
+  // While true, the localStorage persistence effect is suppressed so streaming
+  // tokens don't re-serialize the whole history per token; the stream completion
+  // paths flip it back to false BEFORE their final setMessages so the effect
+  // fires exactly once with the final state.
+  const isStreamingRef = useRef(false);
 
-  // Save messages to localStorage
+  // Save messages to localStorage — skipped while streaming; the stream
+  // completion path persists the final state once.
   useEffect(() => {
+    if (isStreamingRef.current) return;
     if (typeof window !== 'undefined') {
       localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(messages));
     }
@@ -136,6 +143,7 @@ export function ChatbotWidget() {
     setInput('');
     setIsLoading(true);
     setError(null);
+    isStreamingRef.current = true;
 
     // Build history in Gemini format (role: 'user' | 'model')
     const history = messages
@@ -209,7 +217,10 @@ export function ChatbotWidget() {
           }
         }
 
-        // If streaming produced no content, show fallback
+        // If streaming produced no content, show fallback. Flip the streaming
+        // guard first so this final update is the one that persists to
+        // localStorage.
+        isStreamingRef.current = false;
         setMessages((prev) =>
           prev.map((m) =>
             m.id === assistantId && m.content === ''
@@ -218,7 +229,9 @@ export function ChatbotWidget() {
           ),
         );
       } else {
-        // Fallback for non-streaming responses (e.g. error JSON)
+        // Fallback for non-streaming response (e.g. error JSON). Flip the
+        // streaming guard before the final update so it persists.
+        isStreamingRef.current = false;
         const data = await res.json();
         setMessages((prev) => [
           ...prev,
@@ -233,6 +246,7 @@ export function ChatbotWidget() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
+      isStreamingRef.current = false;
       setIsLoading(false);
     }
   }, [input, isLoading, messages]);
