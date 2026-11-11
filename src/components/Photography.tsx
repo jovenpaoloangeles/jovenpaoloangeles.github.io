@@ -89,7 +89,7 @@ export function Photography() {
         "/photography/Series/Rooftop/DSC09614.webp",
         "/photography/Series/Rooftop/DSC09835.webp",
         "/photography/Series/Rooftop/StarStaX_DSC06571-DSC06634_gap_filling_00000063.webp",
-        "/photography/Series/Tekkadan/DSC03476 Panorama.webp",
+        "/photography/Series/Tekkadan/DSC03476_Panorama.webp",
         "/photography/Series/Tekkadan/DSC09325.webp",
         "/photography/Series/Tekkadan/DSC09334.webp",
         "/photography/Series/Tekkadan/DSC09336.webp",
@@ -113,7 +113,7 @@ export function Photography() {
         "/photography/Street/_JOV0537.webp",
         "/photography/Street/DSC00419.webp",
         "/photography/Street/DSC04867.webp",
-        "/photography/Street/DSC07748 2.webp",
+        "/photography/Street/DSC07748_2.webp",
         "/photography/Street/DSC08080.webp",
         "/photography/Street/DSC09488.webp",
         "/photography/Street/DSC09965.webp"
