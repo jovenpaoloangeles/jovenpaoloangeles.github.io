@@ -158,16 +158,16 @@ type ToolWithAlso = Extract<(typeof RAW)[number]['tools'][number], { also: reado
 type AllAlso = ToolWithAlso extends { also: infer A }
   ? A extends readonly (infer E)[] ? E : never
   : never;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _alsoCheck: AllAlso extends DomainId ? true : `✖ unknown domain id in 'also': ${AllAlso & string}` = true;
+void _alsoCheck;
 
 // Compile-time guard: every tool's `parent` must be a known tool id.
 // Note: does NOT enforce same-domain constraint — the runtime test in
 // techstack-data.test.ts ('every tool parent…') is the enforcer for that.
 type ToolWithParent = Extract<(typeof RAW)[number]['tools'][number], { parent: string }>;
 type AllParents = ToolWithParent['parent'];
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _parentCheck: AllParents extends ToolId ? true : `✖ unknown tool id in 'parent': ${AllParents & string}` = true;
+void _parentCheck;
 
 export const TECHSTACK_DOMAINS: Domain[] = RAW.map(({ tools: _tools, ...d }) => d);
 
