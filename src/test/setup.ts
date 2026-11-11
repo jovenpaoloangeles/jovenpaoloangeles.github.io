@@ -1,8 +1,8 @@
 import '@testing-library/jest-dom';
 
 // ── localStorage mock ─────────────────────────────────────────────────────────
-// vitest 4.x + jsdom does not expose a .clear() method on its built-in storage;
-// replace it with a full in-memory implementation.
+// jsdom's storage shim is inconsistent across vitest versions; replace it with
+// a full in-memory implementation so tests can rely on .clear().
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
   return {

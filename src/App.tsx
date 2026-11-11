@@ -33,6 +33,12 @@ const RecentActivities = lazy(() =>
   }))
 );
 
+const ChatbotWidget = lazy(() =>
+  import('./components/ChatbotWidget').then((m) => ({
+    default: m.ChatbotWidget,
+  }))
+);
+
 function TabFallback() {
   return (
     <div className="flex items-center justify-center py-12">
@@ -40,8 +46,6 @@ function TabFallback() {
     </div>
   );
 }
-
-import { ChatbotWidget } from './components/ChatbotWidget';
 
 // Define tab interface for better type safety
 interface Tab {
@@ -172,6 +176,10 @@ function App() {
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    const target = event.target as HTMLElement;
+    if (!target.closest('[role="tab"]')) {
+      return; // theme toggle & other non-tab children keep their keys
+    }
     const currentIndex = TABS.findIndex((tab) => tab.value === activeTab);
     if (currentIndex === -1) {
       return;
@@ -283,7 +291,9 @@ function App() {
         </motion.div>
       </div>
     </main>
-    <ChatbotWidget />
+    <Suspense fallback={null}>
+      <ChatbotWidget />
+    </Suspense>
     </>
   );
 }

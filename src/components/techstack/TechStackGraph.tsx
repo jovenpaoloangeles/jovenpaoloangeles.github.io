@@ -1,5 +1,23 @@
 import { useEffect, useRef } from 'react';
-import * as d3 from 'd3';
+import {
+  select,
+  forceSimulation,
+  forceManyBody,
+  forceCollide,
+  forceRadial,
+  forceLink,
+  forceCenter,
+  drag as d3drag,
+  zoom as d3zoom,
+  zoomTransform,
+} from 'd3';
+import type {
+  Selection,
+  Simulation,
+  SimulationLinkDatum,
+  SimulationNodeDatum,
+  ForceLink,
+} from 'd3';
 import {
   TECHSTACK_DOMAINS, TECHSTACK_TOOLS, TECHSTACK_TECH_LINKS, TECHSTACK_CENTER,
   domainById, iconSrc, monogram, neighborsOf, type Tool,
@@ -9,7 +27,7 @@ import {
   PHYSICS, ANIMATION, ZOOM, SPOTLIGHT
 } from './techstack-graph-config';
 
-interface SimNode extends d3.SimulationNodeDatum {
+interface SimNode extends SimulationNodeDatum {
   id: string;
   kind: 'center' | 'domain' | 'tool';
   label: string;
@@ -17,7 +35,7 @@ interface SimNode extends d3.SimulationNodeDatum {
   domainId?: string;
   level?: Tool['level'];
 }
-interface SimLink extends d3.SimulationLinkDatum<SimNode> {
+interface SimLink extends SimulationLinkDatum<SimNode> {
   kind: 'spoke' | 'member' | 'tech' | 'cross' | 'child';
 }
 
@@ -67,7 +85,7 @@ export function TechStackGraph() {
   const wrapRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
-  const simulationRef = useRef<d3.Simulation<SimNode, SimLink> | null>(null);
+  const simulationRef = useRef<Simulation<SimNode, SimLink> | null>(null);
   const nodesRef = useRef<SimNode[]>([]);
   const linksRef = useRef<SimLink[]>([]);
   const sizeRef = useRef({ w: 600, h: 460 });
@@ -97,18 +115,18 @@ export function TechStackGraph() {
     const R1 = Math.min(w, h) * PHYSICS.radialRings.innerFactor;
 
     // Update SVG viewBox
-    d3.select(svgRef.current).attr('viewBox', `0 0 ${w} ${h}`);
+    select(svgRef.current).attr('viewBox', `0 0 ${w} ${h}`);
 
     // Update force centers imperatively
     simulationRef.current
-      .force('center', d3.forceCenter(cx, cy).strength(PHYSICS.centerForceStrength))
-      .force('radial', d3.forceRadial<SimNode>(
+      .force('center', forceCenter(cx, cy).strength(PHYSICS.centerForceStrength))
+      .force('radial', forceRadial<SimNode>(
         (n) => (n.kind === 'center' ? 0 : R1),
         cx, cy
       ).strength(PHYSICS.radialStrength));
 
     // Update link distances based on new R1
-    const linkForce = simulationRef.current.force('link') as d3.ForceLink<SimNode, SimLink>;
+    const linkForce = simulationRef.current.force('link') as ForceLink<SimNode, SimLink>;
     if (linkForce) {
       linkForce.distance((l) => {
         if (l.kind === 'spoke') return R1;
@@ -249,7 +267,7 @@ export function TechStackGraph() {
     ];
     linksRef.current = links;
 
-    const svg = d3.select(svgEl);
+    const svg = select(svgEl);
     svg.selectAll('*').remove();
     svg.attr('viewBox', `0 0 ${w} ${h}`);
 
@@ -305,12 +323,12 @@ export function TechStackGraph() {
       .attr('rx', (n) => (n.kind === 'center' ? 999 : 8))
       .each(function (n) {
         const s = nodeTile(n);
-        d3.select(this).attr('x', -s / 2).attr('y', -s / 2).attr('width', s).attr('height', s);
+        select(this).attr('x', -s / 2).attr('y', -s / 2).attr('width', s).attr('height', s);
       });
 
     // icon or monogram or avatar
     nodeG.each(function (n) {
-      const g = d3.select(this);
+      const g = select(this);
       const s = nodeTile(n);
       if (n.kind === 'center') {
         g.append('clipPath').attr('id', 'ts-me-clip').append('circle').attr('r', s / 2 - 2);
@@ -326,7 +344,7 @@ export function TechStackGraph() {
           .attr('x', -s * 0.3).attr('y', -s * 0.3)
           .attr('preserveAspectRatio', 'xMidYMid meet')
           .on('error', function () {
-            d3.select(this).style('display', 'none');
+            select(this).style('display', 'none');
             g.append('text').attr('class', 'ts-mg').attr('text-anchor', 'middle').attr('dominant-baseline', 'central')
               .attr('font-size', s * 0.32).text(monogram(n.tool!));
           });
@@ -343,20 +361,20 @@ export function TechStackGraph() {
       .text((n) => n.label);
 
     // simulation
-    const sim = d3.forceSimulation<SimNode>(nodes)
-      .force('charge', d3.forceManyBody<SimNode>().strength((n) =>
+    const sim = forceSimulation<SimNode>(nodes)
+      .force('charge', forceManyBody<SimNode>().strength((n) =>
         n.kind === 'center' ? PHYSICS.charge.center :
         n.kind === 'domain' ? PHYSICS.charge.domain :
         PHYSICS.charge.tool))
-      .force('collide', d3.forceCollide<SimNode>()
+      .force('collide', forceCollide<SimNode>()
         .radius((n) => nodeRadius(n) + COLLISION_PADDING)
         .iterations(PHYSICS.collideIterations))
-      .force('radial', d3.forceRadial<SimNode>(
+      .force('radial', forceRadial<SimNode>(
         // Domains sit on the R1 ring; tools target R1 too so they hug their domain's ring.
         (n) => (n.kind === 'center' ? 0 : R1),
         cx, cy
       ).strength(PHYSICS.radialStrength))
-      .force('link', d3.forceLink<SimNode, SimLink>(links).id((n) => n.id)
+      .force('link', forceLink<SimNode, SimLink>(links).id((n) => n.id)
         .distance((l) => {
           if (l.kind === 'spoke') return R1;
           if (l.kind === 'member') {
@@ -373,7 +391,7 @@ export function TechStackGraph() {
           l.kind === 'child' ? PHYSICS.linkStrengths.member :
           l.kind === 'cross' ? 0 :
           PHYSICS.linkStrengths.tech))
-      .force('center', d3.forceCenter(cx, cy).strength(PHYSICS.centerForceStrength))
+      .force('center', forceCenter(cx, cy).strength(PHYSICS.centerForceStrength))
       .alpha(ANIMATION.initialAlpha).alphaDecay(ANIMATION.initialAlphaDecay);
 
     simulationRef.current = sim;
@@ -383,7 +401,7 @@ export function TechStackGraph() {
 
     // Popover rendering
     function renderPopoverInSVG(
-      container: d3.Selection<SVGGElement, unknown, null, undefined>,
+      container: Selection<SVGGElement, unknown, null, undefined>,
       node: SimNode,
       handleClose: () => void
     ) {
@@ -489,7 +507,7 @@ export function TechStackGraph() {
       const { w: cw, h: ch } = sizeRef.current;
 
       // Get the current zoom transform
-      const transform = d3.zoomTransform(svgEl);
+      const transform = zoomTransform(svgEl);
 
       // Apply zoom transform to get screen coordinates
       const screenX = node.x * transform.k + transform.x;
@@ -513,6 +531,9 @@ export function TechStackGraph() {
 
     // Selecting a node: pin it, spotlight its connections, show the popover.
     const selectNode = (node: SimNode) => {
+      if (selectedIdRef.current && selectedIdRef.current !== node.id) {
+        releaseSelectedNode();
+      }
       node.fx = node.x; node.fy = node.y; // pin while open
       selectedIdRef.current = node.id;
       activateSpotlight(node.id);
@@ -530,7 +551,7 @@ export function TechStackGraph() {
     //    after a genuine drag, so dragging a node won't also select it.
     const CLICK_THRESHOLD = 20; // generous threshold for real hardware (trackpads/mice drift ~10px on a tap)
     let pressX = 0, pressY = 0, didDrag = false;
-    const drag = d3.drag<SVGGElement, SimNode>()
+    const drag = d3drag<SVGGElement, SimNode>()
       .clickDistance(CLICK_THRESHOLD)
       .on('start', (e) => {
         pressX = e.x; pressY = e.y; didDrag = false;
@@ -579,7 +600,7 @@ export function TechStackGraph() {
     };
 
     // pan/zoom
-    const zoom = d3.zoom<SVGSVGElement, unknown>()
+    const zoom = d3zoom<SVGSVGElement, unknown>()
       .scaleExtent(ZOOM.scaleExtent)
       .on('zoom', (event) => {
         root.attr('transform', event.transform.toString());
@@ -588,7 +609,7 @@ export function TechStackGraph() {
       });
     svg.call(zoom);
     // Apply initial visibility state (zoom handler only fires on user interaction)
-    applySemanticZoom(d3.zoomTransform(svgEl).k);
+    applySemanticZoom(zoomTransform(svgEl).k);
 
     // Deselect on SVG background click (empty space, not a node drag).
     svg.on('click', () => {

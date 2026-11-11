@@ -44,10 +44,6 @@ export default defineConfig({
           if (id.includes('node_modules/react-github-calendar')) {
             return 'vendor-calendar'
           }
-          // Gemini AI SDK — only used by ChatbotWidget
-          if (id.includes('node_modules/@google/genai')) {
-            return 'vendor-genai'
-          }
         },
       },
     },

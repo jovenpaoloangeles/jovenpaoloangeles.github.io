@@ -97,15 +97,23 @@ describe('techstack data', () => {
     expect(py.also).toEqual(['d2', 'd4']);
   });
 
-  it('every tool `parent` is a real tool in the same domain, not a child, not self', () => {
+  it('every tool `parent` is a real tool in the same domain, not self, and chains are acyclic', () => {
     const byId = new Map(TECHSTACK_TOOLS.map((t) => [t.id, t]));
     for (const t of TECHSTACK_TOOLS) {
       if (!t.parent) continue;
       const p = byId.get(t.parent);
       expect(p).toBeDefined();
       expect(p!.domainId).toBe(t.domainId);
-      expect(p!.parent).toBeUndefined();
       expect(t.parent).not.toBe(t.id);
+      // Walk up the chain; it must terminate without revisiting any tool.
+      const seen = new Set([t.id]);
+      let cur: typeof t | undefined = t;
+      while (cur?.parent) {
+        expect(seen.has(cur.parent)).toBe(false); // cycle guard
+        seen.add(cur.parent);
+        cur = byId.get(cur.parent);
+        expect(cur).toBeDefined();
+      }
     }
   });
 
