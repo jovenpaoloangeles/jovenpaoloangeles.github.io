@@ -32,3 +32,6 @@ PORTFOLIO_ADVISE.md
 .superpowers/
 .playwright-mcp/
 codedb.snapshot*.tsbuildinfo
+
+*.tsbuildinfo
+supabase/.temp/
