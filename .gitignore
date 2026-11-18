@@ -40,3 +40,4 @@ supabase/.temp/
 /font-opt*.png
 /font-options.png
 /name-final.png
+- .claude/worktrees/
