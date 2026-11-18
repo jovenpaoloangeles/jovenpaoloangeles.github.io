@@ -25,6 +25,40 @@ interface Project {
 
 const projects: Project[] = [
   {
+    title: 'ACABAI-PH',
+    url: 'https://acabai.ph/',
+    description:
+      'Program website for ACABAI-PH, the DOST-ASTI flagship initiative advancing computing, analytics, big data, and artificial intelligence in the Philippines — the national hub behind DOST-NAIRA, iTANONG, DIMER, and nationwide AI capacity building.',
+    ctaLabel: 'Visit acabai.ph',
+    media: {
+      alt: 'ACABAI-PH program launch at the NAICRI formal launch event',
+      width: 512,
+      height: 512,
+      png: '/projects/ACABAI.jpg',
+    },
+    meta: [
+      { label: 'Stack', value: 'React · TypeScript · Vite · Tailwind CSS' },
+      { label: 'Team', value: 'DOST-ASTI · ACABAI-PH Program' },
+    ],
+  },
+  {
+    title: 'DOST-NAIRA',
+    url: 'https://acabai.ph/naira',
+    description:
+      'DOST Nexus for Artificial Intelligence Research and Applications — a shared AI-as-a-Service platform that lets researchers, MSMEs, and government agencies adopt AI without building their own infrastructure.',
+    ctaLabel: 'Explore DOST-NAIRA',
+    media: {
+      alt: 'DIMER logo — model repository at the core of the DOST-NAIRA AI-as-a-Service platform',
+      width: 512,
+      height: 512,
+      png: '/projects/NAIRA.jpg',
+    },
+    meta: [
+      { label: 'Stack', value: 'AI-as-a-Service · AI/ML Platform' },
+      { label: 'Team', value: 'DOST-ASTI · DOST-NAIRA' },
+    ],
+  },
+  {
     title: 'JuanaKNOW by PROPEL',
     url: 'https://juanaknow.asti.dost.gov.ph/',
     description:
