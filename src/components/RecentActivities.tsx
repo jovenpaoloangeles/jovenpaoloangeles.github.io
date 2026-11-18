@@ -126,9 +126,9 @@ export function RecentActivities() {
         ) : status === 'success' ? (
           <>
             <div className="space-y-4">
-              {paginatedActivities.map((activity, index) => (
+              {paginatedActivities.map((activity) => (
                 <ActivityCard
-                  key={index}
+                  key={`${activity.timestamp.toISOString()}-${activity.title}`}
                   activity={activity}
                 />
               ))}
