@@ -13,7 +13,7 @@ npm run dev       # Start dev server at http://localhost:5173
 npm run build     # Production build → ./dist/
 npm run preview   # Preview production build locally
 npm run lint      # Run ESLint
-npm test          # Run Vitest frontend tests (ChatbotWidget + TechStack + useTheme suites)
+npm test          # Run Vitest frontend tests (ChatbotWidget, TechStack family, content pipeline, RecentActivities, Awards, useTheme, and utils suites)
 npm run test:edge # Run Deno edge function tests (requires Deno installed)
 ```
 
@@ -63,7 +63,7 @@ Edge function is split into `handler.ts` (exported `createHandler(config)` facto
 - Tailwind CSS with CSS variable–based theming (HSL values in `index.css` under `:root` / `.dark`)
 - Dark mode via `class` strategy on `<html>`
 - Path alias `@` maps to `./src` (configured in both `vite.config.ts` and `tsconfig.app.json`)
-- shadcn components are styled with `class-variance-authority` variants
+- shadcn-style ui primitives are styled with Tailwind classes composed via `cn()`
 
 ### SEO
 
