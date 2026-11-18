@@ -473,6 +473,91 @@ describe('ChatbotWidget', () => {
     });
   });
 
+  // ── History robustness ──────────────────────────────────────────────────────
+  describe('history robustness', () => {
+    it('ignores clear-history clicks while a response is streaming', async () => {
+      vi.stubGlobal('fetch', fetchPending());
+      const user = userEvent.setup();
+      render(<ChatbotWidget />);
+      await user.click(screen.getByRole('button', { name: /open chat/i }));
+      await user.type(screen.getByPlaceholderText(/type your message/i), 'Hello');
+      await user.click(screen.getByRole('button', { name: /send message/i }));
+      expect(screen.getByText('Hello')).toBeInTheDocument();
+      expect(screen.getByText(/thinking/i)).toBeInTheDocument();
+
+      // Trash button is disabled during streaming, and the handler itself no-ops
+      // if a click still reaches it.
+      const trash = screen.getByRole('button', { name: /clear chat history/i });
+      expect(trash).toBeDisabled();
+      fireEvent.click(trash);
+
+      expect(screen.getByText('Hello')).toBeInTheDocument();
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]');
+      expect(stored.length).toBeGreaterThan(0);
+    });
+
+    it('still clears history when the chat is idle (guard does not over-block)', async () => {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify([
+          {
+            id: 'a',
+            role: 'user',
+            content: 'Saved question',
+            timestamp: new Date().toISOString(),
+          },
+        ]),
+      );
+      const user = userEvent.setup();
+      render(<ChatbotWidget />);
+      await user.click(screen.getByRole('button', { name: /open chat/i }));
+      expect(screen.getByText('Saved question')).toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: /clear chat history/i }));
+
+      expect(screen.queryByText('Saved question')).not.toBeInTheDocument();
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]');
+      expect(stored).toHaveLength(0);
+    });
+
+    it('filters invalid entries out of restored history', async () => {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify([
+          { role: 'enemy', content: 'bad role' },
+          { content: 'no role' },
+          null,
+          { role: 'user', content: '   ' },
+          {
+            role: 'assistant',
+            content: 'ok',
+            id: 'a',
+            timestamp: new Date().toISOString(),
+          },
+        ]),
+      );
+      const user = userEvent.setup();
+      render(<ChatbotWidget />);
+      await user.click(screen.getByRole('button', { name: /open chat/i }));
+      expect(screen.getByText('ok')).toBeInTheDocument();
+      expect(screen.queryByText('bad role')).not.toBeInTheDocument();
+      expect(screen.queryByText('no role')).not.toBeInTheDocument();
+    });
+
+    it('synthesizes id and timestamp for restored entries missing them', async () => {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify([{ role: 'user', content: 'No id or timestamp' }]),
+      );
+      const user = userEvent.setup();
+      render(<ChatbotWidget />);
+      await user.click(screen.getByRole('button', { name: /open chat/i }));
+      expect(screen.getByText('No id or timestamp')).toBeInTheDocument();
+      // Missing timestamp is replaced with now, not an Invalid Date chip.
+      expect(screen.queryByText(/invalid date/i)).not.toBeInTheDocument();
+    });
+  });
+
   // ── Auto-open (discoverability) ─────────────────────────────────────────────
   describe('auto-open', () => {
     beforeEach(() => {
