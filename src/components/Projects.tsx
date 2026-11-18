@@ -23,6 +23,7 @@ interface Project {
   meta: ProjectMetaItem[];
 }
 
+// Impact values are operator-supplied facts; do not estimate.
 const projects: Project[] = [
   {
     title: 'ACABAI-PH',
@@ -41,6 +42,7 @@ const projects: Project[] = [
     meta: [
       { label: 'Stack', value: 'React · TypeScript · Vite · Tailwind CSS' },
       { label: 'Team', value: 'DOST-ASTI · ACABAI-PH Program' },
+      { label: 'Impact', value: '3-year DOST flagship · national program launch' },
     ],
   },
   {
@@ -60,6 +62,7 @@ const projects: Project[] = [
     meta: [
       { label: 'Stack', value: 'AI-as-a-Service · AI/ML Platform' },
       { label: 'Team', value: 'DOST-ASTI · DOST-NAIRA' },
+      { label: 'Impact', value: 'Shared AI compute for researchers, MSMEs, and agencies' },
     ],
   },
   {
@@ -77,6 +80,7 @@ const projects: Project[] = [
     meta: [
       { label: 'Stack', value: 'Agno · Python · PostgreSQL' },
       { label: 'Team', value: 'DOST-ASTI · Program PROPEL' },
+      { label: 'Impact', value: 'IP assessment for DOST innovators under Program PROPEL' },
     ],
   },
   {
@@ -94,6 +98,7 @@ const projects: Project[] = [
     meta: [
       { label: 'Stack', value: 'OpenAI · LangChain · ChromaDB · FastAPI' },
       { label: 'Team', value: 'DOST-ASTI' },
+      { label: 'Impact', value: 'Public beta serving government data queries in 3 languages' },
     ],
   },
   {
@@ -111,6 +116,7 @@ const projects: Project[] = [
     },
     meta: [
       { label: 'Stack', value: 'TypeScript · React · shadcn/ui · Tailwind CSS' },
+      { label: 'Impact', value: 'Open tool · no login, runs client-side' },
     ],
   },
   {
@@ -129,6 +135,7 @@ const projects: Project[] = [
     },
     meta: [
       { label: 'Stack', value: 'TypeScript · React · Plotly.js · MUI' },
+      { label: 'Impact', value: 'Open tool used for materials characterization coursework' },
     ],
   },
   {
@@ -147,6 +154,7 @@ const projects: Project[] = [
     },
     meta: [
       { label: 'Stack', value: 'Python · Streamlit · LangChain · Hugging Face Transformers' },
+      { label: 'Impact', value: 'Public Hugging Face Space for RAG experiments' },
     ],
   },
   {
@@ -165,6 +173,7 @@ const projects: Project[] = [
     },
     meta: [
       { label: 'Stack', value: 'TypeScript · Python · React · Vite' },
+      { label: 'Impact', value: 'Enumerates full daily solution space in-browser' },
     ],
   },
 ];
