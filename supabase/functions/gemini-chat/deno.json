@@ -1,5 +1,5 @@
 {
   "tasks": {
-    "test": "deno test --allow-env --allow-net --allow-read handler_test.ts"
+    "test": "deno test --allow-env --allow-net --allow-read --unstable-kv handler_test.ts"
   }
 }

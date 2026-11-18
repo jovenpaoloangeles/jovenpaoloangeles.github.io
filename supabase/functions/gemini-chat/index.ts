@@ -6,11 +6,17 @@ const FILE_SEARCH_STORE = Deno.env.get("GEMINI_FILE_SEARCH_STORE_NAME") ?? "";
 const GEMINI_URL =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent";
 
-const ALLOWED_ORIGINS = [
-  "https://jovenpaoloangeles.github.io",
-  "http://localhost:5173",
-  "http://localhost:4173",
-];
+// Comma-separated allowlist. Local dev opts in by setting ALLOWED_ORIGINS to
+// its dev-server origins (e.g. the vite dev/preview ports on 127.0.0.1).
+const ALLOWED_ORIGINS = (Deno.env.get("ALLOWED_ORIGINS") ??
+  "https://jovenpaoloangeles.github.io")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+// Durable rate-limit store, shared across isolates (Supabase edge runtime
+// enables Deno.openKv natively).
+const kv = await Deno.openKv();
 
 Deno.serve(
   createHandler({
@@ -20,5 +26,6 @@ Deno.serve(
     rateMax: 5,
     rateWindowMs: 15 * 60 * 1000,
     allowedOrigins: ALLOWED_ORIGINS,
+    kv,
   }),
 );

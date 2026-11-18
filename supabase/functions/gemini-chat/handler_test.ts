@@ -462,3 +462,86 @@ Deno.test("rate limit key uses the LAST x-forwarded-for entry", async () => {
     },
   );
 });
+
+// ── KV-backed rate limit (plan 012) ───────────────────────────────────────────
+
+// Deno 2.9 supports an in-memory KV store via the ":memory:" session path
+// (requires --unstable-kv, enabled in deno.json's test task).
+async function makeKv(): Promise<Deno.Kv> {
+  return await Deno.openKv(":memory:");
+}
+
+Deno.test("KV store limits: rateMax allowed then rejected with numeric Retry-After", async () => {
+  const kv = await makeKv();
+  try {
+    const handler = makeHandler({ rateMax: 2, kv });
+    const ip = { "x-forwarded-for": "10.9.8.7" };
+
+    await withFetch(
+      async () => geminiOkResponse("ok"),
+      async () => {
+        const r1 = await handler(post({ message: "a" }, ip));
+        assertEquals(r1.status, 200);
+        const r2 = await handler(post({ message: "b" }, ip));
+        assertEquals(r2.status, 200);
+
+        const r3 = await handler(post({ message: "c" }, ip));
+        assertEquals(r3.status, 429);
+        const retryAfter = Number(r3.headers.get("Retry-After"));
+        assertEquals(Number.isFinite(retryAfter), true);
+        assertEquals(retryAfter > 0, true);
+        const body = await r3.json();
+        assertStringIncludes(body.error, "Too many requests");
+      },
+    );
+  } finally {
+    kv.close();
+  }
+});
+
+Deno.test("KV budget is shared across handlers using the same kv", async () => {
+  const kv = await makeKv();
+  try {
+    const handlerA = makeHandler({ rateMax: 3, kv });
+    const handlerB = makeHandler({ rateMax: 3, kv });
+    const ip = { "x-forwarded-for": "10.9.8.8" };
+
+    await withFetch(
+      async () => geminiOkResponse("ok"),
+      async () => {
+        // 3 allowed across the PAIR (2 from A, 1 from B), not 3 each
+        const r1 = await handlerA(post({ message: "a" }, ip));
+        assertEquals(r1.status, 200);
+        const r2 = await handlerA(post({ message: "b" }, ip));
+        assertEquals(r2.status, 200);
+        const r3 = await handlerB(post({ message: "c" }, ip));
+        assertEquals(r3.status, 200);
+
+        const r4 = await handlerB(post({ message: "d" }, ip));
+        assertEquals(r4.status, 429);
+      },
+    );
+  } finally {
+    kv.close();
+  }
+});
+
+Deno.test("origin not in allowedOrigins gets no CORS reflection", async () => {
+  const handler = makeHandler({
+    allowedOrigins: ["https://jovenpaoloangeles.github.io"],
+  });
+  const req = new Request("https://test.fn/gemini-chat", {
+    method: "OPTIONS",
+    headers: { origin: "http://localhost:5173" },
+  });
+  const res = await handler(req);
+  assertEquals(res.status, 204);
+  assertEquals(
+    res.headers.get("Access-Control-Allow-Origin"),
+    "https://jovenpaoloangeles.github.io",
+  );
+  assertEquals(
+    res.headers.get("Access-Control-Allow-Origin") === "http://localhost:5173",
+    false,
+  );
+});

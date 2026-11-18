@@ -5,6 +5,8 @@ export type HandlerConfig = {
   rateMax: number;
   rateWindowMs: number;
   allowedOrigins: string[];
+  /** Optional KV handle; when omitted, fall back to the in-memory Map (used by tests). */
+  kv?: Deno.Kv;
 };
 
 const SYSTEM_INSTRUCTION = `
@@ -74,43 +76,78 @@ function corsHeaders(origin: string | null, allowedOrigins: string[]): HeadersIn
 
 /**
  * Creates a testable request handler.
- * Each call returns a handler with its own isolated in-memory rate limit store,
- * so tests can construct a fresh handler per test without shared state.
+ * Rate limiting uses the provided `kv` (Deno KV, durable across isolates) when
+ * given; otherwise each call returns a handler with its own isolated in-memory
+ * rate limit store, so tests can construct a fresh handler per test without
+ * shared state.
  */
 export function createHandler(
   config: HandlerConfig,
 ): (req: Request) => Promise<Response> {
-  const { apiKey, fileSearchStore, geminiUrl, rateMax, rateWindowMs, allowedOrigins } =
-    config;
+  const {
+    apiKey,
+    fileSearchStore,
+    geminiUrl,
+    rateMax,
+    rateWindowMs,
+    allowedOrigins,
+    kv,
+  } = config;
 
   // Per-handler store — isolated between test instances
   const rateLimitStore = new Map<string, number[]>();
 
-  function checkRateLimit(
-    ip: string,
+  // Shared window logic. `hits` must already be filtered to the current window;
+  // mutates `hits` by appending `now` when allowed.
+  function decide(
+    hits: number[],
+    now: number,
   ): { allowed: boolean; retryAfterSeconds: number } {
-    const now = Date.now();
-    // Bound memory: prune stale buckets when the map grows too large.
-    if (rateLimitStore.size > 10_000) {
-      for (const [key, times] of rateLimitStore) {
-        if (times.length === 0 || now - times[times.length - 1] >= rateWindowMs) {
-          rateLimitStore.delete(key);
-        }
-      }
-    }
-    const hits = (rateLimitStore.get(ip) ?? []).filter(
-      (t) => now - t < rateWindowMs,
-    );
-
     if (hits.length >= rateMax) {
       const oldest = Math.min(...hits);
       const retryAfterSeconds = Math.ceil((oldest + rateWindowMs - now) / 1000);
       return { allowed: false, retryAfterSeconds };
     }
-
     hits.push(now);
-    rateLimitStore.set(ip, hits);
     return { allowed: true, retryAfterSeconds: 0 };
+  }
+
+  async function checkRateLimit(
+    ip: string,
+  ): Promise<{ allowed: boolean; retryAfterSeconds: number }> {
+    const now = Date.now();
+
+    if (!kv) {
+      // In-memory fallback (tests) — kept verbatim from the pre-KV version.
+      // Bound memory: prune stale buckets when the map grows too large.
+      if (rateLimitStore.size > 10_000) {
+        for (const [key, times] of rateLimitStore) {
+          if (times.length === 0 || now - times[times.length - 1] >= rateWindowMs) {
+            rateLimitStore.delete(key);
+          }
+        }
+      }
+      const hits = (rateLimitStore.get(ip) ?? []).filter(
+        (t) => now - t < rateWindowMs,
+      );
+      const result = decide(hits, now);
+      rateLimitStore.set(ip, hits);
+      return result;
+    }
+
+    // Durable KV path — survives isolate recycling and is shared across isolates.
+    // ponytail: plain kv.get/kv.set read-modify-write, no atomic check-and-set
+    // retry; last-writer-wins under per-IP contention is acceptable (low traffic)
+    // and worst case the limit is briefly one hit looser. Upgrade to kv.atomic()
+    // if per-IP throughput ever makes that matter.
+    const hits = ((await kv.get<number[]>(["rl", ip])).value ?? []).filter(
+      (t) => now - t < rateWindowMs,
+    );
+    const result = decide(hits, now);
+    if (result.allowed) {
+      await kv.set(["rl", ip], hits);
+    }
+    return result;
   }
 
   return async function handler(req: Request): Promise<Response> {
@@ -132,7 +169,7 @@ export function createHandler(
       req.headers.get("cf-connecting-ip") ||
       "unknown";
 
-    const { allowed, retryAfterSeconds } = checkRateLimit(ip);
+    const { allowed, retryAfterSeconds } = await checkRateLimit(ip);
     if (!allowed) {
       return new Response(
         JSON.stringify({

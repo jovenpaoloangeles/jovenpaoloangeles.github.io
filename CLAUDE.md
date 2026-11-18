@@ -54,7 +54,7 @@ Key implementation details:
 
 ### AI Chatbot
 
-`ChatbotWidget.tsx` sends messages to a Supabase Edge Function (`supabase/functions/gemini-chat/`) which proxies to Gemini. No API key is stored client-side. Chat history persists in `localStorage`. The edge function uses Deno KV for IP-based rate limiting (5 req / 15 min) and the Gemini File Search Store API for CV-based RAG.
+`ChatbotWidget.tsx` sends messages to a Supabase Edge Function (`supabase/functions/gemini-chat/`) which proxies to Gemini. No API key is stored client-side. Chat history persists in `localStorage`. The edge function uses Deno KV for IP-based rate limiting (5 req / 15 min; in-memory Map fallback used by tests only) and the Gemini File Search Store API for CV-based RAG.
 
 Edge function is split into `handler.ts` (exported `createHandler(config)` factory, fully testable) and `index.ts` (thin Deno.serve wrapper). Tests live in `handler_test.ts` and run with `deno task test`.
 
