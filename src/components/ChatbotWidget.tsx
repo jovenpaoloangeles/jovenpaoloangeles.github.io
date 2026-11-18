@@ -1,8 +1,28 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  lazy,
+  Suspense,
+  type ComponentProps,
+} from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X, Send, Loader2, Trash2 } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+
+// Markdown pipeline is deferred to its own chunk so visitors who never open
+// chat never download react-markdown + remark-gfm.
+const LazyReactMarkdown = lazy(async () => {
+  const [{ default: Markdown }, { default: gfm }] = await Promise.all([
+    import('react-markdown'),
+    import('remark-gfm'),
+  ]);
+  return {
+    default: (props: ComponentProps<typeof Markdown>) => (
+      <Markdown remarkPlugins={[gfm]} {...props} />
+    ),
+  };
+});
 
 interface Message {
   id: string;
@@ -410,40 +430,69 @@ export function ChatbotWidget() {
                         {message.role === 'user' ? (
                           <p className="whitespace-pre-wrap break-words">{message.content}</p>
                         ) : (
-                          <ReactMarkdown
-                            remarkPlugins={[remarkGfm]}
-                            components={{
-                              p: ({ children }) => <p className="mb-1 last:mb-0 break-words">{children}</p>,
-                              strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
-                              em: ({ children }) => <em className="italic">{children}</em>,
-                              ul: ({ children }) => <ul className="my-1 ml-4 list-disc space-y-0.5">{children}</ul>,
-                              ol: ({ children }) => <ol className="my-1 ml-4 list-decimal space-y-0.5">{children}</ol>,
-                              li: ({ children }) => <li className="leading-snug">{children}</li>,
-                              a: ({ href, children }) => (
-                                <a href={href} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:opacity-80">
-                                  {children}
-                                </a>
-                              ),
-                              code: ({ children }) => (
-                                <code className="rounded bg-black/10 px-1 py-0.5 font-mono text-xs dark:bg-white/10">
-                                  {children}
-                                </code>
-                              ),
-                              pre: ({ children }) => (
-                                <pre className="my-1 overflow-x-auto rounded bg-black/10 p-2 font-mono text-xs dark:bg-white/10">
-                                  {children}
-                                </pre>
-                              ),
-                              h1: ({ children }) => <p className="font-semibold text-foreground">{children}</p>,
-                              h2: ({ children }) => <p className="font-semibold text-foreground">{children}</p>,
-                              h3: ({ children }) => <p className="font-medium text-foreground">{children}</p>,
-                              blockquote: ({ children }) => (
-                                <blockquote className="border-l-2 border-current pl-2 opacity-80">{children}</blockquote>
-                              ),
-                            }}
+                          <Suspense
+                            fallback={
+                              <span
+                                className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-current opacity-50"
+                                aria-hidden="true"
+                              />
+                            }
                           >
-                            {message.content}
-                          </ReactMarkdown>
+                            <LazyReactMarkdown
+                              components={{
+                                p: ({ children }) => (
+                                  <p className="mb-1 last:mb-0 break-words">{children}</p>
+                                ),
+                                strong: ({ children }) => (
+                                  <strong className="font-semibold text-foreground">{children}</strong>
+                                ),
+                                em: ({ children }) => <em className="italic">{children}</em>,
+                                ul: ({ children }) => (
+                                  <ul className="my-1 ml-4 list-disc space-y-0.5">{children}</ul>
+                                ),
+                                ol: ({ children }) => (
+                                  <ol className="my-1 ml-4 list-decimal space-y-0.5">{children}</ol>
+                                ),
+                                li: ({ children }) => <li className="leading-snug">{children}</li>,
+                                a: ({ href, children }) => (
+                                  <a
+                                    href={href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="underline underline-offset-2 hover:opacity-80"
+                                  >
+                                    {children}
+                                  </a>
+                                ),
+                                code: ({ children }) => (
+                                  <code className="rounded bg-black/10 px-1 py-0.5 font-mono text-xs dark:bg-white/10">
+                                    {children}
+                                  </code>
+                                ),
+                                pre: ({ children }) => (
+                                  <pre className="my-1 overflow-x-auto rounded bg-black/10 p-2 font-mono text-xs dark:bg-white/10">
+                                    {children}
+                                  </pre>
+                                ),
+                                h1: ({ children }) => (
+                                  <p className="font-semibold text-foreground">{children}</p>
+                                ),
+                                h2: ({ children }) => (
+                                  <p className="font-semibold text-foreground">{children}</p>
+                                ),
+                                h3: ({ children }) => (
+                                  <p className="font-medium text-foreground">{children}</p>
+                                ),
+                                blockquote: ({ children }) => (
+                                  <blockquote className="border-l-2 border-current pl-2 opacity-80">
+                                    {children}
+                                  </blockquote>
+                                ),
+                              }}
+                            >
+                              {message.content}
+                            </LazyReactMarkdown>
+                          </Suspense>
                         )}
                         <p
                           className={`mt-1 text-[10px] ${
