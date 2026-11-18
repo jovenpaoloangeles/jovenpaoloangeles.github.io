@@ -17,23 +17,49 @@ const AUTO_OPEN_DELAY = 3000; // ms before auto-opening to aid discoverability
 const EDGE_FUNCTION_URL =
   'https://pseeqvnoppfsbmptzznj.supabase.co/functions/v1/gemini-chat';
 
+// Client-side mirror of the edge function's sanitizeHistory: history restored
+// from localStorage is untrusted input, so filter hard. Keeps user history when
+// fixable (synthesize id/timestamp) instead of dropping entries.
+const MAX_RESTORED_HISTORY = 50;
+const MAX_CONTENT_LENGTH = 2000;
+
+function sanitizeRestoredHistory(raw: string): Message[] {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return [];
+  }
+  if (!Array.isArray(parsed)) return [];
+  const entries = parsed.flatMap((m: unknown): Message[] => {
+    if (m === null || typeof m !== 'object') return [];
+    const entry = m as Partial<Omit<Message, 'timestamp'>> & { timestamp?: unknown };
+    if (
+      (entry.role !== 'user' && entry.role !== 'assistant') ||
+      typeof entry.content !== 'string' ||
+      entry.content.trim().length === 0
+    ) {
+      return [];
+    }
+    const restored = new Date(entry.timestamp as string);
+    return [
+      {
+        id: typeof entry.id === 'string' && entry.id ? entry.id : crypto.randomUUID(),
+        role: entry.role,
+        content: entry.content.slice(0, MAX_CONTENT_LENGTH),
+        timestamp: Number.isNaN(restored.getTime()) ? new Date() : restored,
+      },
+    ];
+  });
+  return entries.slice(-MAX_RESTORED_HISTORY);
+}
+
 export function ChatbotWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem(CHAT_HISTORY_KEY);
-      if (saved) {
-        try {
-          return JSON.parse(saved).map((m: Message) => ({
-            ...m,
-            timestamp: new Date(m.timestamp),
-          }));
-        } catch {
-          return [];
-        }
-      }
-    }
-    return [];
+    if (typeof window === 'undefined') return [];
+    const saved = localStorage.getItem(CHAT_HISTORY_KEY);
+    return saved ? sanitizeRestoredHistory(saved) : [];
   });
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -125,6 +151,7 @@ export function ChatbotWidget() {
   }, [markUserAware]);
 
   const handleClearHistory = useCallback(() => {
+    if (isStreamingRef.current) return;
     setMessages([]);
     localStorage.removeItem(CHAT_HISTORY_KEY);
   }, []);
@@ -340,7 +367,8 @@ export function ChatbotWidget() {
                 {messages.length > 0 && (
                   <button
                     onClick={handleClearHistory}
-                    className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                    disabled={isLoading}
+                    className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-50"
                     title="Clear chat history"
                     aria-label="Clear chat history"
                   >
