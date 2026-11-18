@@ -35,6 +35,8 @@ const projects: Project[] = [
       width: 512,
       height: 512,
       png: '/projects/ACABAI.jpg',
+      webp: '/projects/ACABAI.webp',
+      avif: '/projects/ACABAI.avif',
     },
     meta: [
       { label: 'Stack', value: 'React · TypeScript · Vite · Tailwind CSS' },
@@ -52,6 +54,8 @@ const projects: Project[] = [
       width: 512,
       height: 512,
       png: '/projects/NAIRA.jpg',
+      webp: '/projects/NAIRA.webp',
+      avif: '/projects/NAIRA.avif',
     },
     meta: [
       { label: 'Stack', value: 'AI-as-a-Service · AI/ML Platform' },
