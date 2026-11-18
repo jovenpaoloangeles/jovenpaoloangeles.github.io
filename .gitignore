@@ -35,3 +35,8 @@ codedb.snapshot*.tsbuildinfo
 
 *.tsbuildinfo
 supabase/.temp/
+
+# One-off design-review scratch images at repo root
+/font-opt*.png
+/font-options.png
+/name-final.png
