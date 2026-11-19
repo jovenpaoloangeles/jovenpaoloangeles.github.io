@@ -74,6 +74,23 @@ function sanitizeRestoredHistory(raw: string): Message[] {
   return entries.slice(-MAX_RESTORED_HISTORY);
 }
 
+// Request lifecycle — one request at a time:
+//
+//   idle ──send──▶ sending ──first token──▶ streaming ──done──▶ idle
+//   error ─send─▶    │                          │
+//                    └───────── fail ───────────┴──────────▶ error
+//
+// `sending` shows "Thinking…"; `streaming` shows the reply growing instead.
+// History is persisted in every state except `streaming`, so tokens don't
+// re-serialize the whole history; leaving `streaming` persists the final text.
+type ChatStatus =
+  | { kind: 'idle' }
+  | { kind: 'sending' }
+  | { kind: 'streaming' }
+  | { kind: 'error'; message: string };
+
+const FALLBACK_REPLY = 'Sorry, I could not generate a response.';
+
 export function ChatbotWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>(() => {
@@ -82,8 +99,8 @@ export function ChatbotWidget() {
     return saved ? sanitizeRestoredHistory(saved) : [];
   });
   const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<ChatStatus>({ kind: 'idle' });
+  const busy = status.kind === 'sending' || status.kind === 'streaming';
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -91,20 +108,13 @@ export function ChatbotWidget() {
   // Set briefly when the panel opens via auto-open so the focus effect can skip
   // stealing focus from whatever the user was reading.
   const autoOpenedRef = useRef(false);
-  // While true, the localStorage persistence effect is suppressed so streaming
-  // tokens don't re-serialize the whole history per token; the stream completion
-  // paths flip it back to false BEFORE their final setMessages so the effect
-  // fires exactly once with the final state.
-  const isStreamingRef = useRef(false);
 
-  // Save messages to localStorage — skipped while streaming; the stream
-  // completion path persists the final state once.
   useEffect(() => {
-    if (isStreamingRef.current) return;
+    if (status.kind === 'streaming') return;
     if (typeof window !== 'undefined') {
       localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(messages));
     }
-  }, [messages]);
+  }, [messages, status.kind]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -171,13 +181,13 @@ export function ChatbotWidget() {
   }, [markUserAware]);
 
   const handleClearHistory = useCallback(() => {
-    if (isStreamingRef.current) return;
+    if (busy) return;
     setMessages([]);
     localStorage.removeItem(CHAT_HISTORY_KEY);
-  }, []);
+  }, [busy]);
 
   const handleSendMessage = useCallback(async () => {
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || busy) return;
 
     const userMessage: Message = {
       id: crypto.randomUUID(),
@@ -187,14 +197,8 @@ export function ChatbotWidget() {
     };
 
     setMessages((prev) => [...prev, userMessage]);
-    // Persist the user message immediately: the streaming guard is already on,
-    // so the persistence effect would skip it, and error paths below rely on
-    // this being written before anything can fail.
-    localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify([...messages, userMessage]));
     setInput('');
-    setIsLoading(true);
-    setError(null);
-    isStreamingRef.current = true;
+    setStatus({ kind: 'sending' });
 
     // Build history in Gemini format (role: 'user' | 'model')
     const history = messages
@@ -204,7 +208,20 @@ export function ChatbotWidget() {
         parts: [{ text: m.content }],
       }));
 
-    let hoistedAssistantId: string | null = null;
+    // The assistant bubble is created on the first token (sending → streaming),
+    // so there is never an empty bubble to clean up on failure.
+    let assistantId: string | null = null;
+    const appendReply = (text: string) => {
+      if (assistantId === null) {
+        const id = (assistantId = crypto.randomUUID());
+        setMessages((prev) => [...prev, { id, role: 'assistant', content: text, timestamp: new Date() }]);
+        setStatus({ kind: 'streaming' });
+        return;
+      }
+      const id = assistantId;
+      setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, content: m.content + text } : m)));
+    };
+
     try {
       const res = await fetch(EDGE_FUNCTION_URL, {
         method: 'POST',
@@ -227,13 +244,6 @@ export function ChatbotWidget() {
 
       if (contentType.includes('text/event-stream')) {
         // Streaming response — read SSE chunks and append incrementally
-        const newAssistantId = crypto.randomUUID();
-        hoistedAssistantId = newAssistantId;
-        setMessages((prev) => [
-          ...prev,
-          { id: newAssistantId, role: 'assistant', content: '', timestamp: new Date() },
-        ]);
-
         const reader = res.body?.getReader();
         if (!reader) throw new Error('No response body');
 
@@ -256,67 +266,25 @@ export function ChatbotWidget() {
                 const chunk = JSON.parse(jsonStr);
                 const text: string =
                   chunk?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
-                if (text) {
-                  setMessages((prev) =>
-                    prev.map((m) =>
-                      m.id === newAssistantId ? { ...m, content: m.content + text } : m,
-                    ),
-                  );
-                }
+                if (text) appendReply(text);
               } catch {
                 // Ignore malformed chunks
               }
             }
           }
         }
-
-        // If streaming produced no content, show fallback. Flip the streaming
-        // guard first so this final update is the one that persists to
-        // localStorage.
-        isStreamingRef.current = false;
-        setMessages((prev) =>
-          prev.map((m) =>
-            m.id === newAssistantId && m.content === ''
-              ? { ...m, content: 'Sorry, I could not generate a response.' }
-              : m,
-          ),
-        );
+        if (assistantId === null) appendReply(FALLBACK_REPLY);
       } else {
-        // Fallback for non-streaming response (e.g. error JSON). Flip the
-        // streaming guard before the final update so it persists.
-        isStreamingRef.current = false;
+        // Fallback for non-streaming response (e.g. error JSON)
         const data = await res.json();
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: crypto.randomUUID(),
-            role: 'assistant',
-            content: data.text ?? 'Sorry, I could not generate a response.',
-            timestamp: new Date(),
-          },
-        ]);
+        appendReply(data.text ?? FALLBACK_REPLY);
       }
+      setStatus({ kind: 'idle' });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-      // If a streaming placeholder bubble was already appended, fill it so the
-      // user doesn't see a permanent empty assistant message after an error.
-      if (hoistedAssistantId) {
-        const failedId = hoistedAssistantId;
-        // flip before the fill so it persists
-        isStreamingRef.current = false;
-        setMessages((prev) =>
-          prev.map((m) =>
-            m.id === failedId && m.content === ''
-              ? { ...m, content: 'Sorry, I could not generate a response.' }
-              : m,
-          ),
-        );
-      }
-    } finally {
-      isStreamingRef.current = false;
-      setIsLoading(false);
+      // Partial streamed text (if any) stays; the error banner explains the cut.
+      setStatus({ kind: 'error', message: err instanceof Error ? err.message : 'An error occurred' });
     }
-  }, [input, isLoading, messages]);
+  }, [input, busy, messages]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -387,7 +355,7 @@ export function ChatbotWidget() {
                 {messages.length > 0 && (
                   <button
                     onClick={handleClearHistory}
-                    disabled={isLoading}
+                    disabled={busy}
                     className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-50"
                     title="Clear chat history"
                     aria-label="Clear chat history"
@@ -504,7 +472,7 @@ export function ChatbotWidget() {
                       </div>
                     </div>
                   ))}
-                  {isLoading && (
+                  {status.kind === 'sending' && (
                     <div className="flex justify-start">
                       <div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -518,9 +486,9 @@ export function ChatbotWidget() {
             </div>
 
             {/* Error */}
-            {error && (
-              <div className="border-t border-destructive/20 bg-destructive/10 px-4 py-2 text-xs text-destructive">
-                {error}
+            {status.kind === 'error' && (
+              <div role="alert" className="border-t border-destructive/20 bg-destructive/10 px-4 py-2 text-xs text-destructive">
+                {status.message}
               </div>
             )}
 
@@ -534,12 +502,12 @@ export function ChatbotWidget() {
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Type your message…"
-                  disabled={isLoading}
+                  disabled={busy}
                   className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
                 />
                 <button
                   onClick={handleSendMessage}
-                  disabled={!input.trim() || isLoading}
+                  disabled={!input.trim() || busy}
                   className="flex h-10 w-10 items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
                   aria-label="Send message"
                 >

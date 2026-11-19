@@ -47,38 +47,37 @@ function TabFallback() {
   );
 }
 
-// Define tab interface for better type safety
-interface Tab {
-  value: string;
-  label: string;
-}
+// The tab state machine: states are the entries below, in order. Transitions:
+// click, ArrowLeft/Right/Up/Down (wrapping), Home/End, and URL hash changes.
+// The active tab is mirrored to the hash, so every state is deep-linkable.
+// Adding a section = adding one entry here.
+const TABS = [
+  { value: 'about', label: 'About', Panel: About },
+  { value: 'recent-activities', label: 'Recent Activities', Panel: RecentActivities },
+  { value: 'research', label: 'Research', Panel: Research },
+  { value: 'tech-stack', label: 'Tech Stack', Panel: TechStack },
+  { value: 'projects', label: 'Projects', Panel: Projects },
+  { value: 'creative-coding', label: 'Creative Coding', Panel: CreativeCoding },
+  { value: 'photography', label: 'Photography', Panel: Photography },
+  { value: 'awards', label: 'Awards', Panel: Awards },
+] as const;
 
-const DEFAULT_TAB = 'about';
+type TabValue = (typeof TABS)[number]['value'];
+const DEFAULT_TAB: TabValue = 'about';
 
-const TABS: Tab[] = [
-  { value: 'about', label: 'About' },
-  { value: 'recent-activities', label: 'Recent Activities' },
-  { value: 'research', label: 'Research' },
-  { value: 'tech-stack', label: 'Tech Stack' },
-  { value: 'projects', label: 'Projects' },
-  { value: 'creative-coding', label: 'Creative Coding' },
-  { value: 'photography', label: 'Photography' },
-  { value: 'awards', label: 'Awards' }
-];
+const isTab = (v: string): v is TabValue => TABS.some((tab) => tab.value === v);
 
-const TAB_VALUES = TABS.map((tab) => tab.value);
-
-const getTabFromHash = (): string => {
+const getTabFromHash = (): TabValue => {
   if (typeof window === 'undefined') {
     return DEFAULT_TAB;
   }
 
   const hash = window.location.hash.replace('#', '');
-  return TAB_VALUES.includes(hash) ? hash : DEFAULT_TAB;
+  return isTab(hash) ? hash : DEFAULT_TAB;
 };
 
 function App() {
-  const [activeTab, setActiveTab] = useState<string>(() => getTabFromHash());
+  const [activeTab, setActiveTab] = useState<TabValue>(getTabFromHash);
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const tabListRef = useRef<HTMLDivElement>(null);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -123,58 +122,6 @@ function App() {
     }
   }, [activeTab]);
 
-  // Render content based on active tab
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'about':
-        return <About />;
-      case 'research':
-        return (
-          <Suspense fallback={<TabFallback />}>
-            <Research />
-          </Suspense>
-        );
-      case 'tech-stack':
-        return (
-          <Suspense fallback={<TabFallback />}>
-            <TechStack />
-          </Suspense>
-        );
-      case 'projects':
-        return (
-          <Suspense fallback={<TabFallback />}>
-            <Projects />
-          </Suspense>
-        );
-      case 'creative-coding':
-        return (
-          <Suspense fallback={<TabFallback />}>
-            <CreativeCoding />
-          </Suspense>
-        );
-      case 'photography':
-        return (
-          <Suspense fallback={<TabFallback />}>
-            <Photography />
-          </Suspense>
-        );
-      case 'awards':
-        return (
-          <Suspense fallback={<TabFallback />}>
-            <Awards />
-          </Suspense>
-        );
-      case 'recent-activities':
-        return (
-          <Suspense fallback={<TabFallback />}>
-            <RecentActivities />
-          </Suspense>
-        );
-      default:
-        return <About />;
-    }
-  };
-
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     const target = event.target as HTMLElement;
     if (!target.closest('[role="tab"]')) {
@@ -211,7 +158,7 @@ function App() {
     tabRefs.current[nextTab.value]?.focus();
   };
 
-  const handleTabClick = (value: string) => {
+  const handleTabClick = (value: TabValue) => {
     setActiveTab(value);
     tabRefs.current[value]?.focus();
   };
@@ -283,7 +230,11 @@ function App() {
                   hidden={activeTab !== tab.value}
                   className="p-6"
                 >
-                  {activeTab === tab.value ? renderContent() : null}
+                  {activeTab === tab.value && (
+                    <Suspense fallback={<TabFallback />}>
+                      <tab.Panel />
+                    </Suspense>
+                  )}
                 </div>
               ))}
             </div>

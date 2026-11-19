@@ -2,14 +2,11 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Camera } from 'lucide-react';
 import Carousel from './Carousel';
-import { FullscreenViewer } from './FullscreenViewer';
+import { FullscreenViewer, type ViewerState } from './FullscreenViewer';
 import { reveal } from '@/lib/motion';
 
 export function Photography() {
-  // State for fullscreen viewer
-  const [isViewerOpen, setIsViewerOpen] = useState(false);
-  const [currentCategory, setCurrentCategory] = useState<number | null>(null);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [viewer, setViewer] = useState<ViewerState>(null);
 
   const categories = [
     {
@@ -122,24 +119,6 @@ export function Photography() {
     }
   ];
 
-  // Handle opening the viewer
-  const handleImageClick = (categoryIndex: number, imageIndex: number) => {
-    setCurrentCategory(categoryIndex);
-    setCurrentImageIndex(imageIndex);
-    setIsViewerOpen(true);
-  };
-
-  // Handle closing the viewer
-  const handleCloseViewer = () => {
-    setIsViewerOpen(false);
-    setCurrentCategory(null);
-  };
-
-  // Handle image navigation
-  const handleNavigate = (newIndex: number) => {
-    setCurrentImageIndex(newIndex);
-  };
-
   return (
     <motion.div
       variants={reveal}
@@ -165,7 +144,7 @@ export function Photography() {
             whileInView="show"
             viewport={{ once: true, margin: '-12%' }}
             className="group relative overflow-hidden rounded-xl bg-muted aspect-[4/3] cursor-pointer"
-            onClick={() => handleImageClick(categoryIndex, 0)}
+            onClick={() => setViewer({ images: category.images, index: 0 })}
           >
             <Carousel images={category.images} />
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-6 text-white">
@@ -176,16 +155,7 @@ export function Photography() {
         ))}
       </div>
 
-      {/* Fullscreen Viewer */}
-      {currentCategory !== null && (
-        <FullscreenViewer
-          images={categories[currentCategory].images}
-          currentIndex={currentImageIndex}
-          isOpen={isViewerOpen}
-          onClose={handleCloseViewer}
-          onNavigate={handleNavigate}
-        />
-      )}
+      <FullscreenViewer state={viewer} onChange={setViewer} />
 
       <div className="text-center">
         <p className="text-muted-foreground text-sm">

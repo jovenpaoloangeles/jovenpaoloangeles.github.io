@@ -1,66 +1,49 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 
+// The viewer's whole state: closed (null) or open on one image of a gallery.
+// A single value makes "open with no gallery" unrepresentable, and keeping the
+// component mounted while closed lets AnimatePresence play the exit fade.
+export type ViewerState = { images: string[]; index: number } | null;
+
 interface FullscreenViewerProps {
-  images: string[];
-  currentIndex: number;
-  isOpen: boolean;
-  onClose: () => void;
-  onNavigate: (newIndex: number) => void;
+  state: ViewerState;
+  onChange: (next: ViewerState) => void;
 }
 
-export const FullscreenViewer: React.FC<FullscreenViewerProps> = ({
-  images,
-  currentIndex,
-  isOpen,
-  onClose,
-  onNavigate,
-}) => {
-  // Handle keyboard events
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (!isOpen) return;
-    
-    switch (e.key) {
-      case 'Escape':
-        onClose();
-        break;
-      case 'ArrowLeft':
-        onNavigate(currentIndex > 0 ? currentIndex - 1 : images.length - 1);
-        break;
-      case 'ArrowRight':
-        onNavigate(currentIndex < images.length - 1 ? currentIndex + 1 : 0);
-        break;
-    }
-  }, [isOpen, currentIndex, images.length, onClose, onNavigate]);
-
-  // Add and remove keyboard event listeners
-  useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleKeyDown]);
-
-  // Handle background click
-  const handleBackgroundClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
+export function FullscreenViewer({ state, onChange }: FullscreenViewerProps) {
+  const step = (delta: number) => {
+    if (!state) return;
+    const n = state.images.length;
+    onChange({ ...state, index: (state.index + delta + n) % n });
   };
+
+  useEffect(() => {
+    if (!state) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onChange(null);
+      else if (e.key === 'ArrowLeft') step(-1);
+      else if (e.key === 'ArrowRight') step(1);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  });
 
   return (
     <AnimatePresence>
-      {isOpen && (
+      {state && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
-          onClick={handleBackgroundClick}
+          onClick={(e) => e.target === e.currentTarget && onChange(null)}
         >
           {/* Close button */}
           <button
-            onClick={onClose}
+            onClick={() => onChange(null)}
             className="absolute top-4 right-4 z-50 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
             aria-label="Close viewer"
           >
@@ -71,7 +54,7 @@ export const FullscreenViewer: React.FC<FullscreenViewerProps> = ({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onNavigate(currentIndex > 0 ? currentIndex - 1 : images.length - 1);
+              step(-1);
             }}
             className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
             aria-label="Previous image"
@@ -81,7 +64,7 @@ export const FullscreenViewer: React.FC<FullscreenViewerProps> = ({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onNavigate(currentIndex < images.length - 1 ? currentIndex + 1 : 0);
+              step(1);
             }}
             className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
             aria-label="Next image"
@@ -91,7 +74,7 @@ export const FullscreenViewer: React.FC<FullscreenViewerProps> = ({
 
           {/* Image container */}
           <motion.div
-            key={currentIndex}
+            key={state.index}
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
@@ -99,8 +82,8 @@ export const FullscreenViewer: React.FC<FullscreenViewerProps> = ({
             className="relative w-[90vw] h-[90vh] flex items-center justify-center"
           >
             <img
-              src={images[currentIndex]}
-              alt={`Image ${currentIndex + 1}`}
+              src={state.images[state.index]}
+              alt={`Image ${state.index + 1} of ${state.images.length}`}
               className="max-w-full max-h-full object-contain"
               style={{ margin: 'auto' }}
               loading="lazy"
@@ -111,4 +94,4 @@ export const FullscreenViewer: React.FC<FullscreenViewerProps> = ({
       )}
     </AnimatePresence>
   );
-};
+}

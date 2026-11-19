@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Input } from './ui/input';
@@ -6,42 +6,22 @@ import { ActivityCard } from './ActivityCard';
 import { Activity } from './types';
 import { loadActivities } from '@/lib/content';
 import { reveal } from '@/lib/motion';
+import { useAsync } from '@/hooks/useAsync';
 
 const ITEMS_PER_PAGE = 5;
-type AsyncState = 'idle' | 'loading' | 'success' | 'error';
 
 export function RecentActivities() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState<Activity['type'][number] | 'all'>('all');
   const [currentPage, setCurrentPage] = useState(1);
-  const [activities, setActivities] = useState<Activity[]>([]);
-  const [status, setStatus] = useState<AsyncState>('idle');
   const topRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    let isActive = true;
-    setStatus('loading');
-
-    loadActivities()
-      .then((data) => {
-        if (isActive) {
-          setActivities(data);
-          setStatus('success');
-        }
-      })
-      .catch(() => {
-        if (isActive) {
-          setStatus('error');
-        }
-      });
-
-    return () => {
-      isActive = false;
-    };
-  }, []);
+  const loaded = useAsync(loadActivities);
+  const status = loaded.status;
 
   const filteredActivities = useMemo(() => {
-    return activities
+    if (loaded.status !== 'success') return [];
+    return loaded.data
       .filter((activity) => {
         const matchesSearch = (
           activity.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -52,7 +32,7 @@ export function RecentActivities() {
         return matchesSearch && matchesType;
       })
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-  }, [activities, searchQuery, selectedType]);
+  }, [loaded, searchQuery, selectedType]);
 
   const totalPages = Math.ceil(filteredActivities.length / ITEMS_PER_PAGE);
   const paginatedActivities = filteredActivities.slice(
@@ -80,7 +60,7 @@ export function RecentActivities() {
 
       {status !== 'success' && (
         <div className="p-4 rounded-md border border-dashed border-border text-sm text-muted-foreground">
-          {status === 'loading' || status === 'idle'
+          {status === 'loading'
             ? 'Loading activities…'
             : 'Unable to load activities. Please try again later.'}
         </div>

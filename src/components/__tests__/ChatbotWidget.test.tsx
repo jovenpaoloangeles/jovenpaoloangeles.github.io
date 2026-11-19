@@ -196,6 +196,8 @@ describe('ChatbotWidget', () => {
       await waitFor(() => {
         expect(screen.getByText('Joven is a PhD candidate at UP.')).toBeInTheDocument();
       });
+      // streaming replaces the "Thinking…" indicator rather than stacking under it
+      expect(screen.queryByText(/thinking/i)).not.toBeInTheDocument();
     });
 
     it('submits the message when Enter is pressed', async () => {

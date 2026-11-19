@@ -2,14 +2,11 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Code } from 'lucide-react';
 import Carousel from './Carousel';
-import { FullscreenViewer } from './FullscreenViewer';
+import { FullscreenViewer, type ViewerState } from './FullscreenViewer';
 import { reveal } from '@/lib/motion';
 
 export function CreativeCoding() {
-  // State for fullscreen viewer
-  const [isViewerOpen, setIsViewerOpen] = useState(false);
-  const [currentProject, setCurrentProject] = useState<number | null>(null);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [viewer, setViewer] = useState<ViewerState>(null);
 
   const projects = [
     {
@@ -60,24 +57,6 @@ export function CreativeCoding() {
     }
   ];
 
-  // Handle opening the viewer
-  const handleImageClick = (projectIndex: number, imageIndex: number) => {
-    setCurrentProject(projectIndex);
-    setCurrentImageIndex(imageIndex);
-    setIsViewerOpen(true);
-  };
-
-  // Handle closing the viewer
-  const handleCloseViewer = () => {
-    setIsViewerOpen(false);
-    setCurrentProject(null);
-  };
-
-  // Handle image navigation
-  const handleNavigate = (newIndex: number) => {
-    setCurrentImageIndex(newIndex);
-  };
-
   return (
     <motion.div
       variants={reveal}
@@ -103,7 +82,7 @@ export function CreativeCoding() {
             whileInView="show"
             viewport={{ once: true, margin: '-12%' }}
             className="group relative overflow-hidden rounded-xl bg-muted aspect-[4/3] cursor-pointer"
-            onClick={() => handleImageClick(projectIndex, 0)}
+            onClick={() => setViewer({ images: project.images, index: 0 })}
           >
             <Carousel images={project.images} />
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-6 text-white">
@@ -114,16 +93,7 @@ export function CreativeCoding() {
         ))}
       </div>
 
-      {/* Fullscreen Viewer */}
-      {currentProject !== null && (
-        <FullscreenViewer
-          images={projects[currentProject].images}
-          currentIndex={currentImageIndex}
-          isOpen={isViewerOpen}
-          onClose={handleCloseViewer}
-          onNavigate={handleNavigate}
-        />
-      )}
+      <FullscreenViewer state={viewer} onChange={setViewer} />
 
       <div className="text-center">
         <p className="text-muted-foreground text-sm">

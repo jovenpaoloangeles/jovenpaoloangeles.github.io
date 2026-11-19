@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, Award, Wrench, MapPin, ExternalLink } from 'lucide-react';
 import { reveal } from '@/lib/motion';
+import { useAsync } from '@/hooks/useAsync';
 import {
   Accordion,
   AccordionContent,
@@ -13,15 +13,12 @@ import {
   loadResearchContent,
   type ResearchBook,
   type ResearchConference,
-  type ResearchContent,
   type ResearchExperience,
   type PeerReviewedPublication,
   type SubmittedPublication,
   type InPreparationPublication,
   type Certification,
 } from '@/lib/content';
-
-type AsyncState = 'idle' | 'loading' | 'success' | 'error';
 
 // Research Experience Card Component
 const ExperienceCard = ({ experience }: { experience: ResearchExperience }) => (
@@ -217,32 +214,9 @@ const ConferenceCard = ({ conference }: { conference: ResearchConference }) => (
 );
 
 export function Research() {
-  const [content, setContent] = useState<ResearchContent | null>(null);
-  const [status, setStatus] = useState<AsyncState>('idle');
+  const research = useAsync(loadResearchContent);
 
-  useEffect(() => {
-    let isActive = true;
-    setStatus('loading');
-
-    loadResearchContent()
-      .then((data) => {
-        if (isActive) {
-          setContent(data);
-          setStatus('success');
-        }
-      })
-      .catch(() => {
-        if (isActive) {
-          setStatus('error');
-        }
-      });
-
-    return () => {
-      isActive = false;
-    };
-  }, []);
-
-  if (status === 'loading' || status === 'idle') {
+  if (research.status === 'loading') {
     return (
       <Card className="p-6">
         <p className="text-muted-foreground">Loading research content…</p>
@@ -250,7 +224,7 @@ export function Research() {
     );
   }
 
-  if (status === 'error' || !content) {
+  if (research.status === 'error') {
     return (
       <Card className="p-6">
         <p className="text-destructive">Unable to load research content. Please try again later.</p>
@@ -258,6 +232,7 @@ export function Research() {
     );
   }
 
+  const content = research.data;
   return (
     <motion.div
       variants={reveal}
