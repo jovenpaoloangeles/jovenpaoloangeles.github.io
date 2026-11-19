@@ -32,12 +32,12 @@ const projects: Project[] = [
       'Program website for ACABAI-PH, the DOST-ASTI flagship initiative advancing computing, analytics, big data, and artificial intelligence in the Philippines — the national hub behind DOST-NAIRA, iTANONG, DIMER, and nationwide AI capacity building.',
     ctaLabel: 'Visit acabai.ph',
     media: {
-      alt: 'ACABAI-PH program launch at the NAICRI formal launch event',
+      alt: 'DOST-ASTI logo — home institute of the ACABAI-PH program',
       width: 512,
       height: 512,
-      png: '/projects/ACABAI.jpg',
-      webp: '/projects/ACABAI.webp',
-      avif: '/projects/ACABAI.avif',
+      png: '/projects/DOST-ASTI.jpg',
+      webp: '/projects/DOST-ASTI.webp',
+      avif: '/projects/DOST-ASTI.avif',
     },
     meta: [
       { label: 'Stack', value: 'React · TypeScript · Vite · Tailwind CSS' },
@@ -52,12 +52,12 @@ const projects: Project[] = [
       'DOST Nexus for Artificial Intelligence Research and Applications — a shared AI-as-a-Service platform that lets researchers, MSMEs, and government agencies adopt AI without building their own infrastructure.',
     ctaLabel: 'Explore DOST-NAIRA',
     media: {
-      alt: 'DIMER logo — model repository at the core of the DOST-NAIRA AI-as-a-Service platform',
+      alt: 'DOST-ASTI logo — developer and operator of DOST-NAIRA',
       width: 512,
       height: 512,
-      png: '/projects/NAIRA.jpg',
-      webp: '/projects/NAIRA.webp',
-      avif: '/projects/NAIRA.avif',
+      png: '/projects/DOST-ASTI.jpg',
+      webp: '/projects/DOST-ASTI.webp',
+      avif: '/projects/DOST-ASTI.avif',
     },
     meta: [
       { label: 'Stack', value: 'AI-as-a-Service · AI/ML Platform' },
