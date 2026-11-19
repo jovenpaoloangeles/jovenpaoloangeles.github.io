@@ -7,7 +7,7 @@ describe('TechStack orchestrator', () => {
 
   it('defaults to the graph view', () => {
     render(<TechStack />);
-    expect(screen.getByRole('img', { name: /tech stack knowledge graph/i })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: /tech stack knowledge graph/i })).toBeInTheDocument();
   });
 
   it('switches to the list view when the List toggle is clicked', () => {

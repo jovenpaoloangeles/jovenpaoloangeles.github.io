@@ -112,4 +112,8 @@
 .ts-tile { fill: hsl(var(--card)); stroke: hsl(var(--border)); stroke-width: 1; }
 .ts-center .ts-tile { fill: hsl(var(--primary)); stroke: hsl(var(--foreground)); }
 .ts-mg { fill: hsl(var(--muted-foreground)); font-weight: 700; }
+.ts-node:focus { outline: none; }
+.ts-node:focus-visible .ts-tile { stroke: hsl(var(--ring)); stroke-width: 2.5; }
+.ts-tool-label { fill: hsl(var(--foreground)); font-size: calc(12px / var(--ts-k, 1)); /* constant on-screen size; --ts-k = zoom scale */ pointer-events: none; paint-order: stroke; stroke: hsl(var(--background)); stroke-width: calc(3px / var(--ts-k, 1)); stroke-linejoin: round; }
+.ts-labels-off .ts-tool-label { display: none; }
 .ts-dom-label { fill: hsl(var(--muted-foreground)); font-size: 12px; opacity: .8; pointer-events: none; }

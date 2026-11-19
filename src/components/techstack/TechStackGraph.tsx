@@ -1,4 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { forwardRef, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { X } from 'lucide-react';
+import { Minus, Plus } from 'lucide-react';
 import {
   select,
   forceSimulation,
@@ -12,7 +14,6 @@ import {
   zoomTransform,
 } from 'd3';
 import type {
-  Selection,
   Simulation,
   SimulationLinkDatum,
   SimulationNodeDatum,
@@ -24,7 +25,7 @@ import {
 } from '@/content/techstack';
 import {
   TILE_SIZES, NODE_RADII, COLLISION_PADDING, BOUNDARY_PADDING,
-  PHYSICS, ANIMATION, ZOOM, SPOTLIGHT
+  PHYSICS, ANIMATION, ZOOM, SPOTLIGHT, POPOVER, placePopover
 } from './techstack-graph-config';
 
 interface SimNode extends SimulationNodeDatum {
@@ -65,10 +66,60 @@ function domainAngle(domainId: string): number {
   return (i / TECHSTACK_DOMAINS.length) * 2 * Math.PI - Math.PI / 2;
 }
 
+// Link endpoints are id strings until forceLink resolves them into node objects.
+const endId = (end: SimLink['source']): string =>
+  typeof end === 'object' ? (end as SimNode).id : String(end);
+
+function linkDistance(l: SimLink, R1: number): number {
+  if (l.kind === 'spoke') return R1;
+  if (l.kind === 'member') {
+    const tool = TECHSTACK_TOOLS.find((t) => t.id === endId(l.target));
+    return toolRingRadius(tool?.domainId ?? '');
+  }
+  if (l.kind === 'child') return PHYSICS.toolRing.childGap;
+  return PHYSICS.techLinkDistance;
+}
+
+// With prefers-reduced-motion, run the simulation to rest synchronously and paint
+// the final layout once instead of animating. Otherwise reheat as normal.
+const prefersReducedMotion = () =>
+  typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function reheat(sim: Simulation<SimNode, SimLink>, alpha: number) {
+  if (!prefersReducedMotion()) {
+    sim.alpha(alpha).restart();
+    return;
+  }
+  sim.alpha(alpha).stop();
+  while (sim.alpha() > sim.alphaMin()) sim.tick();
+  sim.on('tick')?.call(sim); // sim.tick() doesn't emit events; paint once
+}
+
+const MAX_DOMAIN_CONNECTS = 6;
+
+/** What the details popover shows for a node id. */
+function popoverContent(id: string): { tag: string; title: string; body: string; connects: string[]; more: number } {
+  if (id === CENTER_ID) {
+    return { tag: 'Profile', title: TECHSTACK_CENTER.name, body: TECHSTACK_CENTER.title, connects: [], more: 0 };
+  }
+  const tool = TECHSTACK_TOOLS.find((t) => t.id === id);
+  if (!tool) {
+    const d = domainById(id);
+    const names = TECHSTACK_TOOLS.filter((t) => t.domainId === d.id).map((t) => t.name);
+    return {
+      tag: 'Domain', title: d.name, body: d.role,
+      connects: names.slice(0, MAX_DOMAIN_CONNECTS),
+      more: Math.max(0, names.length - MAX_DOMAIN_CONNECTS),
+    };
+  }
+  const connects = [...neighborsOf(tool.id)].filter((n) => n !== tool.id)
+    .map((n) => TECHSTACK_TOOLS.find((t) => t.id === n)!.name);
+  return { tag: domainById(tool.domainId).name, title: tool.name, body: tool.role, connects, more: 0 };
+}
 
 const graphStyles = `
   .ts-node, .ts-link {
-    transition: opacity 300ms ease;
+    transition: opacity ${SPOTLIGHT.activeDuration}ms ease;
     opacity: 1;
   }
 
@@ -90,19 +141,19 @@ export function TechStackGraph() {
   const linksRef = useRef<SimLink[]>([]);
   const sizeRef = useRef({ w: 600, h: 460 });
   const lastSizeRef = useRef({ w: 0, h: 0 });
+  // Set by the setup effect; lets the React +/− buttons drive d3-zoom.
+  const zoomByRef = useRef<(factor: number) => void>(() => {});
+  // Selection: React state drives the popover; the ref mirrors it for d3 handlers.
+  // Both are written only by setSelection inside the setup effect.
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const selectedIdRef = useRef<string | null>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const positionPopoverRef = useRef<() => void>(() => {});
+  const closeRef = useRef<() => void>(() => {});
 
-  const releaseSelectedNode = () => {
-    const id = selectedIdRef.current;
-    if (id == null) return;
-
-    const node = nodesRef.current.find(n => n.id === id);
-    if (node && node.kind !== 'center') {
-      node.fx = null;
-      node.fy = null;
-    }
-    selectedIdRef.current = null;
-  };
+  // Place the popover before paint whenever the selection changes; the tick and
+  // zoom handlers keep it attached to the node after that.
+  useLayoutEffect(() => positionPopoverRef.current(), [selectedId]);
 
   const handleResize = (newSize: { w: number; h: number }) => {
     sizeRef.current = newSize;
@@ -128,16 +179,7 @@ export function TechStackGraph() {
     // Update link distances based on new R1
     const linkForce = simulationRef.current.force('link') as ForceLink<SimNode, SimLink>;
     if (linkForce) {
-      linkForce.distance((l) => {
-        if (l.kind === 'spoke') return R1;
-        if (l.kind === 'member') {
-          const tgt = l.target as SimNode;
-          const toolNode = nodesRef.current.find((n) => n.id === (typeof tgt === 'string' ? tgt : tgt.id));
-          return toolRingRadius(toolNode?.domainId ?? '');
-        }
-        if (l.kind === 'child') return PHYSICS.toolRing.childGap;
-        return PHYSICS.linkDistances.tech;
-      });
+      linkForce.distance((l) => linkDistance(l, R1));
     }
 
     // Update center node position
@@ -153,7 +195,7 @@ export function TechStackGraph() {
     const changed = Math.abs(prev.w - w) > 2 || Math.abs(prev.h - h) > 2;
     if (changed) {
       lastSizeRef.current = { w, h };
-      simulationRef.current.alpha(0.2).restart();
+      reheat(simulationRef.current, 0.2);
     }
   };
 
@@ -282,10 +324,13 @@ export function TechStackGraph() {
       .attr('class', (n) => 'ts-node ts-' + n.kind)
       .attr('data-node', (n) => n.kind)
       .attr('data-id', (n) => n.id)
+      .attr('tabindex', 0)
+      .attr('role', 'button')
+      .attr('aria-label', (n) => (n.tool ? `${n.label} (${domainById(n.tool.domainId).name})` : n.label))
       .style('cursor', 'pointer');
 
-    // Popover lives OUTSIDE the root group so it's not affected by zoom transform
-    const popoverG = svg.append('g').attr('class', 'ts-popover-container');
+    // Native hover tooltip — tool tiles are icon-only at default zoom.
+    nodeG.append('title').text((n) => n.label);
 
     // Spotlight dimming effect
     const activateSpotlight = (nodeId: string) => {
@@ -294,8 +339,8 @@ export function TechStackGraph() {
 
       // Find all first-degree neighbors
       linksRef.current.forEach(link => {
-        const srcId = typeof link.source === 'string' ? link.source : (link.source as SimNode).id;
-        const tgtId = typeof link.target === 'string' ? link.target : (link.target as SimNode).id;
+        const srcId = endId(link.source);
+        const tgtId = endId(link.target);
 
         if (srcId === nodeId) connected.add(tgtId);
         if (tgtId === nodeId) connected.add(srcId);
@@ -306,8 +351,8 @@ export function TechStackGraph() {
 
       // Dim links not connected to selected node
       linkSel.classed('dimmed', l => {
-        const srcId = typeof l.source === 'string' ? l.source : (l.source as SimNode).id;
-        const tgtId = typeof l.target === 'string' ? l.target : (l.target as SimNode).id;
+        const srcId = endId(l.source);
+        const tgtId = endId(l.target);
         return srcId !== nodeId && tgtId !== nodeId;
       });
     };
@@ -360,6 +405,12 @@ export function TechStackGraph() {
       .attr('y', nodeTile({ kind: 'domain' } as SimNode) / 2 + 12)
       .text((n) => n.label);
 
+    // tool names, shown only when zoomed in (see applySemanticZoom)
+    nodeG.filter((n) => n.kind === 'tool').append('text')
+      .attr('class', 'ts-tool-label').attr('text-anchor', 'middle').attr('dominant-baseline', 'hanging')
+      .attr('y', (n) => nodeTile(n) / 2 + 3)
+      .text((n) => n.label);
+
     // simulation
     const sim = forceSimulation<SimNode>(nodes)
       .force('charge', forceManyBody<SimNode>().strength((n) =>
@@ -375,16 +426,7 @@ export function TechStackGraph() {
         cx, cy
       ).strength(PHYSICS.radialStrength))
       .force('link', forceLink<SimNode, SimLink>(links).id((n) => n.id)
-        .distance((l) => {
-          if (l.kind === 'spoke') return R1;
-          if (l.kind === 'member') {
-            const tgt = l.target as SimNode;
-            const toolNode = nodes.find((n) => n.id === (typeof tgt === 'string' ? tgt : tgt.id));
-            return toolRingRadius(toolNode?.domainId ?? '');
-          }
-          if (l.kind === 'child') return PHYSICS.toolRing.childGap;
-          return PHYSICS.linkDistances.tech;
-        })
+        .distance((l) => linkDistance(l, R1))
         .strength((l) =>
           l.kind === 'spoke' ? PHYSICS.linkStrengths.spoke :
           l.kind === 'member' ? PHYSICS.linkStrengths.member :
@@ -399,147 +441,39 @@ export function TechStackGraph() {
     center.fx = cx;
     center.fy = cy;
 
-    // Popover rendering
-    function renderPopoverInSVG(
-      container: Selection<SVGGElement, unknown, null, undefined>,
-      node: SimNode,
-      handleClose: () => void
-    ) {
-      container.selectAll('*').remove();
-
-      // Gather popover data
-      let title = '';
-      let tag = '';
-      let body = '';
-      let connects: string[] = [];
-
-      if (node.kind === 'center') {
-        title = TECHSTACK_CENTER.name;
-        tag = 'Profile';
-        body = TECHSTACK_CENTER.title;
-      } else if (node.kind === 'domain') {
-        const d = domainById(node.id);
-        title = d.name;
-        tag = 'Domain';
-        body = d.role;
-        connects = TECHSTACK_TOOLS.filter(t => t.domainId === d.id).slice(0, 6).map(t => t.name);
+    // Selection state machine:
+    //
+    //   none ──select(n)──▶ selected(n) ──select(m)──▶ selected(m)
+    //    ▲                      │
+    //    └── × / Escape / background click
+    //
+    // Invariant: the selected node is pinned (fx/fy) so the popover doesn't chase
+    // it; the center is always pinned, so releasing never unpins it.
+    const setSelection = (node: SimNode | null) => {
+      const prev = nodes.find((n) => n.id === selectedIdRef.current);
+      if (prev && prev.kind !== 'center') { prev.fx = null; prev.fy = null; }
+      selectedIdRef.current = node?.id ?? null;
+      setSelectedId(node?.id ?? null);
+      if (node) {
+        node.fx = node.x; node.fy = node.y;
+        activateSpotlight(node.id);
       } else {
-        const t = node.tool!;
-        title = t.name;
-        tag = domainById(t.domainId).name;
-        body = t.role;
-        connects = [...neighborsOf(t.id)].filter(id => id !== t.id)
-          .map(id => TECHSTACK_TOOLS.find(x => x.id === id)!.name);
+        clearSpotlight();
       }
-
-      // foreignObject anchored at the group origin; the tick handler positions
-      // the popover group so the box stays on-screen (flips above/below/left/right).
-      const fo = container.append('foreignObject')
-        .attr('width', 224)
-        .attr('height', 200)
-        .attr('x', 0)
-        .attr('y', 0)
-        .attr('class', 'ts-popover-fo');
-
-      // HTML content with Tailwind classes
-      const div = fo.append('xhtml:div')
-        .attr('xmlns', 'http://www.w3.org/1999/xhtml')
-        .attr('class', 'pointer-events-auto w-56 rounded-md border border-border bg-card p-3 shadow-lg')
-        .on('click', (e) => e.stopPropagation());
-
-      // Header
-      const header = div.append('div')
-        .attr('class', 'mb-1 flex items-center justify-between');
-
-      header.append('span')
-        .attr('class', 'text-[0.6rem] font-semibold uppercase tracking-wider text-muted-foreground')
-        .text(tag);
-
-      header.append('button')
-        .attr('class', 'text-muted-foreground hover:text-foreground')
-        .attr('aria-label', 'Close')
-        .text('×')
-        .on('click', handleClose);
-
-      // Title
-      div.append('div')
-        .attr('class', 'text-sm font-semibold text-foreground')
-        .text(title);
-
-      // Body
-      div.append('div')
-        .attr('class', 'mt-1 text-xs text-muted-foreground')
-        .text(body);
-
-      // Connections
-      if (connects.length > 0) {
-        const connectDiv = div.append('div')
-          .attr('class', 'mt-2 border-t border-dashed border-border pt-2 text-[0.7rem] text-muted-foreground');
-
-        connectDiv.append('span')
-          .attr('class', 'font-semibold text-foreground')
-          .text('Connects to: ');
-
-        connectDiv.append('span').text(connects.join(' · '));
-      }
-    }
-
-    const handleClosePopover = () => {
-      releaseSelectedNode();
-      clearSpotlight();
-      popoverG.selectAll('*').remove();
     };
+    closeRef.current = () => setSelection(null);
 
-    // Update popover position based on current node position and zoom transform
-    const updatePopoverPosition = () => {
-      if (!selectedIdRef.current) {
-        popoverG.attr('transform', null);
-        return;
-      }
-
-      const node = nodes.find(n => n.id === selectedIdRef.current);
-      if (!node || node.x == null || node.y == null) {
-        popoverG.attr('transform', null);
-        return;
-      }
-
-      // Get canvas dimensions
+    positionPopoverRef.current = () => {
+      const el = popoverRef.current;
+      const node = nodes.find((n) => n.id === selectedIdRef.current);
+      if (!el || !node || node.x == null || node.y == null) return;
+      const t = zoomTransform(svgEl);
       const { w: cw, h: ch } = sizeRef.current;
-
-      // Get the current zoom transform
-      const transform = zoomTransform(svgEl);
-
-      // Apply zoom transform to get screen coordinates
-      const screenX = node.x * transform.k + transform.x;
-      const screenY = node.y * transform.k + transform.y;
-
-      // Get visible viewport in screen coordinates
-      const visibleX = -transform.x;
-      const visibleY = -transform.y;
-      const visibleW = cw * transform.k;
-      const visibleH = ch * transform.k;
-
-      const popW = 224, popH = 180, gap = 18;
-      let px = screenX + gap;
-      if (px + popW > visibleX + visibleW - 4) px = screenX - popW - gap; // not enough room right → left
-      if (px < visibleX + 4) px = Math.min(Math.max(screenX - popW / 2, visibleX + 4), visibleX + visibleW - popW - 4); // clamp center
-      let py = screenY - popH - gap; // prefer above
-      if (py < visibleY + 4) py = screenY + gap; // not enough room above → below
-      if (py + popH > visibleY + visibleH - 4) py = Math.max(visibleY + 4, visibleY + visibleH - popH - 4); // clamp bottom
-      popoverG.attr('transform', `translate(${px},${py})`);
-    };
-
-    // Selecting a node: pin it, spotlight its connections, show the popover.
-    const selectNode = (node: SimNode) => {
-      if (selectedIdRef.current && selectedIdRef.current !== node.id) {
-        releaseSelectedNode();
-      }
-      node.fx = node.x; node.fy = node.y; // pin while open
-      selectedIdRef.current = node.id;
-      activateSpotlight(node.id);
-      renderPopoverInSVG(popoverG, node, handleClosePopover);
-      // Restart simulation so the tick handler runs to position the popover
-      sim.alpha(0.3).restart();
+      const p = placePopover(
+        node.x * t.k + t.x, node.y * t.k + t.y, cw, ch,
+        el.offsetWidth || POPOVER.w, el.offsetHeight || POPOVER.h,
+      );
+      el.style.transform = `translate(${p.x}px, ${p.y}px)`;
     };
 
     // Drag vs click are decoupled:
@@ -550,16 +484,19 @@ export function TechStackGraph() {
     //    so a real `click` listener handles selection. d3 suppresses that click
     //    after a genuine drag, so dragging a node won't also select it.
     const CLICK_THRESHOLD = 20; // generous threshold for real hardware (trackpads/mice drift ~10px on a tap)
-    let pressX = 0, pressY = 0, didDrag = false;
+    // Gesture: idle ──press──▶ pressed(x,y) ──moved ≥ threshold──▶ dragging ──release──▶ idle
+    //                              └──────────── release (a click) ─────────────────▶ idle
+    type Gesture = { kind: 'idle' } | { kind: 'pressed'; x: number; y: number } | { kind: 'dragging' };
+    let gesture: Gesture = { kind: 'idle' };
     const drag = d3drag<SVGGElement, SimNode>()
       .clickDistance(CLICK_THRESHOLD)
       .on('start', (e) => {
-        pressX = e.x; pressY = e.y; didDrag = false;
+        gesture = { kind: 'pressed', x: e.x, y: e.y };
       })
       .on('drag', (e, n) => {
         if (n.kind === 'center') return;
-        if (!didDrag && Math.hypot(e.x - pressX, e.y - pressY) >= CLICK_THRESHOLD) {
-          didDrag = true; // promote the gesture to a real drag
+        if (gesture.kind === 'pressed' && Math.hypot(e.x - gesture.x, e.y - gesture.y) >= CLICK_THRESHOLD) {
+          gesture = { kind: 'dragging' };
           // Reheat so the simulation ticks while we drag. This must NOT be gated on
           // !e.active: during 'drag' events e.active is already 1, so that guard would
           // skip the reheat, leave the settled sim cold, and the node — whose position
@@ -567,13 +504,16 @@ export function TechStackGraph() {
           // are set. (The node visually "freezes": click works, drag does not.)
           sim.alphaTarget(ANIMATION.dragAlphaTarget).restart();
         }
-        if (didDrag) { n.fx = e.x; n.fy = e.y; }
+        if (gesture.kind === 'dragging') { n.fx = e.x; n.fy = e.y; }
       })
       .on('end', (_event, n) => {
-        if (didDrag) {
-          sim.alphaTarget(0); // cool down now that the drag is over (gated by didDrag)
-          if (n.kind !== 'center') { n.fx = null; n.fy = null; } // release after a real drag
+        if (gesture.kind === 'dragging') {
+          sim.alphaTarget(0);
+          // Release after a real drag — unless it's the center or the selected node,
+          // which stay pinned (see the selection invariant above).
+          if (n.kind !== 'center' && n.id !== selectedIdRef.current) { n.fx = null; n.fy = null; }
         }
+        gesture = { kind: 'idle' };
       });
     // d3's DragBehavior and Selection generics don't unify across .call (the node
     // selection's first generic is BaseType|SVGGElement); assert nodeG as the exact
@@ -583,39 +523,51 @@ export function TechStackGraph() {
     // Selection — fires for clicks (movement <= clickDistance); suppressed after a drag.
     nodeG.on('click', (event, node) => {
       event.stopPropagation();
-      selectNode(node);
+      setSelection(node);
+    });
+    nodeG.on('keydown', (event: KeyboardEvent, node) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      setSelection(node);
     });
 
     // Semantic zooming: show/hide tool nodes based on zoom scale
     const applySemanticZoom = (scale: number) => {
-      if (scale < ZOOM.semanticThresholds.showOnlyDomains) {
-        // Overview: hide tool nodes and their links, keep domains + center
-        nodeG.filter(n => n.kind === 'tool').classed('ts-hidden', true);
-        linkSel.filter(l => l.kind === 'tech' || l.kind === 'member' || l.kind === 'cross' || l.kind === 'child').classed('ts-hidden', true);
-      } else {
-        // Zoomed in: show everything
-        nodeG.classed('ts-hidden', false);
-        linkSel.classed('ts-hidden', false);
-      }
+      // Overview: hide tool nodes and their links, keep domains + center
+      const overview = scale < ZOOM.semanticThresholds.showOnlyDomains;
+      nodeG.filter((n) => n.kind === 'tool')
+        .classed('ts-hidden', overview)
+        .attr('tabindex', overview ? -1 : 0); // hidden nodes leave the tab order
+      linkSel.filter((l) => l.kind !== 'spoke').classed('ts-hidden', overview);
+      root.classed('ts-labels-off', scale < ZOOM.semanticThresholds.showToolLabels);
     };
 
     // pan/zoom
     const zoom = d3zoom<SVGSVGElement, unknown>()
       .scaleExtent(ZOOM.scaleExtent)
+      // A plain wheel scrolls the page; zoom needs Ctrl/⌘ + wheel (trackpad pinch
+      // arrives as ctrl+wheel). Touch pans/zooms only with two fingers, so a
+      // one-finger swipe still scrolls past the graph. Otherwise d3's default filter.
+      .filter((e) => {
+        if (e.type === 'wheel') return e.ctrlKey || e.metaKey;
+        if (e.type === 'touchstart') return e.touches.length > 1;
+        return !e.ctrlKey && !e.button;
+      })
       .on('zoom', (event) => {
         root.attr('transform', event.transform.toString());
+        root.style('--ts-k', String(event.transform.k));
         applySemanticZoom(event.transform.k);
-        updatePopoverPosition(); // Update popover position when zooming/panning
+        positionPopoverRef.current();
       });
-    svg.call(zoom);
+    svg.call(zoom).style('touch-action', 'pan-y'); // d3 sets 'none', which traps page scroll
+    zoomByRef.current = (factor) => svg.transition().duration(200).call(zoom.scaleBy, factor);
     // Apply initial visibility state (zoom handler only fires on user interaction)
     applySemanticZoom(zoomTransform(svgEl).k);
 
-    // Deselect on SVG background click (empty space, not a node drag).
-    svg.on('click', () => {
-      releaseSelectedNode();
-      clearSpotlight();
-      popoverG.selectAll('*').remove();
+    // Deselect on SVG background click (empty space, not a node drag) or Escape.
+    svg.on('click', () => setSelection(null));
+    svg.on('keydown', (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSelection(null);
     });
 
     sim.on('tick', () => {
@@ -633,9 +585,9 @@ export function TechStackGraph() {
         .attr('x1', (l) => (l.source as SimNode).x!).attr('y1', (l) => (l.source as SimNode).y!)
         .attr('x2', (l) => (l.target as SimNode).x!).attr('y2', (l) => (l.target as SimNode).y!);
 
-      // Update popover position if active
-      updatePopoverPosition();
+      positionPopoverRef.current();
     });
+    reheat(sim, ANIMATION.initialAlpha);
 
     return () => {
       svg.on('.zoom', null);
@@ -651,17 +603,57 @@ export function TechStackGraph() {
       <style>{graphStyles}</style>
       <p className="max-w-prose text-sm text-muted-foreground">
         A map of my technical range — six domains and the tools within each, with lines tracing how the
-        stack connects. Drag to rearrange, scroll to zoom, click any tool for the details.
+        stack connects. Drag to rearrange, pinch or Ctrl/⌘ + scroll to zoom, click any tool for the details.
       </p>
       <div
         ref={wrapRef}
         className="relative h-[clamp(460px,72vh,720px)] w-full overflow-hidden rounded-lg border border-border bg-muted/30"
       >
-        <svg ref={svgRef} className="block h-full w-full" role="img" aria-label="Tech stack knowledge graph" />
+        <svg ref={svgRef} className="block h-full w-full" role="group" aria-label="Tech stack knowledge graph — Tab through nodes, Enter for details, Escape to close" />
         <span className="pointer-events-none absolute bottom-2 left-3 font-mono text-[0.7rem] text-muted-foreground">
-          drag · scroll to zoom · click for details
+          drag · ctrl/⌘ + scroll or pinch to zoom · click for details
         </span>
+        {selectedId && <Popover ref={popoverRef} id={selectedId} onClose={() => closeRef.current()} />}
+        <div className="absolute right-2 top-2 flex flex-col overflow-hidden rounded-md border border-border bg-card">
+          <button type="button" aria-label="Zoom in" onClick={() => zoomByRef.current(ZOOM.buttonStep)}
+            className="p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground">
+            <Plus className="h-4 w-4" />
+          </button>
+          <button type="button" aria-label="Zoom out" onClick={() => zoomByRef.current(1 / ZOOM.buttonStep)}
+            className="border-t border-border p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground">
+            <Minus className="h-4 w-4" />
+          </button>
+        </div>
       </div>
     </div>
   );
 }
+
+const Popover = forwardRef<HTMLDivElement, { id: string; onClose: () => void }>(function Popover({ id, onClose }, ref) {
+  const { tag, title, body, connects, more } = popoverContent(id);
+  return (
+    <div
+      ref={ref}
+      role="dialog"
+      aria-label={title}
+      onKeyDown={(e) => e.key === 'Escape' && onClose()}
+      className="absolute left-0 top-0 w-56 rounded-md border border-border bg-card p-3 shadow-lg"
+    >
+      <div className="mb-1 flex items-center justify-between">
+        <span className="text-[0.6rem] font-semibold uppercase tracking-wider text-muted-foreground">{tag}</span>
+        <button type="button" aria-label="Close details" onClick={onClose} className="text-muted-foreground hover:text-foreground">
+          <X className="h-3.5 w-3.5" />
+        </button>
+      </div>
+      <div className="text-sm font-semibold text-foreground">{title}</div>
+      <div className="mt-1 text-xs text-muted-foreground">{body}</div>
+      {connects.length > 0 && (
+        <div className="mt-2 border-t border-dashed border-border pt-2 text-[0.7rem] text-muted-foreground">
+          <span className="font-semibold text-foreground">Connects to: </span>
+          {connects.join(' · ')}
+          {more > 0 && ` · +${more} more`}
+        </div>
+      )}
+    </div>
+  );
+});

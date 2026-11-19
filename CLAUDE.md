@@ -13,7 +13,7 @@ npm run dev       # Start dev server at http://localhost:5173
 npm run build     # Production build → ./dist/
 npm run preview   # Preview production build locally
 npm run lint      # Run ESLint
-npm test          # Run Vitest frontend tests (ChatbotWidget, TechStack family, content pipeline, RecentActivities, Awards, useTheme, and utils suites)
+npm test          # Run Vitest frontend tests (ChatbotWidget, FullscreenViewer, TechStack family, content pipeline, RecentActivities, Awards, useTheme, and utils suites)
 npm run test:edge # Run Deno edge function tests (requires Deno installed)
 ```
 
@@ -41,22 +41,33 @@ TypeScript interfaces for content shapes live in `src/components/types.ts` and `
 
 ### TechStack Graph
 
-The force-directed graph uses D3.js with a persistent simulation architecture. Configuration is centralized in `techstack-graph-config.ts`. The simulation persists across resizes via imperative updates (no teardown/rebuild). Popover uses foreignObject to stay in SVG coordinate space (no polling). Visual effects (spotlight, semantic zoom) use CSS transitions.
+The force-directed graph uses D3.js with a persistent simulation architecture. Configuration is centralized in `techstack-graph-config.ts`. The simulation persists across resizes via imperative updates (no teardown/rebuild). D3 owns the SVG; React owns the popover and zoom buttons.
 
 Key implementation details:
 - **Persistent simulation**: Created once in `useEffect`, updated imperatively on resize
-- **No polling**: Popover position updates on simulation tick, foreignObject embeds HTML directly in SVG
-- **Single release function**: `releaseSelectedNode()` unpins nodes and clears selection
-- **Centralized config**: All magic numbers (radii, forces, timings) live in `techstack-graph-config.ts`
-- **Progressive cooling**: Animation phases with alpha decay transitions for smooth stabilization
+- **Selection**: React state `selectedId` (mirrored in `selectedIdRef` for d3 handlers), written only by `setSelection()`. Invariant: the selected node is pinned (`fx/fy`); the center is always pinned
+- **Popover**: React `<Popover role="dialog">` absolutely positioned over the SVG. `placePopover()` (config file, unit-tested) computes placement in unzoomed viewport coords; the tick/zoom handlers reposition it via `positionPopoverRef`, no polling
+- **Drag gesture**: `idle → pressed → dragging` union; only a real drag (≥ `CLICK_THRESHOLD`) reheats the simulation, so clicks don't jitter the graph
+- **Zoom**: Ctrl/⌘+wheel, pinch, two-finger touch, or the +/− buttons. A plain wheel / one-finger swipe scrolls the page (`touch-action: pan-y`)
+- **Semantic zooming**: tools hide below `showOnlyDomains`; tool labels show at ≥ `showToolLabels`, counter-scaled via the `--ts-k` CSS var to a constant on-screen size
+- **Accessibility**: nodes are focusable buttons with `aria-label` + `<title>`; Enter/Space selects, Escape closes
+- **Reduced motion**: `reheat()` runs the simulation to rest synchronously under `prefers-reduced-motion`
 - **Spotlight dimming**: CSS-based opacity transitions on `.ts-node.dimmed` and `.ts-link.dimmed`
-- **Semantic zooming**: Text visibility thresholds based on zoom scale
 
 ### AI Chatbot
 
 `ChatbotWidget.tsx` sends messages to a Supabase Edge Function (`supabase/functions/gemini-chat/`) which proxies to Gemini. No API key is stored client-side. Chat history persists in `localStorage`. The edge function uses Deno KV for IP-based rate limiting (5 req / 15 min; in-memory Map fallback used by tests only) and the Gemini File Search Store API for CV-based RAG.
 
 Edge function is split into `handler.ts` (exported `createHandler(config)` factory, fully testable) and `index.ts` (thin Deno.serve wrapper). Tests live in `handler_test.ts` and run with `deno task test`.
+
+### UI State
+
+Multi-step UI state is modelled as a single discriminated union, never as parallel booleans/nullables. Each one has a diagram comment at its definition:
+- `ChatStatus` in `ChatbotWidget.tsx` — `idle → sending → streaming → idle | error`
+- `ViewerState` in `FullscreenViewer.tsx` — `null` (closed) or `{ images, index }`
+- `AsyncState<T>` / `useAsync` in `src/hooks/useAsync.ts` — `loading → success(data) | error` for content loaders
+- `TABS` in `App.tsx` — tab states (with their `Panel`) and transitions, typed as `TabValue`
+- `Gesture` and the selection machine in `TechStackGraph.tsx` — see the TechStack Graph section
 
 ### Styling
 
